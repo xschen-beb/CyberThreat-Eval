@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "llm4misconf"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openai = "^1.33.0"
+tenacity = "^8.3.0"
+bs4 = "^0.0.2"
+playwright = "^1.44.0"
+playwright-stealth = "^1.0.6"
+
+
+
+[tool.pdm.build]
+includes = []
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+authors = [
+    {name = "Your Name", email = "you@example.com"},
+]
+requires-python = "<4.0,>=3.10"
+dependencies = [
+    "openai<2.0.0,>=1.33.0",
+    "tenacity<9.0.0,>=8.3.0",
+    "bs4<1.0.0,>=0.0.2",
+    "playwright>=1.45.1",
+    "playwright-stealth<2.0.0,>=1.0.6",
+    "rich>=13.7.1",
+]
+name = "llm4misconf"
+version = "0.1.0"
+description = ""
+readme = "README.md"

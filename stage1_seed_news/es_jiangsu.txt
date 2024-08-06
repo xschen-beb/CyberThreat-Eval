@@ -1,0 +1,55 @@
+Over 90 Million Records Leaked by Chinese Public Security Department
+
+A publicly accessible and unsecured ElasticSearch server owned by the Jiangsu Provincial Public Security Department of the Chinese province Jiangsu leaked two databases containing over 90 million people and business records.
+
+Jiangsu (江苏省) is an eastern-central coastal Chinese province with a population of over 80 million and an urban population of more than 55 million accounting for 68.76% of its total population according to a 2018 population census from the National Bureau of Statistics, which makes it the fifth most populous province in China.
+
+Provincial public security departments are "functional organization under the dual leadership of Provincial Government and the Ministry of Public Security in charge of the whole province's public security work."
+
+Exposed databases
+Exposed databases
+The two now secured databases contained than 26 GB of data in the form of personally identifiable information (PII) names, birth dates, genders, identity card numbers, location coordinates, as well as info on city_relations, city_open_id, and province_open_id for individuals.
+
+In the case of businesses, the records included business IDs, business types, location coordinates, city_open_id, and memos designed to track if the owner of the business is known.
+
+Besides the two exposed ElasticSearch databases, the Jiangsu Provincial Public Security Department also had a Public Security Network admin console that required a valid user/password combo for access, as well as a publicly-accessible Kibana installation running on the server which would help browse and analyze the stored data using a GUI-based interface.
+
+However, unlike other cases of exposed Kibana installations, this one was not fully configured seeing that, once loaded in a web browser, it would go straight to the "Create index pattern page."
+
+Leaked database record sample
+Sample leaked database record
+
+AD
+
+Sanyam Jain, a GDI Foundation member and an independent security researcher, found the misconfigured ElasticSearch cluster that allowed anyone to access it with full admin rights and contacted BleepingComputer to have the database secured.
+
+The researcher told BleepingComputer that the database contained the following data:
+
+• 58,364,777 citizen records
+• 33,708,010 business records
+
+While Jain and BleepingComputer did not receive any response after contacting the Jiangsu Provincial Public Security Department, CNCERT/CC was as quick to respond and as helpful as ever, immediately reaching out to the database owner and taking it down over the weekend.
+
+Kibana Jiangsu Public Security Network
+Exposed and not fully configured Kibana installation
+Timeline:
+July 1 - Sanyam Jain discovers the exposed ElasticSearch cluster.
+July 2 - Researcher contacts the Jiangsu Provincial Public Security Department and CNCERT/CC.
+July 4 - BleepingComputer also reaches out to CNCERT/CC.
+July 5 - CNCERT/CC responds saying that the owner has been contacted.
+July 8 - Database no longer reachable.
+
+ElasticSearch clusters left out in the open
+Jain previously found a publicly accessible and leaky ElasticSearch cluster owned by Chinese headhunting company FMC Consulting that exposed the resumes of millions of customers, company records, as well as employee and customer PII data.
+
+He also unearthed how more than 12,000 unsecured MongoDB databases were wiped over a three week time period, with the only a message being left behind by the attackers who asked the databases' owners to get in touch to have their data restored.
+
+Also, since the start of 2019, publicly available ElasticSearch clusters have leaked approximately 33 million profiles of Chinese job seekers, over 108 million bets from various online casinos exposing their bettors' PII data, and hundreds of thousands of sensitive legal documents "not designated for publication."
+
+Another 114 million records of US companies and citizens and over 32 million records of SKY Brasil customers were exposed by misconfigured ElasticSearch databases during November 2018.
+
+
+AD
+In an effort to minimize the number of leaky instances, ElasticSearch's development team explained back in December 2013 that Elastisearch clusters should ​​​​never be accessible via the Internet seeing that only local users should have permission to use them.
+
+Elastic also advised admins who want to secure their Elastisearch instances to secure the ElasticSearch stack by "encrypting communications, role-based access control, IP filtering, and auditing," to set passwords for the server's built-in users, and to properly configure the instance before deploying it in production.

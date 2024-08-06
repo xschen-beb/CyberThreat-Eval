@@ -1,0 +1,123 @@
+Link: https://medium.com/@InfoSecIta/kibana-the-new-toy-for-pentesters-bughunters-hackers-e72048bd98b0
+
+InfoSecIta  
+Written by InfoSecIta  
+7 Followers  
+Vulnerability research | #privacy oriented grey hacking | #dataloss awareness advocating | #freedom  
+  
+Follow  
+  
+Recommended from Medium  
+Recall: Stealing everything you’ve ever typed or viewed on your own Windows PC is now possible.  
+Kevin Beaumont  
+Kevin Beaumont  
+  
+in  
+  
+DoublePulsar  
+  
+Recall: Stealing everything you’ve ever typed or viewed on your own Windows PC is now possible.  
+Photographic memory comes to Windows, and is the biggest security setback in a decade.  
+9 min read  
+·  
+May 31, 2024  
+2.6K  
+  
+35  
+  
+The only recon methodology you need.  
+an0nbil  
+an0nbil  
+  
+The only recon methodology you need.  
+the best way to recon using just one tool.  
+6 min read  
+·  
+5 days ago  
+123  
+  
+Lists  
+  
+  
+  
+Natural Language Processing  
+1499 stories  
+·  
+1026 saves  
+The resume that got a software engineer a $300,000 job at Google.  
+Alexander Nguyen  
+Alexander Nguyen  
+  
+in  
+  
+Level Up Coding  
+  
+The resume that got a software engineer a $300,000 job at Google.  
+1-page. Well-formatted.  
+  
+·  
+4 min read  
+·  
+May 31, 2024  
+2.4K  
+  
+31  
+  
+Building a Home SOC Lab (Part 1)- ELK Stack SIEM solution  
+Khalid Chbail  
+Khalid Chbail  
+  
+Building a Home SOC Lab (Part 1)- ELK Stack SIEM solution  
+7 min read  
+·  
+May 6, 2024  
+147  
+  
+2  
+  
+Microsoft Azure Cloud Detection Lab  
+Cyber Balla  
+Cyber Balla  
+  
+Microsoft Azure Cloud Detection Lab  
+In this project, we explore the Azure Cloud Detection Lab by CyberWox. It covers:  
+4 min read  
+·  
+Feb 6, 2024  
+Bypass Firewall by Finding Origin IP  
+Ott3rly  
+Ott3rly  
+  
+in  
+  
+InfoSec Write-ups  
+  
+Bypass Firewall by Finding Origin IP  
+Bypass WAF by finding origin IP address as a method. We will explore multiple ways how you can do it.  
+5 min read  
+·  
+May 6, 2024  
+598  
+  
+5  
+  
+See more recommendations  
+Help  
+  
+Status  
+  
+About  
+  
+Careers  
+  
+Press  
+  
+Blog  
+  
+Privacy  
+  
+Terms  
+  
+Text to speech  
+  
+Teams  

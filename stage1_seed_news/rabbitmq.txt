@@ -1,0 +1,79 @@
+Link: https://hackerone.com/reports/753602
+
+Saging Rabbitmq instance is exposed to the internet with default credentials
+Share:
+TIMELINE
+albatraoz submitted a report to Unikrn.
+December 7, 2019, 11:46am UTC
+Description:
+RabbitMQ is an open-source message-broker software (sometimes called message-oriented middleware) that originally implemented the Advanced Message Queuing Protocol (AMQP) and has since been extended with a plug-in architecture to support Streaming Text Oriented Messaging Protocol (STOMP), Message Queuing Telemetry Transport (MQTT), and other protocols.
+The instance of the rabbitmq of unikrn is exposed to the internet with the default credentials guest:guest which has an administrative access.
+Steps To Reproduce:
+Visit ███████
+Enter user as guest & password as guest.
+Boom!! You are inside the management console of the rabbitmq of unikrn.
+P.S I checked that the ssl certificates belong to domain *.dev.unikrn.space which proves that the instance belongs to unikrn and maybe used for production or development.
+Mitigation
+Don't expose the rabbitmq console on the internet & remove the default credentials.
+Supporting Material/References:
+Here is a screenshot of the list of queue
+███
+Impact
+The impact is critical as the attacker can get hell lot of details by dumping the queues as the queues are having confidential details like sso details & api details for different assets. Also the default credential has the administrative access which can help the attacker to add a new queue, modify or delete an existing queue etc.
+decrypted
+ 
+posted a comment. 
+December 7, 2019, 2:19pm UTC
+Good one. Close ;) yet this is our stage rmq - no customer data or production system is exposed in there. Still i agree its not perfect its that open.
+Suggestions for your reward ?
+decrypted
+ 
+changed the status to Needs more info. 
+December 7, 2019, 2:19pm UTC
+decrypted
+ 
+updated the severity from Critical to Low (3.7). 
+December 7, 2019, 2:21pm UTC
+albatraoz
+ 
+changed the status to New. 
+December 7, 2019, 2:26pm UTC
+Well it's great to hear that it wasn't a big risk :)
+And suggestion for the bounty amount?? I guess you have to decide that.
+decrypted
+ 
+closed the report and changed the status to Resolved. 
+December 7, 2019, 2:27pm UTC
+I kinda judge that this was not super trivial to find. Maybe via an cert name scanner or something.
+Unikrn
+ 
+rewarded albatraoz with a $100 bounty. 
+December 7, 2019, 2:27pm UTC
+albatraoz
+ 
+posted a comment. 
+December 7, 2019, 2:32pm UTC
+Well it was a little trivial. Just a shodan search with ssl:"unikrn" was enough. ;)
+Shodan membership black friday offer of $1 helped alot.
+Thanks for the bounty. Cheers!
+albatraoz
+ 
+requested to disclose this report. 
+December 7, 2019, 2:36pm UTC
+Can we disclose this to help the community???
+albatraoz
+ 
+posted a comment. 
+December 8, 2019, 2:07am UTC
+@decrypted
+decrypted
+ 
+changed the report title from Rabbitmq instance is exposed to the internet with default credentials to Staging Rabbitmq instance is exposed to the internet with default credentials. 
+December 9, 2019, 6:40am UTC
+decrypted
+ 
+agreed to disclose this report. 
+December 9, 2019, 6:46am UTC
+ 
+This report has been disclosed. 
+December 9, 2019, 6:46am UTC

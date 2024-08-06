@@ -1,0 +1,24 @@
+https://securityintelligence.com/news/mongodb-databases-may-be-exposed-by-security-misconfigurations/
+
+MongoDB Databases May Be Exposed by Security Misconfigurations
+
+John Matherly, the creator of the Shodan search engine for Internet-connected devices, recently took to his Shodan blog to discuss a new perspective on open-source MongoDB databases. His blog was in response to recent publicity about vulnerabilities, especially those that could be linked to leaked data about MacKeeper users.
+
+Researchers Find Vulnerabilities
+Matherly found 35,000 publicly accessible and potentially insecure instances of MongoDB. A significant portion of the databases are hosted on Amazon, Digital Ocean and Aliyun, Alibaba’s cloud computing service. All the exposed databases combined account for 684.8 TB of data, according to the researcher.
+
+Matherly noted that the newer versions of MongoDB (newer than 3.0) only listen for data requests on localhost by default. However, users may be upgrading to this version without changing an insecure pre-existing configuration file or providing a firewall to protect the database. Some may even be changing settings themselves to revert to a less secure but more convenient option.
+
+It should be remembered that just because it is a publicly accessible database does not automatically make it insecure. Much of the responsibility falls to the administrators, but these databases can be set up securely and still be publicly available.
+
+Not Just a MongoDB Problem
+This very real problem is caused by people putting naked servers straight onto the Internet with no security measures in place. For example, there doesn’t seem to be any good reason for a server to expose port 27017, which is the port number used to access MongoDB by default, yet some users still do it
+
+The same sort of problem can happen to programs like Redis, CouchDB, Cassandra and Riak, which are equally impacted by these sorts of misconfigurations. In fact, experts have found database vulnerabilities in these platforms relatively recently, prompting more attention and scrutiny on the subject.
+
+How to Mitigate the Issue
+Users can test an installation to see if open ports are present by using the database client. If any.blog.com has a MongoDB in it, type in “$mongo any.blog.com:27017”. If the database gives output, the port is wide open.
+
+MongoDB provides security mechanisms, but if they are not used, there is nothing that can help. Security must be actively enabled to work. Many hosting agents have additional measures, as well; Amazon EC2 is secure by default, for instance. If there are issues, that means the database is being manually configured to allow access.
+
+Digital Ocean, however, is wide open by default. The company has issued a series of steps to lock down databases. Just don’t forget to leave ports 80, 443 and 22 open for HTTP, HTTPS and SSH services when configuring security.

@@ -1,0 +1,21 @@
+Alaska Voter Database Exposed Online
+
+IT security researchers at Kromtech Security Center discovered an unprotected database exposed online due to misconfiguration of CouchDB containing nearly 600,000 records belonging to Alaskan voters.
+
+“The exposed data is a larger voter file called Voterbase compiled by TargetSmart, a leader in national voting databases that contains the contact and voting information of more than 191 million voters and 58 million unregistered, voting age consumers,” said researchers.
+
+The database with 593,328 records was available to the public for anyone to download without any security or login credentials. Each record contained names, date of birth, addresses, voting preferences, marital status, income details, children’s age, gun ownership related data and points which might help decide what issue the voter might be appealed to.
+
+TargetSmart CEO Tom Bonier blamed a third-party firm for the incident and told ZDNet that “We’ve learned that Equals3, an AI software company based in Minnesota, appears to have failed to secure some of their data and some data they license from TargetSmart and that a database of approximately 593,000 Alaska voters appears to have been inadvertently exposed.”
+
+He also claimed that the exposed database was not accessed by anyone else other than the researchers who discovered it and TargetSmart’s team. “None of the exposed TargetSmart data included any personally identifiable, non-public financial data,” Bonier said.
+
+In an email conversation, Rich Campagna, CEO at Bitglass told HackRead “It doesn’t take much for outsiders – malicious or not – to find unsecured data stores such as the one that housed the voter records on over a half-million Americans. Where data is publicly accessible because of accidental upload or misconfiguration of a database like CouchDB, outsiders don’t need a password or the ability to crack complex encryption to get at sensitive information.
+
+This misconfiguration could have been avoided with basic security best practices such as limiting access from outside the corporate network, encrypting highly sensitive data, and training employees on security risks. Ultimately, it should be a no-brainer to implement data-centric security tools on any sensitive information that could get out to the public.”
+
+Alex Kernishniuk, VP of strategic alliances, Kromtech said that “There seems to be no end in sight for improperly secured data making its way onto the web, and with little or no accountability for proper storage and security measures it is up to regulators to decide the best way to manage an aging electoral system that seems to be struggling to keep up with the digital age. This is yet another wakeup call for companies, governments, and political organizations to audit their networks, servers and storage devices and ensure they take the proper security precautions.”
+
+At the time of publishing this article; researchers successfully secured the database by removing it from the public access. But this is not the first time when the database of American voters has been leaked online. In 2015, researchers discovered 191 million US voter registration records were exposed online which were then sold on the Dark Web.
+
+Furthermore, it is time for companies to learn from massive Equifax data breach in which personal details including social security numbers of 143 million Americans were stolen – This is over 40% of the entire population of the United States. However, the company blamed a security flaw in Apache Struts Framework for the breach.

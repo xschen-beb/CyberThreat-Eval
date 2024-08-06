@@ -1,0 +1,340 @@
+"""Module providingFunction use google to search the extracted keywords."""
+import random
+import time
+import sys
+import re
+
+from urllib.parse import quote
+from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
+
+# import memcache
+# import yaml
+# import json
+# Reading YAML file
+# with open("autotag_config.yaml", "r") as f:
+#     config = yaml.load(f, Loader=yaml.FullLoader)
+#     globals().update(config)
+
+# enable cache for google search
+# store_db_name = config["query_store_db_name"]
+# mc = memcache.Client(["127.0.0.1:11211"], debug=0)
+# file_db = open(store_db_name, "a", encoding='utf-8')
+# stored_num = 0
+# print("Load queries and results into memcache...")
+# with open(store_db_name, encoding='utf-8') as f:
+#     for line in f:
+#         info = json.loads(line)
+#         if info and mc.set(info["query"].replace(" ", "+"), info["results"]):
+#             stored_num +=1
+# print(f"Loaded {stored_num} items into memcache.")
+
+
+def url_open_v1(
+    target_url,
+    proxy_list=None,
+    show_log=False,
+):
+    sleeptime = random.randint(15, 18)
+    time.sleep(sleeptime)
+    if proxy_list is None:
+        proxy_list = [
+            "socks5://20.188.24.63:7888",  # u, iot1
+            # "socks5://20.210.233.19:7888", # up, block by stackoverflow
+            "socks5://20.210.232.178:7888",  # up, iot3
+            "socks5://20.40.99.118:7888",  # up, node4
+            "socks5://20.210.194.108:7888",  # up, node5
+        ]
+
+    with sync_playwright() as playwright:
+        try:
+            last_time = time.time()
+
+            chromium_browser_type = playwright.chromium
+            cur_proxy = random.choice(proxy_list)
+            print(cur_proxy)
+
+            if show_log:
+                print("\n" + "-" * 40 + "\ncur_page:", target_url)
+                print("cur_proxy: ", cur_proxy)
+            browser = chromium_browser_type.launch(
+                headless=True,
+                args=[
+                    # "--proxy-server=" + cur_proxy,
+                    "--headless",
+                    "--disable-setuid-sandbox",
+                    "--single-process",
+                    "--window-size=1920,1080",
+                    "--no-sandbox",
+                    "--no-zygote",
+                    "--no-first-run",
+                    "--window-position=0,0",
+                    "--ignore-certificate-errors",
+                    "--ignore-certificate-errors-skip-list",
+                    "--disable-gpu",
+                    "--hide-scrollbars",
+                    "--mute-audio",
+                    "--enable-features=NetworkService,NetworkServiceInProcess",
+                ],
+            )
+            cur_time = time.time()
+            if show_log:
+                print(
+                    f"browser.launch(): \t\t\t{round(cur_time - last_time, 2)}"
+                )
+            last_time = cur_time
+            context = browser.new_context()
+            page = context.new_page()
+            stealth_sync(page)  # ------STEALTH------
+            page.goto(target_url, timeout=20000)
+            # page.goto(target_url)
+            cur_time = time.time()
+            if show_log:
+                print(f"page.goto(): \t\t\t\t{round(cur_time - last_time, 2)}")
+            last_time = cur_time
+            page.wait_for_load_state(
+                # state='networkidle',
+                state="domcontentloaded",
+                # state='load',
+                timeout=5000,
+            )
+            cur_time = time.time()
+            if show_log:
+                print(f"wait_for_load_time(): {round(cur_time - last_time, 2)}")
+            html_page = page.content()
+            # page.wait_for_timeout(1000 * solid_timespan)
+            page.close()
+            context.close()
+            browser.close()
+            if show_log:
+                print("File len: ", len(html_page))
+                if len(html_page) > 200000:
+                    print("\tSeems all right.")
+                else:
+                    print("\t[WARNING!] Maybe detected!")
+            return html_page
+        except Exception as ex:
+            print(ex)
+            return ""
+
+
+def search(query_str):
+    try:
+        query_str = quote(query_str)
+    except Exception:
+        query_str = quote(query_str.encode("utf-8", "ignore") + " language:en")
+    # remove &lr=lang_en because GPT can handle, more paras: num=20
+    url = "https://www.google.com/search?q=%s&hl=en" % query_str
+    # In case you want to use Bing as the search engine:
+    # url = "https://www.bing.com/search?q=%s&setmkt=en-us&setlang=en-us"
+    # more paras:cc=us&setlang=en for Bing
+    print("Search Url: ", url)
+    res_html = url_open_v1(url)
+    return res_html
+
+
+def random_sleep():
+    sleeptime = random.randint(20, 23)
+    time.sleep(sleeptime)
+
+
+def extract_search_results(html):
+    soup = BeautifulSoup(html, "html.parser")
+    results = []
+    card_section = soup.find("div", {"class": "card-section"})
+    if card_section:
+        card_text = card_section.getText()
+        print(card_text)
+        if (
+            "did not match any documents" in card_text
+            or "No results found" in card_text
+        ):
+            return [""]
+
+    div = soup.find("div", id="search")
+
+    if type(div) != type(None):
+        lis = div.findAll("div", {"class": "MjjYud"})
+        if len(lis) > 0:
+            for li in lis:
+                out = {}
+                out["type"] = "webpage"
+                h3 = li.find("h3", {"class": "LC20lb MBeuO DKV0Md"})
+                if h3 is None:
+                    continue
+                out["title"] = h3.getText()
+                if type(h3) == type(None):
+                    continue
+
+                # if you want to get the url
+                link = li.find(
+                    # "div", {"class": "TbwUpd NJjxre iUh30 ojE3Fb"}
+                    # get url class
+                    "div",
+                    {"class": "yuRUbf"},
+                )
+                try:
+                    link = link.find("a")
+                except:
+                    print("fail")
+                    continue
+                if type(link) == type(None):
+                    continue
+                # print(link)
+                out["url"] = link["href"]
+                span = li.find(
+                    "div",
+                    {"class": "VwiC3b yXK7lf lVm3ye r025kc hJNv6b Hdw6tb"},
+                )
+
+                if type(span) != type(None):
+                    content = span.getText()
+                    out["text"] = content
+                    # print content
+                else:
+                    span = li.find(
+                        "div",
+                        {"class": "VwiC3b yXK7lf lyLwlc yDYNvb W8l4ac lEBKkf"},
+                    )
+                    if type(span) != type(None):
+                        content = span.getText()
+                        out["text"] = content
+
+                results.append(out)
+                print(out)
+
+        lis = div.findAll("div", {"class": "XN9cAe"})
+        if len(lis) > 0:
+            for li in lis:
+                out = {}
+                out["type"] = "webpage"
+                h3 = li.find("h3", {"class": "LC20lb MBeuO DKV0Md"})
+                if h3 is None:
+                    continue
+                out["title"] = h3.getText()
+                if type(h3) == type(None):
+                    continue
+
+                # In case, you want get the url
+                link = li.find("a")
+                if type(link) == type(None):
+                    continue
+                print(link)
+                # raise ValueError
+                out["url"] = link["href"]
+
+                span = li.find(
+                    "div", {"class": "VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc"}
+                )
+                if type(span) != type(None):
+                    content = span.getText()
+                    out["text"] = content
+                else:
+                    span = li.find(
+                        "div",
+                        {"class": "VwiC3b yXK7lf lyLwlc yDYNvb W8l4ac lEBKkf"},
+                    )
+                    if type(span) != type(None):
+                        content = span.getText()
+                        out["text"] = content
+                results.append(out)
+                print("Google Search Results: ")
+                print(out)
+    return results
+
+
+def google_web_search(t_keywords):
+    # print(t_keywords, len(t_keywords))
+    if len(t_keywords) > 100:
+        return [""]
+    # try:
+    # value = mc.get(t_keywords.replace(" ", "+"))
+    # except memcache.Client.MemcachedKeyCharacterError:
+    #     return [""]
+    # print(t_keywords, value)
+    # if value:
+    #     return value
+    html = search(t_keywords)
+    res = extract_search_results(html)
+    if len(html) > 200000:
+        if not res:
+            res = [""]
+        out = {}
+        out["query"] = t_keywords
+        out["results"] = res
+        # mc.set(t_keywords.replace(" ", "+"), res)
+        # file_db.write(json.dumps(out) + "\n")
+    else:
+        sys.stderr.write("..... search again ...")
+        random_sleep()
+        html = search(t_keywords)
+        res = extract_search_results(html)
+        if len(html) > 200000:
+            if not res:
+                res = [""]
+            out = {}
+            out["query"] = t_keywords
+            out["results"] = res
+            # mc.set(t_keywords.replace(" ", "+"), res)
+            # file_db.write(json.dumps(out) + "\n")
+        return res
+    return res
+
+
+def remove_html_tags(html_text):
+    soup = BeautifulSoup(html_text, "html.parser")
+    text = soup.get_text()
+    return text
+    lines = text.splitlines()
+    cleaned_lines = [line.strip() for line in lines if line.strip()]
+    return "\n".join(cleaned_lines)
+
+
+def click(num, all_res):
+    url_link = all_res[num]["url"]
+    print("Click Link: ", url_link)
+    res_html = url_open_v1(url_link)
+    res = remove_html_tags(res_html)
+    print("Raw Page: ", res)
+    out = all_res[num]
+    out["text"] = res
+    return out
+
+def click_into_page(url):
+    res_html = url_open_v1(url)
+    # print(res_html)
+    res = remove_html_tags(res_html)
+    res = re.sub(r'\s+', ' ', res)  
+    return res
+
+
+if __name__ == "__main__":
+    # for j in range(2):
+    #     print(j)
+    #     for i in [
+    #         '"C3371" XEROX',
+    #         '"E77660" HP',
+    #         "F668",
+    #         "F660",
+    #         "RT-N66U",
+    #         "ZXR10",
+    #         "FRITZ!BoxFonWLAN7360SLUI",  # not match
+    #         '"M501-ECR"',  # only matched picture
+    #         "WYCHYNH01AGGJ01",
+    #     ]:
+    #         print(i)
+    #         res = google_web_search(i)
+    #         print(res, len(res))
+    # res = google_web_search("get nccl version")
+    # print(res, len(res))
+    # print(res[0])
+    # print(res[0]["url"])
+    # res_html = url_open_v1(res[0]["url"])
+    # res = remove_html_tags(res_html)
+    # print(res)
+
+    res = url_open_v1("https://news.yahoo.com/")
+    # # res = click(0, res)
+    # print(res)
+    # print(remove_html_tags(res))
