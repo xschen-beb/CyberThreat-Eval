@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/byos-bundle-your-own-stealer/](https://research.checkpoint.com/2023/byos-bundle-your-own-stealer/)
+
 # BYOS - Bundle Your Own Stealer
 
 Incident: BYOS - Bundle Your Own Stealer

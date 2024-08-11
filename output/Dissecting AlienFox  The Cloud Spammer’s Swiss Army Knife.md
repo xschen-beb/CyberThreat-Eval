@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/dissecting-alienfox-the-cloud-spammers-swiss-army-knife/](https://www.sentinelone.com/labs/dissecting-alienfox-the-cloud-spammers-swiss-army-knife/)
+
 # Dissecting AlienFox  The Cloud Spammer’s Swiss Army Knife
 
 Incident: AlienFox Toolkit Exploitation

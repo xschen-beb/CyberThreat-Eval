@@ -1,3 +1,5 @@
+Source: [https://blog.morphisec.com/guloader-campaign-targets-law-firms-in-the-us](https://blog.morphisec.com/guloader-campaign-targets-law-firms-in-the-us)
+
 # GuLoader Campaign Targets Law Firms in the US
 
 Incident: GuLoader Campaign Targets Law Firms in the US
@@ -18,7 +20,7 @@ Service: GitHub Pages
 Port: 443  
 Severity: Critical  
 Incident: GuLoader Campaign  
-Signature name: ìMalicious GitHub Pages Hostingî  
+Signature name: ‚ÄúMalicious GitHub Pages Hosting‚Äù  
 Internal checks (see next)  
    - Setting1: Monitor for unusual outbound connections to GitHub Pages domains.  
    - Setting2: Alert on execution of scripts downloaded from GitHub Pages.  

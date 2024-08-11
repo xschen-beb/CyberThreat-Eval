@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/61000/](https://asec.ahnlab.com/en/61000/)
+
 # Trigona Ransomware Threat Actor Uses Mimic Ransomware
 
 Incident: Trigona Ransomware Threat Actor Uses Mimic Ransomware
@@ -21,11 +23,11 @@ Service: MS-SQL Server
 Port: 1433  
 Severity: Critical  
 Incident: Trigona/Mimic Ransomware  
-Signature name: ìMS-SQL exposed with weak credentialsî  
+Signature name: ‚ÄúMS-SQL exposed with weak credentials‚Äù  
 Internal checks:  
-- Setting1: Ensure MS-SQL port (1433) is not exposed to the external Internet unless necessary ñ In platform  
-- Setting2: MS-SQL port (1433) should not listen on the external Internet ñ Inside VMs  
-- Setting3: MS-SQL server should use strong, complex passwords ñ Inside VMs  
+- Setting1: Ensure MS-SQL port (1433) is not exposed to the external Internet unless necessary ‚Äì In platform  
+- Setting2: MS-SQL port (1433) should not listen on the external Internet ‚Äì Inside VMs  
+- Setting3: MS-SQL server should use strong, complex passwords ‚Äì Inside VMs  
 External scanning:  
 - Port (1433) open
 - Detect weak or default credentials

@@ -1,3 +1,5 @@
+Source: [https://blog.sucuri.net/2023/01/massive-campaign-uses-hacked-wordpress-sites-as-platform-for-black-hat-ad-network.html](https://blog.sucuri.net/2023/01/massive-campaign-uses-hacked-wordpress-sites-as-platform-for-black-hat-ad-network.html)
+
 # Massive Campaign Uses Hacked WordPress Sites as Platform for Black Hat Ad Network
 
 Incident: WordPress Site Redirection Campaign
@@ -29,7 +31,7 @@ Detection Signature:
    - Port: 80/443 (HTTP/HTTPS)
    - Severity: Critical
    - Incident: Unauthorized WordPress site redirections
-   - Signature name: ìWordPress site redirection malwareî
+   - Signature name: ‚ÄúWordPress site redirection malware‚Äù
    - Internal checks:
       - Setting1: Index.php and common JavaScript files should not contain unexpected script tags or obfuscated code.
       - Setting2: Ensure no unauthorized modifications exist in core WordPress files.

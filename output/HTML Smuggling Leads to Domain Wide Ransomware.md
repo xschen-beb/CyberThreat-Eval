@@ -1,3 +1,5 @@
+Source: [https://thedfirreport.com/2023/08/28/html-smuggling-leads-to-domain-wide-ransomware/](https://thedfirreport.com/2023/08/28/html-smuggling-leads-to-domain-wide-ransomware/)
+
 # HTML Smuggling Leads to Domain Wide Ransomware
 
 Incident: HTML Smuggling Leads to Domain Wide Ransomware

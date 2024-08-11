@@ -1,3 +1,5 @@
+Source: [https://securelist.com/backdoored-free-download-manager-linux-malware/110465/](https://securelist.com/backdoored-free-download-manager-linux-malware/110465/)
+
 # Trojanized Free Download Manager Found to Contain a Linux Backdoor
 
 Incident: Trojanized Free Download Manager found to contain a Linux backdoor
@@ -34,7 +36,7 @@ Detection Signature:
 - Port: 80/443
 - Severity: Critical
 - Incident: Trojanized Free Download Manager
-- Signature name: ìInfected FDM package downloadî
+- Signature name: ‚ÄúInfected FDM package download‚Äù
 - Internal checks: 
     - Setting1: Ensure all downloaded packages are verified against known good checksums.
     - Setting2: Monitor cron jobs for unexpected entries.

@@ -1,3 +1,5 @@
+Source: [https://yoroi.company/research/money-ransomware-the-latest-double-extortion-group/](https://yoroi.company/research/money-ransomware-the-latest-double-extortion-group/)
+
 # Money Ransomware The Latest Double Extortion Group
 
 ### Incident: Money Ransomware Attack
@@ -45,7 +47,7 @@
 - **Port:** Not specified (typically uses port 445 for SMB connections)
 - **Severity:** Critical
 - **Incident:** Money Ransomware Attack
-- **Signature name:** ìUnauthorized Network Access - WNetAddConnection2Wî
+- **Signature name:** ‚ÄúUnauthorized Network Access - WNetAddConnection2W‚Äù
 - **Internal checks:**
     - **Setting1:** Monitor and restrict the use of WNetAddConnection2W API calls.
     - **Setting2:** Review access logs for unusual login attempts and network connections.

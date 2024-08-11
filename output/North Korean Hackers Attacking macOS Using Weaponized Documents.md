@@ -1,3 +1,5 @@
+Source: [https://gbhackers.com/korean-macos-weaponized-documents/](https://gbhackers.com/korean-macos-weaponized-documents/)
+
 # North Korean Hackers Attacking macOS Using Weaponized Documents
 
 ### Incident: North Korean Hackers Attacking macOS Using Weaponized Documents

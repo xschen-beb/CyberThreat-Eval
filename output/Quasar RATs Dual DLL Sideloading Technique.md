@@ -1,3 +1,5 @@
+Source: [https://www.uptycs.com/blog/quasar-rat](https://www.uptycs.com/blog/quasar-rat)
+
 # Quasar RATs Dual DLL Sideloading Technique
 
 **Incident: QuasarRAT's Dual DLL Sideloading Technique**

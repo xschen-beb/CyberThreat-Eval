@@ -1,3 +1,5 @@
+Source: [https://securelist.com/nokoyawa-ransomware-attacks-with-windows-zero-day/109483/](https://securelist.com/nokoyawa-ransomware-attacks-with-windows-zero-day/109483/)
+
 # Nokoyawa Ransomware Attacks with Windows Zero-Day
 
 Incident: Nokoyawa Ransomware Attacks with Windows Zero-Day

@@ -1,3 +1,5 @@
+Source: [https://news.sophos.com/en-us/2023/07/26/into-the-tank-with-nitrogen/](https://news.sophos.com/en-us/2023/07/26/into-the-tank-with-nitrogen/)
+
 # Into the Tank with Nitrogen
 
 Incident: Nitrogen Initial Access Malware Campaign
@@ -9,7 +11,7 @@ Impact: Several organizations in the technology and non-profit sectors in North 
 Mitigation: 
 1. **Secure Browsing Practices:**
    - Use ad-blocking extensions or run browsers with built-in ad-blocking capabilities.
-   - Opt for ad-blockers that block ìnon-intrusive advertising.î
+   - Opt for ad-blockers that block ‚Äúnon-intrusive advertising.‚Äù
 
 2. **Restrict Mounting Virtual File Systems:**
    - Consider restricting the capability to mount virtual file systems via Group Policy Objects (GPO).
@@ -34,7 +36,7 @@ Detailed Steps for Mitigation:
 2. **Group Policy Configuration:**
    - Open Group Policy Management Console (GPMC).
    - Navigate to User Configuration > Administrative Templates > System > Removable Storage Access.
-   - Enable the policy ìDeny write access to removable storage devices.î
+   - Enable the policy ‚ÄúDeny write access to removable storage devices.‚Äù
 
 3. **User Training Programs:**
    - Develop and execute phishing awareness training.
@@ -54,11 +56,11 @@ Detection Signature:
    Port: Various (depends on C2 communication protocols - TCP, TCP over SSL, HTTP, HTTPS)
    Severity: Critical
    Incident: Nitrogen Initial Access Campaign
-   Signature name: ìNitrogen package installation and C2 communicationî
+   Signature name: ‚ÄúNitrogen package installation and C2 communication‚Äù
    Internal checks:
-      - Setting1: Monitor for suspicious Python package installations ñ Endpoint/Server
-      - Setting2: Check for unauthorized scheduled tasks and registry run keys ñ Endpoint/Server
-      - Setting3: Look for unusual network traffic patterns indicative of C2 communication ñ Network monitoring
+      - Setting1: Monitor for suspicious Python package installations ‚Äì Endpoint/Server
+      - Setting2: Check for unauthorized scheduled tasks and registry run keys ‚Äì Endpoint/Server
+      - Setting3: Look for unusual network traffic patterns indicative of C2 communication ‚Äì Network monitoring
    External scanning:
       - Detect HTTP(S) traffic to known malicious C2 domains and IPs
       - Look for unusual TCP/SSL traffic patterns

@@ -1,3 +1,5 @@
+Source: [https://www.reliaquest.com/blog/gootloader-infection-credential-access/](https://www.reliaquest.com/blog/gootloader-infection-credential-access/)
+
 # Goot to Loot—How a Gootloader Infection Led to Credential Access - ReliaQuest
 
 **Incident:** Gootloader Infection Leading to Credential Access

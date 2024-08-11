@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/51090/](https://asec.ahnlab.com/en/51090/)
+
 # 3CX DesktopApp Supply Chain Attack Also Detected in Korea
 
 Incident: 3CX DesktopApp Supply Chain Attack
@@ -30,7 +32,7 @@ Detection Signature:
 - **Port**: Not specified
 - **Severity**: Critical
 - **Incident**: 3CX DesktopApp Supply Chain Attack
-- **Signature name**: ìCompromised 3CX DesktopApp Installerî
+- **Signature name**: ‚ÄúCompromised 3CX DesktopApp Installer‚Äù
 - **Internal checks**:
   - Setting1: Verify the integrity of the 3CX DesktopApp installer file.
   - Setting2: Monitor for unexpected network connections initiated by 3CX DesktopApp.

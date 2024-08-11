@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/cloudy-with-a-chance-of-credentials-aws-targeting-cred-stealer-expands-to-azure-gcp/](https://www.sentinelone.com/labs/cloudy-with-a-chance-of-credentials-aws-targeting-cred-stealer-expands-to-azure-gcp/)
+
 # Cloudy With a Chance of Credentials  AWS-Targeting Cred Stealer Expands to Azure, GCP
 
 ### Incident: Cloudy With a Chance of Credentials Leak

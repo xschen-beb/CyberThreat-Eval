@@ -1,3 +1,5 @@
+Source: [https://www.proofpoint.com/us/blog/threat-insight/security-brief-ta4557-targets-recruiters-directly-email](https://www.proofpoint.com/us/blog/threat-insight/security-brief-ta4557-targets-recruiters-directly-email)
+
 # Security Brief TA4557 Targets Recruiters Directly via Email
 
 Incident: TA4557 Targets Recruiters Directly via Email

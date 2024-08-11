@@ -1,3 +1,5 @@
+Source: [https://securelist.com/goldenjackal-apt-group/109677/](https://securelist.com/goldenjackal-apt-group/109677/)
+
 # Goldenjackal APT Targets Middle Eastern and South Asian Governments and Diplomatic Entities
 
 Incident: GoldenJackal APT Toolset Usage
@@ -20,11 +22,11 @@ Detection Signature:
 - **Port:** 80/443 (HTTP/HTTPS)
 - **Severity:** Critical
 - **Incident:** GoldenJackal APT activity
-- **Signature name:** ìWordPress outdated versionî
+- **Signature name:** ‚ÄúWordPress outdated version‚Äù
 - **Internal checks:**
-  - Setting1: WordPress core, plugins, and themes should be up to date ñ Web server
-  - Setting2: Administrative URLs should be protected by strong authentication ñ Web server
-  - Setting3: No unauthorized changes to WordPress files ñ File Integrity Monitoring
+  - Setting1: WordPress core, plugins, and themes should be up to date ‚Äì Web server
+  - Setting2: Administrative URLs should be protected by strong authentication ‚Äì Web server
+  - Setting3: No unauthorized changes to WordPress files ‚Äì File Integrity Monitoring
 - **External scanning:**
   - Detect outdated WordPress installations
   - Identify common vulnerabilities and exposures (CVEs) related to WordPress

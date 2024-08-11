@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/blog/apple-crimeware-massive-rust-infostealer-campaign-aiming-for-macos-sonoma-ahead-of-public-release/](https://www.sentinelone.com/blog/apple-crimeware-massive-rust-infostealer-campaign-aiming-for-macos-sonoma-ahead-of-public-release/)
+
 # Apple Crimeware  Massive Rust Infostealer Campaign Aiming for macOS Sonoma Ahead of Public Release
 
 **Incident: Apple Crimeware | Massive Rust Infostealer Campaign**
@@ -52,7 +54,7 @@
 - **Port:** Not specified (focus on the application layer for this type of malware)
 - **Severity:** Critical
 - **Incident:** Realst Infostealer
-- **Signature name:** ìRealst Infostealer Detectionî
+- **Signature name:** ‚ÄúRealst Infostealer Detection‚Äù
 - **Internal checks:**
   - **Setting1:** Monitor for unauthorized access to keychain databases.
   - **Setting2:** Detect the execution of unfamiliar or suspicious scripts and binaries.

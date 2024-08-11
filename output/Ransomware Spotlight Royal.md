@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-royal](https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-royal)
+
 # Ransomware Spotlight Royal
 
 **Incident: Royal Ransomware Attacks**
@@ -47,7 +49,7 @@
    - **Port:** Various, commonly used for RDP (3389), HTTP/S (80, 443).
    - **Severity:** Critical
    - **Incident:** Unauthorized remote access and malware deployment.
-   - **Signature name:** ìRemote Desktop Exploitationî
+   - **Signature name:** ‚ÄúRemote Desktop Exploitation‚Äù
    
      **Internal checks:**
        - **Setting1:** Ensure RDP ports are not exposed to the external internet unless necessary.

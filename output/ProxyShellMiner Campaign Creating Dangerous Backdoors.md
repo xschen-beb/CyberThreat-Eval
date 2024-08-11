@@ -1,3 +1,5 @@
+Source: [https://blog.morphisec.com/proxyshellminer-campaign](https://blog.morphisec.com/proxyshellminer-campaign)
+
 # ProxyShellMiner Campaign Creating Dangerous Backdoors
 
 ### Incident: ProxyShellMiner Campaign
@@ -30,7 +32,7 @@
 - **Port:** Typically 443 (HTTPS) and 80 (HTTP)
 - **Severity:** Critical
 - **Incident:** ProxyShellMiner Campaign
-- **Signature name:** ìProxyShell Vulnerability Exploitationî
+- **Signature name:** ‚ÄúProxyShell Vulnerability Exploitation‚Äù
 - **Internal checks:**
   - **Setting1:** Ensure Microsoft Exchange Server is not exposed to the external Internet without proper security measures.
   - **Setting2:** Verify that the Exchange Server is updated with the latest security patches.

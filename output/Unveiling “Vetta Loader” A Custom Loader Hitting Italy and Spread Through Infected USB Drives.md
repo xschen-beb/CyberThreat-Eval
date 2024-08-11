@@ -1,4 +1,6 @@
-# Unveiling “Vetta Loader” A Custom Loader Hitting Italy and Spread Through Infected USB Drives
+Source: [https://yoroi.company/en/research/unveiling-vetta-loader-a-custom-loader-hitting-italy-and-spread-through-infected-usb-drives/](https://yoroi.company/en/research/unveiling-vetta-loader-a-custom-loader-hitting-italy-and-spread-through-infected-usb-drives/)
+
+# Unveiling â€œVetta Loaderâ€ A Custom Loader Hitting Italy and Spread Through Infected USB Drives
 
 Incident: Vetta Loader Malware Campaign
 
@@ -23,7 +25,7 @@ Detection Signature:
 - Port: Not applicable
 - Severity: Critical
 - Incident: Vetta Loader Infected USB Drive
-- Signature name: “Vetta Loader USB Infection”
+- Signature name: â€œVetta Loader USB Infectionâ€
 - Internal checks:
   - Setting1: Monitor for new USB devices connected to company systems.
   - Setting2: Ensure USB drives are automatically scanned by antivirus upon connection.

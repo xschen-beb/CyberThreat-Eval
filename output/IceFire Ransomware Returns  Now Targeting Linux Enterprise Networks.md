@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/icefire-ransomware-returns-now-targeting-linux-enterprise-networks/](https://www.sentinelone.com/labs/icefire-ransomware-returns-now-targeting-linux-enterprise-networks/)
+
 # IceFire Ransomware Returns  Now Targeting Linux Enterprise Networks
 
 **Incident:** IceFire Ransomware Returns Targeting Linux Enterprise Networks

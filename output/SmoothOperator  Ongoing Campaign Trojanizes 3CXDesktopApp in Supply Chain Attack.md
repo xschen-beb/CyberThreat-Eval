@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/blog/smoothoperator-ongoing-campaign-trojanizes-3cx-software-in-software-supply-chain-attack/](https://www.sentinelone.com/blog/smoothoperator-ongoing-campaign-trojanizes-3cx-software-in-software-supply-chain-attack/)
+
 # SmoothOperator  Ongoing Campaign Trojanizes 3CXDesktopApp in Supply Chain Attack
 
 **Incident:** 3CX SmoothOperator | 3CXDesktopApp Supply Chain Attack

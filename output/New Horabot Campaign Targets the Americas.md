@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/new-horabot-targets-americas/](https://blog.talosintelligence.com/new-horabot-targets-americas/)
+
 # New Horabot Campaign Targets the Americas
 
 Incident: Horabot Campaign Targeting the Americas

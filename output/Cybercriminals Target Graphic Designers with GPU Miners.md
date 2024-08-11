@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/cybercriminals-target-graphic-designers-with-gpu-miners/](https://blog.talosintelligence.com/cybercriminals-target-graphic-designers-with-gpu-miners/)
+
 # Cybercriminals Target Graphic Designers with GPU Miners
 
 Incident: Cybercriminals target graphic designers with GPU miners

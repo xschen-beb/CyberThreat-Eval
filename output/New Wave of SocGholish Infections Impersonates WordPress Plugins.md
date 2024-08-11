@@ -1,3 +1,5 @@
+Source: [https://blog.sucuri.net/2024/03/new-wave-of-socgholish-infections-impersonates-wordpress-plugins.html](https://blog.sucuri.net/2024/03/new-wave-of-socgholish-infections-impersonates-wordpress-plugins.html)
+
 # New Wave of SocGholish Infections Impersonates WordPress Plugins
 
 Incident: SocGholish Infections Impersonates WordPress Plugins
@@ -27,7 +29,7 @@ Detection Signature:
     Port: 80/443
     Severity: Critical
     Incident: SocGholish Infections
-    Signature name: ìWordPress SocGholish malware injectionî
+    Signature name: ‚ÄúWordPress SocGholish malware injection‚Äù
     Internal checks:
         - Setting1: Check for unauthorized wp-admin logins.
         - Setting2: Verify the integrity of wp_postmeta table for script injections.

@@ -1,3 +1,5 @@
+Source: [https://www.malwarebytes.com/blog/threat-intelligence/2023/05/fake-system-update-drops-new-highly-evasive-loader](https://www.malwarebytes.com/blog/threat-intelligence/2023/05/fake-system-update-drops-new-highly-evasive-loader)
+
 # Fake System Update Drops Aurora Stealer Via Invalid Printer Loader
 
 Incident: Fake System Update Drops Aurora Stealer via Invalid Printer Loader
@@ -34,11 +36,11 @@ Detection Signature:
 - **Port:** 80, 443 (HTTP, HTTPS)
 - **Severity:** Critical
 - **Incident:** Fake System Update Drops Aurora Stealer via Invalid Printer Loader
-- **Signature Name:** ìFake System Update Malvertisingî
+- **Signature Name:** ‚ÄúFake System Update Malvertising‚Äù
 - **Internal checks:**
-  - Setting1: Ensure web filtering is in place to block access to known malicious domains. ñ In network
-  - Setting2: Ensure endpoint protection software is updated and capable of detecting Aurora Stealer. ñ Inside endpoints
-  - Setting3: Ensure browser security settings are configured to block pop-ups and malicious scripts. ñ Inside endpoints
+  - Setting1: Ensure web filtering is in place to block access to known malicious domains. ‚Äì In network
+  - Setting2: Ensure endpoint protection software is updated and capable of detecting Aurora Stealer. ‚Äì Inside endpoints
+  - Setting3: Ensure browser security settings are configured to block pop-ups and malicious scripts. ‚Äì Inside endpoints
 - **External scanning:**
   - Detect malicious domains associated with the campaign.
   - Monitor for unusual traffic patterns indicative of malvertising redirects.

@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/52479/](https://asec.ahnlab.com/en/52479/)
+
 # Analysis of CLR SqlShell Used to Attack MS-SQL Servers
 
 Incident: MS-SQL Server CLR SqlShell Attack
@@ -36,11 +38,11 @@ Service: MS-SQL
 Port: 1433
 Severity: Critical
 Incident: MS-SQL Server CLR SqlShell Attack
-Signature name: ìMS-SQL publicly accessibleî
+Signature name: ‚ÄúMS-SQL publicly accessible‚Äù
 Internal checks:
-  - Setting1: MS-SQL port (1433) should not be exposed on external Internet. ñ In platform
-  - Setting2: MS-SQL port (1433) should not listen on the external Internet ñ Inside VMs
-  - Setting3: MS-SQL server should secure with strong authentication credentials. ñ Inside VMs
+  - Setting1: MS-SQL port (1433) should not be exposed on external Internet. ‚Äì In platform
+  - Setting2: MS-SQL port (1433) should not listen on the external Internet ‚Äì Inside VMs
+  - Setting3: MS-SQL server should secure with strong authentication credentials. ‚Äì Inside VMs
 External scanning:
   - Port (1433) open
   - MS-SQL brute-force login attempts

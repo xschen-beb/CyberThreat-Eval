@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/beware-impostor-http-libraries-lurk-on-pypi](https://www.reversinglabs.com/blog/beware-impostor-http-libraries-lurk-on-pypi)
+
 # Developers Beware Imposter HTTP Libraries Lurk on PyPI
 
 ### Incident: Malicious HTTP Libraries on PyPI
@@ -25,7 +27,7 @@
    - **Port:** N/A (since this is related to software packages rather than network services)
    - **Severity:** Critical
    - **Incident:** Typosquatting and Malicious Package Distribution
-   - **Signature name:** ìMalicious PyPI Package Detectionî
+   - **Signature name:** ‚ÄúMalicious PyPI Package Detection‚Äù
      - **Internal checks:**
        - Setting1: Verify package names closely resemble popular libraries.
        - Setting2: Ensure package descriptions and functionalities match legitimate packages.

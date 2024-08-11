@@ -1,3 +1,5 @@
+Source: [https://securelist.com/satacom-delivers-cryptocurrency-stealing-browser-extension/109807/](https://securelist.com/satacom-delivers-cryptocurrency-stealing-browser-extension/109807/)
+
 # Recent Satacom Campaign Delivers Cryptocurrency-Stealing Addon
 
 **Incident: Satacom Campaign Delivers Cryptocurrency-Stealing Addon**

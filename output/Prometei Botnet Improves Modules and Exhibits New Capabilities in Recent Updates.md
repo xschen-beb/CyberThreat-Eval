@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/prometei-botnet-improves/](https://blog.talosintelligence.com/prometei-botnet-improves/)
+
 # Prometei Botnet Improves Modules and Exhibits New Capabilities in Recent Updates
 
 **Incident: Prometei Botnet Infection**
@@ -59,7 +61,7 @@
    - **Port:** Varies (e.g., 80 for HTTP, 443 for HTTPS, 445 for SMB, 22 for SSH)
    - **Severity:** Critical
    - **Incident:** Prometei Botnet Infection
-   - **Signature name:** ìPrometei Botnet Activityî
+   - **Signature name:** ‚ÄúPrometei Botnet Activity‚Äù
    - **Internal checks:**
      - **Setting1:** Ensure all systems are patched against known vulnerabilities, including BlueKeep (CVE-2019-0708).
      - **Setting2:** Monitor for unauthorized PowerShell execution and SMB communication.

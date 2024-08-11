@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/52072/](https://asec.ahnlab.com/en/52072/)
+
 # RecordBreaker Stealer Distributed via Hacked YouTube Accounts
 
 Incident: RecordBreaker Stealer Distributed via Hacked YouTube Accounts
@@ -29,11 +31,11 @@ Service: YouTube
 Port: Not applicable
 Severity: Critical
 Incident: RecordBreaker Stealer Distribution
-Signature name: ìHacked YouTube Account for Malware Distributionî
+Signature name: ‚ÄúHacked YouTube Account for Malware Distribution‚Äù
 Internal checks:
-  - Setting1: Monitor for unusual account activities, such as unexpected video uploads ñ In platform
-  - Setting2: Ensure MFA is enabled for all accounts ñ In platform
-  - Setting3: Regularly review and update security settings ñ In platform
+  - Setting1: Monitor for unusual account activities, such as unexpected video uploads ‚Äì In platform
+  - Setting2: Ensure MFA is enabled for all accounts ‚Äì In platform
+  - Setting3: Regularly review and update security settings ‚Äì In platform
 
 External scanning:
   - Unusual video uploads

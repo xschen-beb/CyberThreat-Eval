@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/dotrunpex-demystifying-new-virtualized-net-injector-used-in-the-wild/](https://research.checkpoint.com/2023/dotrunpex-demystifying-new-virtualized-net-injector-used-in-the-wild/)
+
 # DotRunpeX - Demystifying New Virtualized .NET Injector Used in the Wild
 
 ### Incident: DotRunpeX Injector Analysis

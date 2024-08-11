@@ -1,4 +1,6 @@
-# Beyond the Horizon Traveling the World on Camaro Dragonís USB Flash Drives
+Source: [https://research.checkpoint.com/2023/beyond-the-horizon-traveling-the-world-on-camaro-dragons-usb-flash-drives/](https://research.checkpoint.com/2023/beyond-the-horizon-traveling-the-world-on-camaro-dragons-usb-flash-drives/)
+
+# Beyond the Horizon Traveling the World on Camaro Dragon‚Äôs USB Flash Drives
 
 Incident: Camaro Dragon USB Flash Drive Malware
 
@@ -32,11 +34,11 @@ Service: Windows OS
 Port: Not applicable (USB propagation)
 Severity: Critical
 Incident: Camaro Dragon USB Flash Drive Malware
-Signature name: ìUSB Malware Propagationî
+Signature name: ‚ÄúUSB Malware Propagation‚Äù
 Internal checks:
-   - Setting1: Restrict USB port usage to trusted devices ñ In platform
-   - Setting2: Monitor and log all USB device connections ñ Inside VMs
-   - Setting3: Enforce execution of only signed applications from USB ñ Inside VMs
+   - Setting1: Restrict USB port usage to trusted devices ‚Äì In platform
+   - Setting2: Monitor and log all USB device connections ‚Äì Inside VMs
+   - Setting3: Enforce execution of only signed applications from USB ‚Äì Inside VMs
 External scanning:
    - Detect new USB devices connected to the system
    - Monitor for execution of unknown or unsigned applications from USB devices

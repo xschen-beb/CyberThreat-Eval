@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/undocumented-reddriver/](https://blog.talosintelligence.com/undocumented-reddriver/)
+
 # Undocumented Driver-Based Browser Hijacker RedDriver Targets Chinese Speakers and Internet Cafes
 
 Incident: RedDriver Browser Hijacker Targeting Chinese Speakers

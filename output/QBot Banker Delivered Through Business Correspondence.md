@@ -1,3 +1,5 @@
+Source: [https://securelist.com/qbot-banker-business-correspondence/109535/](https://securelist.com/qbot-banker-business-correspondence/109535/)
+
 # QBot Banker Delivered Through Business Correspondence
 
 Incident: QBot Banker Delivered Through Business Correspondence
@@ -29,7 +31,7 @@ Detection Signature:
 - **Port**: N/A (Email service)
 - **Severity**: Critical
 - **Incident**: QBot Banker Delivered Through Business Correspondence
-- **Signature name**: ìMalicious PDF Attachment in Phishing Emailî
+- **Signature name**: ‚ÄúMalicious PDF Attachment in Phishing Email‚Äù
 - **Internal checks**:
     - Setting1: Ensure all incoming emails are scanned for malicious attachments and URLs.
     - Setting2: Configure email security solutions to quarantine or block emails with suspicious content.

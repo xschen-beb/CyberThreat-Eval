@@ -1,6 +1,8 @@
-# Black Basta-Affiliated Water Curupiraís Pikabot Spam Campaign
+Source: [https://www.trendmicro.com/en_us/research/24/a/a-look-into-pikabot-spam-wave-campaign.html](https://www.trendmicro.com/en_us/research/24/a/a-look-into-pikabot-spam-wave-campaign.html)
 
-### Incident: Black Basta-Affiliated Water Curupiraís Pikabot Spam Campaign
+# Black Basta-Affiliated Water Curupira‚Äôs Pikabot Spam Campaign
+
+### Incident: Black Basta-Affiliated Water Curupira‚Äôs Pikabot Spam Campaign
 
 **Root cause:** Usage of Pikabot loader malware in phishing campaigns, exploiting email-based social engineering techniques.
 
@@ -11,14 +13,14 @@
 1. **User Education and Awareness:**
    - Conduct regular training sessions for employees on recognizing phishing emails.
    - Encourage users to hover over links to verify destinations before clicking.
-   - Advise users to verify the senderís identity and email content before opening any attachments.
+   - Advise users to verify the sender‚Äôs identity and email content before opening any attachments.
 
 2. **Email Security:**
-   - Deploy advanced email security solutions such as Trend Microô Deep Discoveryô Email Inspector.
+   - Deploy advanced email security solutions such as Trend Micro‚Ñ¢ Deep Discovery‚Ñ¢ Email Inspector.
    - Employ custom sandboxing and advanced analysis techniques to block malicious emails.
 
 3. **Endpoint Protection:**
-   - Use endpoint protection solutions like Trend Micro Apex Oneô for automated threat detection and response.
+   - Use endpoint protection solutions like Trend Micro Apex One‚Ñ¢ for automated threat detection and response.
    - Ensure endpoints are protected against advanced threats, including fileless malware and ransomware.
 
 4. **Network Security:**
@@ -33,12 +35,12 @@
 - **Service:** Email (Phishing detection systems)
 - **Port:** N/A (Email-based attack)
 - **Severity:** Critical
-- **Incident:** Black Basta-Affiliated Water Curupiraís Pikabot Spam Campaign
-- **Signature name:** ìPikabot phishing email detectionî
+- **Incident:** Black Basta-Affiliated Water Curupira‚Äôs Pikabot Spam Campaign
+- **Signature name:** ‚ÄúPikabot phishing email detection‚Äù
 - **Internal checks:**
-  - Setting1: Verify email filters and spam detection rules ñ Email Security Systems
-  - Setting2: Monitor for suspicious email activity and thread-hijacking patterns ñ SOC Monitoring
-  - Setting3: Validate attachment types and enforce strict policies on executable attachments ñ Email Security Policies
+  - Setting1: Verify email filters and spam detection rules ‚Äì Email Security Systems
+  - Setting2: Monitor for suspicious email activity and thread-hijacking patterns ‚Äì SOC Monitoring
+  - Setting3: Validate attachment types and enforce strict policies on executable attachments ‚Äì Email Security Policies
 - **External scanning:**
   - Check for known malicious email domains and IPs
   - Monitor for trends in phishing email patterns and techniques

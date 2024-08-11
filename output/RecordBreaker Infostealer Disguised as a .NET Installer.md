@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/54658/](https://asec.ahnlab.com/en/54658/)
+
 # RecordBreaker Infostealer Disguised as a .NET Installer
 
 Incident: RecordBreaker Infostealer Disguised as a .NET Installer
@@ -37,7 +39,7 @@ Detection Signature:
 - Port: N/A (Local Execution)
 - Severity: Critical
 - Incident: RecordBreaker Infostealer
-- Signature name: ìRecordBreaker Infostealer Activityî
+- Signature name: ‚ÄúRecordBreaker Infostealer Activity‚Äù
 - Internal checks:
   - Setting1: Monitor for unauthorized execution of PowerShell commands.
   - Setting2: Detect the presence of common indicators of virtualization environment scans.

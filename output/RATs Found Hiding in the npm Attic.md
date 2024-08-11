@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/rats-found-hiding-in-the-npm-attic](https://www.reversinglabs.com/blog/rats-found-hiding-in-the-npm-attic)
+
 # RATs Found Hiding in the npm Attic
 
 Incident: Malicious npm Packages with TurkoRat

@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/dragonspark-attacks-evade-detection-with-sparkrat-and-golang-source-code-interpretation/](https://www.sentinelone.com/labs/dragonspark-attacks-evade-detection-with-sparkrat-and-golang-source-code-interpretation/)
+
 # DragonSpark  Attacks Evade Detection With SparkRAT and Golang Source Code Interpretation
 
 Incident: DragonSpark | Attacks Evade Detection with SparkRAT and Golang Source Code Interpretation

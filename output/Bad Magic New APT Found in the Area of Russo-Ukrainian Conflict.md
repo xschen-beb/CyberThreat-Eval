@@ -1,3 +1,5 @@
+Source: [https://securelist.com/bad-magic-apt/109087/](https://securelist.com/bad-magic-apt/109087/)
+
 # Bad Magic New APT Found in the Area of Russo-Ukrainian Conflict
 
 Incident: CommonMagic and PowerMagic Malware Attack
@@ -33,11 +35,11 @@ Detection Signature:
    Port: N/A (as it involves file execution and malware download)
    Severity: Critical
    Incident: CommonMagic and PowerMagic Malware Attack
-   Signature name: ìPowerMagic MSI Executionî
+   Signature name: ‚ÄúPowerMagic MSI Execution‚Äù
    Internal checks:
-       - Setting1: Monitor for unexpected executions of msiexec.exe with remote URLs ñ In endpoint security solutions.
-       - Setting2: Check for the presence of suspicious LNK files with double extensions ñ In file monitoring systems.
-       - Setting3: Look for the creation of unusual scheduled tasks like WindowsActiveXTaskTrigger ñ In system monitoring tools.
+       - Setting1: Monitor for unexpected executions of msiexec.exe with remote URLs ‚Äì In endpoint security solutions.
+       - Setting2: Check for the presence of suspicious LNK files with double extensions ‚Äì In file monitoring systems.
+       - Setting3: Look for the creation of unusual scheduled tasks like WindowsActiveXTaskTrigger ‚Äì In system monitoring tools.
    External scanning:
        - Monitor network traffic for connections to known malicious IPs and domains listed in IoCs.
        - Check for outbound connections to OneDrive and Dropbox used in an unusual manner.

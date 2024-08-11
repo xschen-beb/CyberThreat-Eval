@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/mercenary-intellexa-predator/](https://blog.talosintelligence.com/mercenary-intellexa-predator/)
+
 # Mercenary Mayhem A Technical Analysis of Intellexas PREDATOR Spyware
 
 Incident: Intellexa's PREDATOR Spyware Analysis

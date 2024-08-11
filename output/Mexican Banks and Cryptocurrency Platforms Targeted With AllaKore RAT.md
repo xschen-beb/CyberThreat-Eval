@@ -1,3 +1,5 @@
+Source: [https://blogs.blackberry.com/en/2024/01/mexican-banks-and-cryptocurrency-platforms-targeted-with-allakore-rat](https://blogs.blackberry.com/en/2024/01/mexican-banks-and-cryptocurrency-platforms-targeted-with-allakore-rat)
+
 # Mexican Banks and Cryptocurrency Platforms Targeted With AllaKore RAT
 
 Incident: Mexican Banks and Cryptocurrency Platforms Targeted With AllaKore RAT
@@ -36,7 +38,7 @@ Detection Signature:
 - **Port**: Not specified, but typically HTTP/HTTPS (80/443) for C2 communication
 - **Severity**: Critical
 - **Incident**: Mexican Banks and Cryptocurrency Platforms Targeted With AllaKore RAT
-- **Signature name**: ìAllaKore RAT infectionî
+- **Signature name**: ‚ÄúAllaKore RAT infection‚Äù
 - **Internal checks**:
     - Setting1: Monitor for known .NET downloader hashes and behaviors.
     - Setting2: Check for unusual PowerShell script execution on endpoints.

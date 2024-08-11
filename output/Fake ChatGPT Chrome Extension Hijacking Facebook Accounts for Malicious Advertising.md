@@ -1,3 +1,5 @@
+Source: [https://labs.guard.io/fakegpt-new-variant-of-fake-chatgpt-chrome-extension-stealing-facebook-ad-accounts-with-4c9996a8f282](https://labs.guard.io/fakegpt-new-variant-of-fake-chatgpt-chrome-extension-stealing-facebook-ad-accounts-with-4c9996a8f282)
+
 # Fake ChatGPT Chrome Extension Hijacking Facebook Accounts for Malicious Advertising
 
 **Incident:** FakeGPT Chrome Extension Hijacking Facebook Ad Accounts
@@ -30,7 +32,7 @@
 **Detailed Steps for Mitigation:**
    - **For Users:**
      1. Go to Chrome settings and navigate to Extensions.
-     2. Locate the ìQuick access to Chat GPTî extension and click Remove.
+     2. Locate the ‚ÄúQuick access to Chat GPT‚Äù extension and click Remove.
      3. Change Facebook account passwords.
      4. Enable two-factor authentication (2FA) on Facebook.
      5. Review Facebook app permissions and remove any suspicious apps.
@@ -51,11 +53,11 @@
 - **Port:** N/A
 - **Severity:** Critical
 - **Incident:** FakeGPT Chrome Extension Hijacking Facebook Ad Accounts
-- **Signature name:** ìMalicious Chrome Extensionî
+- **Signature name:** ‚ÄúMalicious Chrome Extension‚Äù
 - **Internal checks:**
-  - Ensure only approved extensions are installed ñ In platform
-  - Regular audit of installed extensions ñ Inside User Devices
-  - Monitor for unauthorized Facebook Graph API calls ñ Inside Network
+  - Ensure only approved extensions are installed ‚Äì In platform
+  - Regular audit of installed extensions ‚Äì Inside User Devices
+  - Monitor for unauthorized Facebook Graph API calls ‚Äì Inside Network
 - **External scanning:**
   - Detect and block known malicious extension IDs (e.g. kgnddmccicfibljeodejjmekeiilkfhk)
   - Monitor network traffic for connections to known C2 domains (e.g., api2[.]openai-service[.]workers[.]dev)

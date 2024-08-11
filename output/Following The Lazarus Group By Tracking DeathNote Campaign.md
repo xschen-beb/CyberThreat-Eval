@@ -1,3 +1,5 @@
+Source: [https://securelist.com/the-lazarus-group-deathnote-campaign/109490/](https://securelist.com/the-lazarus-group-deathnote-campaign/109490/)
+
 # Following The Lazarus Group By Tracking DeathNote Campaign
 
 Incident: Lazarus Group DeathNote Campaign
@@ -38,7 +40,7 @@ Detection Signature:
 - Port: Various (as per the services exploited)
 - Severity: Critical
 - Incident: Lazarus Group DeathNote Campaign
-- Signature name: ìSuspicious Document or Software Executionî
+- Signature name: ‚ÄúSuspicious Document or Software Execution‚Äù
 - Internal checks:
    - Setting1: Monitor for execution of macros in documents.
    - Setting2: Detect creation and execution of executables from user directories.

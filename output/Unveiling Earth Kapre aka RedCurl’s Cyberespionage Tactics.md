@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/24/c/unveiling-earth-kapre-aka-redcurls-cyberespionage-tactics-with-t.html](https://www.trendmicro.com/en_us/research/24/c/unveiling-earth-kapre-aka-redcurls-cyberespionage-tactics-with-t.html)
+
 # Unveiling Earth Kapre aka RedCurl’s Cyberespionage Tactics
 
 Incident: Earth Kapre Cyberespionage Campaign

@@ -1,3 +1,5 @@
+Source: [https://blog.phylum.io/npm-package-found-delivering-sophisticated-rat/](https://blog.phylum.io/npm-package-found-delivering-sophisticated-rat/)
+
 # npm Package Found Delivering Sophisticated RAT
 
 Incident: npm Package Found Delivering Sophisticated RAT
@@ -9,7 +11,7 @@ Impact: While the exact number of impacted devices and users is not specified in
 Mitigation: 
 1. **Audit and Monitor Dependencies:**
    - Regularly audit npm packages and dependencies for known vulnerabilities and malicious behavior.
-   - Use tools like npm audit and automated risk detection platforms similar to Phylumís.
+   - Use tools like npm audit and automated risk detection platforms similar to Phylum‚Äôs.
 
 2. **Implement Strict Access Controls:**
    - Ensure that only trusted and necessary packages are used in projects.
@@ -42,7 +44,7 @@ Service: npm
 Port: Not applicable
 Severity: Critical
 Incident: npm Package Found Delivering Sophisticated RAT
-Signature name: ìMalicious npm Package Detectionî
+Signature name: ‚ÄúMalicious npm Package Detection‚Äù
 Internal checks:
   - Setting1: Monitor for packages that include executable binaries and DLL files.
   - Setting2: Validate the integrity and authenticity of npm packages before use.

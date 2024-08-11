@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/the-dragon-who-sold-his-camaro-analyzing-custom-router-implant/](https://research.checkpoint.com/2023/the-dragon-who-sold-his-camaro-analyzing-custom-router-implant/)
+
 # The Dragon Who Sold His Camaro Analyzing Custom Router Implant
 
 Incident: Dragon Who Sold His Camaro: Analyzing Custom Router Implant
@@ -13,18 +15,18 @@ Mitigation: Secure routers by regularly updating firmware, changing default cred
   3. Implement multi-factor authentication where possible.
   4. Monitor network traffic for anomalies and use advanced network security solutions.
   5. Employ network segmentation to limit the spread of infections.
-  6. Utilize IoT security solutions like Check Pointís Quantum IoT Protect.
+  6. Utilize IoT security solutions like Check Point‚Äôs Quantum IoT Protect.
 
 Detection Signature:
   - **Service**: TP-Link Router
   - **Port**: 80, 14444
   - **Severity**: Critical
   - **Incident**: TP-Link Router Firmware Compromise
-  - **Signature Name**: ìTP-Link firmware infected with Horse Shellî
+  - **Signature Name**: ‚ÄúTP-Link firmware infected with Horse Shell‚Äù
   - **Internal Checks**:
-    - Setting1: Ensure router firmware is up-to-date ñ In platform
-    - Setting2: Verify that no unauthorized firmware changes have been made ñ Inside VMs
-    - Setting3: Ensure strong authentication credentials for router access ñ Inside VMs
+    - Setting1: Ensure router firmware is up-to-date ‚Äì In platform
+    - Setting2: Verify that no unauthorized firmware changes have been made ‚Äì Inside VMs
+    - Setting3: Ensure strong authentication credentials for router access ‚Äì Inside VMs
   - **External Scanning**:
     - Port (80, 14444) open
     - Detection of unusual HTTP headers or traffic patterns

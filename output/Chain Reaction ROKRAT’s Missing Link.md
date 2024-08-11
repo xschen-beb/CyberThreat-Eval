@@ -1,4 +1,6 @@
-# Chain Reaction ROKRATís Missing Link
+Source: [https://research.checkpoint.com/2023/chain-reaction-rokrats-missing-link/](https://research.checkpoint.com/2023/chain-reaction-rokrats-missing-link/)
+
+# Chain Reaction ROKRAT‚Äôs Missing Link
 
 ### Incident: ROKRAT Multi-Stage Infection Chains
 
@@ -33,11 +35,11 @@ The incident primarily targeted South Korean government sectors, journalists, ac
 - **Port:** N/A
 - **Severity:** Critical
 - **Incident:** ROKRAT Multi-Stage Infection Chains
-- **Signature name:** ìPowerShell-based multi-stage infectionî
+- **Signature name:** ‚ÄúPowerShell-based multi-stage infection‚Äù
 - **Internal checks:**
-  - **Setting1:** PowerShell execution policy should be set to "AllSigned" or "Restricted" ñ In platform
-  - **Setting2:** Monitor and alert on changes to PowerShell execution policies ñ Inside VMs
-  - **Setting3:** Block execution of LNK files from untrusted sources via GPO ñ Inside VMs
+  - **Setting1:** PowerShell execution policy should be set to "AllSigned" or "Restricted" ‚Äì In platform
+  - **Setting2:** Monitor and alert on changes to PowerShell execution policies ‚Äì Inside VMs
+  - **Setting3:** Block execution of LNK files from untrusted sources via GPO ‚Äì Inside VMs
 - **External scanning:**
   - **Port:** N/A
   - **Indicators:** 

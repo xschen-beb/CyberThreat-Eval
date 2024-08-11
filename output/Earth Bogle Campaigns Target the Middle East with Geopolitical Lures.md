@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/a/earth-bogle-campaigns-target-middle-east-with-geopolitical-lures.html](https://www.trendmicro.com/en_us/research/23/a/earth-bogle-campaigns-target-middle-east-with-geopolitical-lures.html)
+
 # Earth Bogle Campaigns Target the Middle East with Geopolitical Lures
 
 Incident: Earth Bogle: Campaigns Target the Middle East with Geopolitical Lures
@@ -27,11 +29,11 @@ Service: Web server (e.g., Apache, Nginx)
 Port: 80, 443
 Severity: Critical
 Incident: Earth Bogle Campaign
-Signature name: ìCompromised web server distributing malwareî
+Signature name: ‚ÄúCompromised web server distributing malware‚Äù
 Internal checks:
-    - Setting1: Ensure web server software is up to date. ñ In platform
-    - Setting2: Monitor web server logs for unusual activity. ñ Inside VMs
-    - Setting3: Implement access control measures on web server configuration files. ñ Inside VMs
+    - Setting1: Ensure web server software is up to date. ‚Äì In platform
+    - Setting2: Monitor web server logs for unusual activity. ‚Äì Inside VMs
+    - Setting3: Implement access control measures on web server configuration files. ‚Äì Inside VMs
 External scanning:
     - Check for unusual outbound connections from the web server.
     - Scan for open and vulnerable ports that should not be exposed.

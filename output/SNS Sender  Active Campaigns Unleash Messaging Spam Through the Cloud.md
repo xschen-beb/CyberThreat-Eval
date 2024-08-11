@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/sns-sender-active-campaigns-unleash-messaging-spam-through-the-cloud/](https://www.sentinelone.com/labs/sns-sender-active-campaigns-unleash-messaging-spam-through-the-cloud/)
+
 # SNS Sender  Active Campaigns Unleash Messaging Spam Through the Cloud
 
 ### Incident: SNS Sender | Active Campaigns Unleash Messaging Spam Through the Cloud

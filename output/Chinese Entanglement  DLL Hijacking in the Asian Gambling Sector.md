@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/chinese-entanglement-dll-hijacking-in-the-asian-gambling-sector/](https://www.sentinelone.com/labs/chinese-entanglement-dll-hijacking-in-the-asian-gambling-sector/)
+
 # Chinese Entanglement  DLL Hijacking in the Asian Gambling Sector
 
 ### Incident: Chinese Entanglement | DLL Hijacking in the Asian Gambling Sector
@@ -32,12 +34,12 @@
 - **Port:** 8443
 - **Severity:** Critical
 - **Incident:** DLL Hijacking in the Asian Gambling Sector
-- **Signature name:** ìCobalt Strike C2 Communicationî
+- **Signature name:** ‚ÄúCobalt Strike C2 Communication‚Äù
 
 **Internal checks:**
-  - **Setting1:** Ensure that executables are not vulnerable to DLL hijacking. ñ Inside VMs
-  - **Setting2:** Monitor for unauthorized signing certificates. ñ Inside VMs
-  - **Setting3:** Check for unexpected network traffic to known C2 domains and IP addresses. ñ In platform
+  - **Setting1:** Ensure that executables are not vulnerable to DLL hijacking. ‚Äì Inside VMs
+  - **Setting2:** Monitor for unauthorized signing certificates. ‚Äì Inside VMs
+  - **Setting3:** Check for unexpected network traffic to known C2 domains and IP addresses. ‚Äì In platform
 
 **External scanning:**
   - **Port (8443) open**

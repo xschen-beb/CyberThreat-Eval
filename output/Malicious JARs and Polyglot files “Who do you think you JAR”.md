@@ -1,3 +1,5 @@
+Source: [https://www.deepinstinct.com/blog/malicious-jars-and-polyglot-files-who-do-you-think-you-jar](https://www.deepinstinct.com/blog/malicious-jars-and-polyglot-files-who-do-you-think-you-jar)
+
 # Malicious JARs and Polyglot files “Who do you think you JAR”
 
 Incident: Malicious JARs and Polyglot Files Exploitation

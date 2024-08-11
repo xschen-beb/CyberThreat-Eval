@@ -1,3 +1,5 @@
+Source: [https://www.uptycs.com/blog/remcos-rat-uac-0500-pipe-method](https://www.uptycs.com/blog/remcos-rat-uac-0500-pipe-method)
+
 # UAC-0050 Group Using New Phishing Tactics to Distribute Remcos RAT
 
 Incident: UAC-0050 Remcos RAT: Pipe Method Used for Evasion in Ukraine Attack
@@ -20,7 +22,7 @@ Service: Windows Operating System (specifically focusing on PowerShell, MSHTA, a
 Port: Not applicable (focus on process and script execution rather than network ports)
 Severity: Critical
 Incident: UAC-0050 Remcos RAT: Pipe Method Used for Evasion
-Signature name: ìRemcos RAT deployment via malicious .lnk fileî
+Signature name: ‚ÄúRemcos RAT deployment via malicious .lnk file‚Äù
 Internal checks:
   - Setting1: Monitor for the execution of .lnk files that initiate downloads or script executions.
   - Setting2: Detect the use of MSHTA.exe to run scripts from URLs.

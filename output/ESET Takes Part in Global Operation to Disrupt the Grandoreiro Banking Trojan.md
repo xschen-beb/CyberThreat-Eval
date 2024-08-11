@@ -1,3 +1,5 @@
+Source: [https://www.welivesecurity.com/en/eset-research/eset-takes-part-global-operation-disrupt-grandoreiro-banking-trojan/](https://www.welivesecurity.com/en/eset-research/eset-takes-part-global-operation-disrupt-grandoreiro-banking-trojan/)
+
 # ESET Takes Part in Global Operation to Disrupt the Grandoreiro Banking Trojan
 
 Incident: Grandoreiro Banking Trojan Disruption
@@ -18,7 +20,7 @@ Service: No-IP Dynamic DNS
 Port: Varies (commonly HTTP/HTTPS ports)
 Severity: Critical
 Incident: Unauthorized C&C server operation
-Signature name: ìNo-IP Dynamic DNS usage for C&Cî
+Signature name: ‚ÄúNo-IP Dynamic DNS usage for C&C‚Äù
 Internal checks:
   - Setting1: Monitor for unusual domain resolutions associated with No-IP Dynamic DNS services.
   - Setting2: Implement network traffic analysis to detect communication with known malicious IPs.

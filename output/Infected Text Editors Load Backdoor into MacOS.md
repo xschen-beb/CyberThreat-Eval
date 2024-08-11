@@ -1,3 +1,5 @@
+Source: [https://securelist.com/trojanized-text-editor-apps/112167/](https://securelist.com/trojanized-text-editor-apps/112167/)
+
 # Infected Text Editors Load Backdoor into MacOS
 
 Incident: Infected Text Editors Load Backdoor into macOS

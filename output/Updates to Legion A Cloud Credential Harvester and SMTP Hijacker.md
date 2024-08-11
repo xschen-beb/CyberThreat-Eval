@@ -1,3 +1,5 @@
+Source: [https://www.cadosecurity.com/updates-to-legion-a-cloud-credential-harvester-and-smtp-hijacker/](https://www.cadosecurity.com/updates-to-legion-a-cloud-credential-harvester-and-smtp-hijacker/)
+
 # Updates to Legion A Cloud Credential Harvester and SMTP Hijacker
 
 **Incident: Legion Malware Update**

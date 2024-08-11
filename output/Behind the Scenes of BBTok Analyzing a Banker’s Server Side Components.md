@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/behind-the-scenes-of-bbtok-analyzing-a-bankers-server-side-components/](https://research.checkpoint.com/2023/behind-the-scenes-of-bbtok-analyzing-a-bankers-server-side-components/)
+
 # Behind the Scenes of BBTok Analyzing a Banker’s Server Side Components
 
 ### Incident: BBTok Banker Campaign

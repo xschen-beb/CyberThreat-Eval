@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/vmconnect-malicious-pypi-packages-imitate-popular-open-source-modules](https://www.reversinglabs.com/blog/vmconnect-malicious-pypi-packages-imitate-popular-open-source-modules)
+
 # VMConnect Malicious PyPI Packages Imitate Popular Open Source Modules
 
 Incident: VMConnect: Malicious PyPI Packages Imitate Popular Open Source Modules

@@ -1,3 +1,5 @@
+Source: [https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-061a](https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-061a)
+
 # StopRansomware Royal Ransomware  CISA
 
 ### Incident: Royal Ransomware Attack
@@ -42,11 +44,11 @@
 - **Port:** 3389
 - **Severity:** Critical
 - **Incident:** Royal Ransomware 
-- **Signature name:** ìRDP publicly accessibleî
+- **Signature name:** ‚ÄúRDP publicly accessible‚Äù
 - **Internal checks:**
-  - **Setting1:** RDP port (3389) should not be exposed on external Internet. ñ In platform
-  - **Setting2:** RDP port (3389) should not listen on the external Internet ñ Inside VMs
-  - **Setting3:** RDP access should be secured with multi-factor authentication. ñ Inside VMs
+  - **Setting1:** RDP port (3389) should not be exposed on external Internet. ‚Äì In platform
+  - **Setting2:** RDP port (3389) should not listen on the external Internet ‚Äì Inside VMs
+  - **Setting3:** RDP access should be secured with multi-factor authentication. ‚Äì Inside VMs
 - **External scanning:**
   - Port (3389) open
   - RDP no-pass-login

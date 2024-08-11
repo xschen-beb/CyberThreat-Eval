@@ -1,10 +1,12 @@
+Source: [https://www.fortinet.com/blog/threat-research/lokibot-targets-microsoft-office-document-using-vulnerabilities-and-macros](https://www.fortinet.com/blog/threat-research/lokibot-targets-microsoft-office-document-using-vulnerabilities-and-macros)
+
 # LokiBot Campaign Targets Microsoft Office Document Using Vulnerabilities and Macros
 
 Incident: LokiBot Campaign Targets Microsoft Office Document
 
 Root cause: Exploitation of known vulnerabilities (CVE-2021-40444 and CVE-2022-30190) and malicious macros in Microsoft Office documents.
 
-Impact: Control and collection of sensitive information from victimís Windows devices. The exact number of impacted devices and financial losses are not specified.
+Impact: Control and collection of sensitive information from victim‚Äôs Windows devices. The exact number of impacted devices and financial losses are not specified.
 
 Mitigation: 
 1. Patch and update all Microsoft Office applications to the latest versions to mitigate known vulnerabilities like CVE-2021-40444 and CVE-2022-30190.
@@ -45,7 +47,7 @@ Detection Signature:
    Port: N/A (exploited via document vulnerabilities and macros)
    Severity: Critical
    Incident: LokiBot Campaign
-   Signature name: ìMalicious Office Document Vulnerability Exploitsî
+   Signature name: ‚ÄúMalicious Office Document Vulnerability Exploits‚Äù
    Internal checks:
        - Setting1: Ensure that all Microsoft Office applications are updated to the latest versions.
        - Setting2: Macros should be disabled by default in all Office applications.

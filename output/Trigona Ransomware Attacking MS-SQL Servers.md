@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/51343/](https://asec.ahnlab.com/en/51343/)
+
 # Trigona Ransomware Attacking MS-SQL Servers
 
 Incident: Trigona Ransomware Attacking MS-SQL Servers
@@ -30,11 +32,11 @@ Service: MS-SQL
 Port: 1433 (default MS-SQL port)
 Severity: Critical
 Incident: Trigona Ransomware Attacking MS-SQL Servers
-Signature name: ìMS-SQL publicly accessibleî
+Signature name: ‚ÄúMS-SQL publicly accessible‚Äù
 Internal checks:
    - Setting1: MS-SQL port (1433) should not be exposed on external Internet.
-   - Setting2: MS-SQL port (1433) should not listen on the external Internet ñ Inside VMs.
-   - Setting3: MS-SQL server should secure with complex authentication credentials ñ Inside VMs.
+   - Setting2: MS-SQL port (1433) should not listen on the external Internet ‚Äì Inside VMs.
+   - Setting3: MS-SQL server should secure with complex authentication credentials ‚Äì Inside VMs.
 External scanning:
    - Port (1433) open.
    - Weak or simple passwords.

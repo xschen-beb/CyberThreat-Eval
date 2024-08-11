@@ -1,3 +1,5 @@
+Source: [https://www.welivesecurity.com/en/eset-research/vajraspy-patchwork-espionage-apps/](https://www.welivesecurity.com/en/eset-research/vajraspy-patchwork-espionage-apps/)
+
 # VajraSpy A Patchwork of Espionage Apps
 
 ### Incident: VajraSpy Espionage Campaign
@@ -39,11 +41,11 @@
 - **Port:** N/A (Firebase uses HTTPS over port 443)
 - **Severity:** Critical
 - **Incident:** VajraSpy Espionage Campaign
-- **Signature name:** ìFirebase malicious activity detectionî
+- **Signature name:** ‚ÄúFirebase malicious activity detection‚Äù
 - **Internal checks:**
-    - Setting1: Ensure Firebase databases are configured with access control rules. ñ In platform
-    - Setting2: Monitor Firebase logs for unusual activity or data access patterns. ñ Inside VMs
-    - Setting3: Regularly review and update Firebase security rules. ñ Inside VMs
+    - Setting1: Ensure Firebase databases are configured with access control rules. ‚Äì In platform
+    - Setting2: Monitor Firebase logs for unusual activity or data access patterns. ‚Äì Inside VMs
+    - Setting3: Regularly review and update Firebase security rules. ‚Äì Inside VMs
 - **External scanning:**
     - Monitor for known malicious Firebase URLs or domains.
     - Scan for Firebase instances with publicly accessible databases.

@@ -1,3 +1,5 @@
+Source: [https://securelist.com/roaming-mantis-dns-changer-in-malicious-mobile-app/108464/](https://securelist.com/roaming-mantis-dns-changer-in-malicious-mobile-app/108464/)
+
 # Roaming Mantis Implements New DNS Changer In Its Malicious Mobile App
 
 Incident: Roaming Mantis DNS Changer
@@ -24,7 +26,7 @@ Service: Wi-Fi Router (various models, especially those by EFM Networks)
 Port: 80 (HTTP), 443 (HTTPS)
 Severity: Critical
 Incident: Roaming Mantis DNS Changer
-Signature name: ìWi-Fi Router DNS Changer Vulnerabilityî
+Signature name: ‚ÄúWi-Fi Router DNS Changer Vulnerability‚Äù
 Internal checks:
   - Setting1: Ensure default admin credentials are changed.
   - Setting2: Firmware should be updated to the latest version.

@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/h/targetcompany-ransomware-abuses-fud-obfuscator-packers.html](https://www.trendmicro.com/en_us/research/23/h/targetcompany-ransomware-abuses-fud-obfuscator-packers.html)
+
 # TargetCompany Ransomware Abuses FUD Obfuscator Packers
 
 Incident: TargetCompany Ransomware Abuses FUD Obfuscator Packers

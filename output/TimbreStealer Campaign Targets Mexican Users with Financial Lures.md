@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/timbrestealer-campaign-targets-mexican-users/](https://blog.talosintelligence.com/timbrestealer-campaign-targets-mexican-users/)
+
 # TimbreStealer Campaign Targets Mexican Users with Financial Lures
 
 Incident: TimbreStealer Campaign
@@ -20,11 +22,11 @@ Detection Signature:
 - **Port:** 80 (HTTP), 443 (HTTPS)
 - **Severity:** Critical
 - **Incident:** TimbreStealer Campaign
-- **Signature name:** ìWebDAV phishing downloadî
+- **Signature name:** ‚ÄúWebDAV phishing download‚Äù
 - **Internal checks:**
-  - **Setting1:** WebDAV service should be monitored for unusual activity ñ In platform
-  - **Setting2:** Ensure WebDAV is not used for unauthorized file downloads ñ Inside VMs
-  - **Setting3:** WebDAV service should operate under strict authentication ñ Inside VMs
+  - **Setting1:** WebDAV service should be monitored for unusual activity ‚Äì In platform
+  - **Setting2:** Ensure WebDAV is not used for unauthorized file downloads ‚Äì Inside VMs
+  - **Setting3:** WebDAV service should operate under strict authentication ‚Äì Inside VMs
 - **External scanning:**
   - Port (80, 443) open
   - Unusual WebDAV download activity

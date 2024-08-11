@@ -1,3 +1,5 @@
+Source: [https://www.welivesecurity.com/en/eset-research/stealth-falcon-preying-middle-eastern-skies-deadglyph/](https://www.welivesecurity.com/en/eset-research/stealth-falcon-preying-middle-eastern-skies-deadglyph/)
+
 # Stealth Falcon Preying Over Middle Eastern Skies with Deadglyph
 
 Incident: Stealth Falcon Deadglyph Backdoor
@@ -24,9 +26,9 @@ Detection Signature:
 - **Incident**: Stealth Falcon Deadglyph Backdoor
 - **Signature name**: "Deadglyph backdoor detection"
 - **Internal checks** (see next):
-    - **Setting1**: Monitor for unauthorized WMI event subscriptions – Inside VMs
-    - **Setting2**: Detect registry modifications associated with Deadglyph's persistence mechanism – Inside VMs
-    - **Setting3**: Monitor for the execution of rundll32 with suspicious DLLs – Inside VMs
+    - **Setting1**: Monitor for unauthorized WMI event subscriptions â€“ Inside VMs
+    - **Setting2**: Detect registry modifications associated with Deadglyph's persistence mechanism â€“ Inside VMs
+    - **Setting3**: Monitor for the execution of rundll32 with suspicious DLLs â€“ Inside VMs
 - **External scanning** (see next):
     - **Port (80, 443) open**
     - **Communication with known C&C domains**
@@ -34,8 +36,8 @@ Detection Signature:
 IoCs:
 - **Files**:
     - SHA-1: C40F1F46D230A85F702DAA38CFA18D60481EA6C2 (pbrtl.dll, Registry Shellcode Loader)
-    - SHA-1: 740D308565E215EB9B235CC5B720142428F540DB (Deadglyph Backdoor – Executor)
-    - SHA-1: 1805568D8362A379AF09FD70D3406C6B654F189F (Deadglyph Backdoor – Orchestrator)
+    - SHA-1: 740D308565E215EB9B235CC5B720142428F540DB (Deadglyph Backdoor â€“ Executor)
+    - SHA-1: 1805568D8362A379AF09FD70D3406C6B654F189F (Deadglyph Backdoor â€“ Orchestrator)
     - SHA-1: 9CB373B2643C2B7F93862D2682A0D2150C7AEC7E (Orchestrator Network module)
     - SHA-1: F47CB40F6C2B303308D9D705F8CAD707B9C39FA5 (Orchestrator Timer module)
     - SHA-1: 3D4D9C9F2A5ACEFF9E45538F5EBE723ACAF83E32 (Process creator module)

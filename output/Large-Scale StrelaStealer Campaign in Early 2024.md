@@ -1,3 +1,5 @@
+Source: [https://unit42.paloaltonetworks.com/strelastealer-campaign/](https://unit42.paloaltonetworks.com/strelastealer-campaign/)
+
 # Large-Scale StrelaStealer Campaign in Early 2024
 
 **Incident:** Large-Scale StrelaStealer Campaign in Early 2024
@@ -20,7 +22,7 @@
   - **Port:** Not applicable (email-based attack)
   - **Severity:** Critical
   - **Incident:** Large-Scale StrelaStealer Campaign
-  - **Signature name:** ìStrelaStealer Email Campaignî
+  - **Signature name:** ‚ÄúStrelaStealer Email Campaign‚Äù
   - **Internal checks:**
     - **Setting1:** Ensure email filtering for malicious attachments is enabled and updated.
     - **Setting2:** Regularly update and patch email clients and associated software.

@@ -1,3 +1,5 @@
+Source: [https://securelist.com/coyote-multi-stage-banking-trojan/111846/](https://securelist.com/coyote-multi-stage-banking-trojan/111846/)
+
 # Coyote A Multi-Stage Banking Trojan Abusing the Squirrel Installer
 
 Incident: Coyote Banking Trojan
@@ -25,7 +27,7 @@ Detection Signature:
    Port: N/A (primarily file and process-based detection)
    Severity: Critical
    Incident: Coyote Banking Trojan
-   Signature name: ìCoyote multi-stage malwareî
+   Signature name: ‚ÄúCoyote multi-stage malware‚Äù
    Internal checks:
        - Setting1: Ensure that only authorized Squirrel installations are executed.
        - Setting2: Monitor for Node.js processes executing obfuscated JavaScript code.

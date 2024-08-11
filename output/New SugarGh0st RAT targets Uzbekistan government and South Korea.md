@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/new-sugargh0st-rat/](https://blog.talosintelligence.com/new-sugargh0st-rat/)
+
 # New SugarGh0st RAT targets Uzbekistan government and South Korea
 
 Incident: SugarGh0st RAT Campaign Targeting Uzbekistan Government and South Korea
@@ -57,7 +59,7 @@ Detection Signature:
 - Port: Not applicable (focus on file execution and network communication patterns)
 - Severity: Critical
 - Incident: SugarGh0st RAT Infection
-- Signature name: ìMalicious Windows Shortcut and JavaScript Executionî
+- Signature name: ‚ÄúMalicious Windows Shortcut and JavaScript Execution‚Äù
 - Internal checks:
     - Setting1: Monitor for execution of cscript.exe and rundll32.exe with suspicious parameters.
     - Setting2: Detect creation of new registry keys related to persistence mechanisms.

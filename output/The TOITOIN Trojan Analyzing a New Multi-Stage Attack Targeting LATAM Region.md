@@ -1,3 +1,5 @@
+Source: [https://www.zscaler.com/blogs/security-research/toitoin-trojan-analyzing-new-multi-stage-attack-targeting-latam-region](https://www.zscaler.com/blogs/security-research/toitoin-trojan-analyzing-new-multi-stage-attack-targeting-latam-region)
+
 # The TOITOIN Trojan Analyzing a New Multi-Stage Attack Targeting LATAM Region
 
 **Incident: TOITOIN Trojan: A New Multi-Stage Attack Targeting LATAM**
@@ -29,7 +31,7 @@
 - **Port:** 80, 443
 - **Severity:** Critical
 - **Incident:** TOITOIN Trojan
-- **Signature name:** ìTOITOIN Trojan Infection Chainî
+- **Signature name:** ‚ÄúTOITOIN Trojan Infection Chain‚Äù
 - **Internal checks:**
   - **Setting1:** Monitor for suspicious outbound traffic to known malicious domains.
   - **Setting2:** Inspect email attachments and links for signs of phishing.

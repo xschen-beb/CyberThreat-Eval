@@ -1,3 +1,5 @@
+Source: [https://www.securityjoes.com/post/raspberry-robin-detected-itw-targeting-insurance-financial-institutes-in-europe](https://www.securityjoes.com/post/raspberry-robin-detected-itw-targeting-insurance-financial-institutes-in-europe)
+
 # Raspberry Robin Detected ITW Targeting Insurance & Financial Institutes In Europe
 
 **Incident: Raspberry Robin Attacks on Financial Institutes in Europe**
@@ -34,11 +36,11 @@
 - **Port:** 8080
 - **Severity:** Critical
 - **Incident:** Raspberry Robin
-- **Signature name:** ìQNAP publicly accessibleî
+- **Signature name:** ‚ÄúQNAP publicly accessible‚Äù
   - **Internal checks:**
-    - Setting1: QNAP port (8080) should not be exposed on external Internet. ñ In platform
-    - Setting2: QNAP port (8080) should not listen on the external Internet ñ Inside VMs
-    - Setting3: QNAP device should secure with authentication credentials. ñ Inside VMs
+    - Setting1: QNAP port (8080) should not be exposed on external Internet. ‚Äì In platform
+    - Setting2: QNAP port (8080) should not listen on the external Internet ‚Äì Inside VMs
+    - Setting3: QNAP device should secure with authentication credentials. ‚Äì Inside VMs
   - **External scanning:**
     - Port (8080) open
     - QNAP no-pass-login

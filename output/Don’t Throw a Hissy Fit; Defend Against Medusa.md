@@ -1,4 +1,6 @@
-# Donít Throw a Hissy Fit; Defend Against Medusa
+Source: [https://research.nccgroup.com/2023/11/13/dont-throw-a-hissy-fit-defend-against-medusa/](https://research.nccgroup.com/2023/11/13/dont-throw-a-hissy-fit-defend-against-medusa/)
+
+# Don‚Äôt Throw a Hissy Fit; Defend Against Medusa
 
 ### Incident: Medusa Ransomware Attack
 
@@ -30,7 +32,7 @@
 - **Port:** N/A (specific to internal services)
 - **Severity:** Critical
 - **Incident:** Medusa Ransomware Execution
-- **Signature name:** ìUnauthorized PowerShell and WMI Activityî
+- **Signature name:** ‚ÄúUnauthorized PowerShell and WMI Activity‚Äù
 - **Internal checks:**
   - **Setting1:** Monitor for unauthorized PowerShell execution with encoded commands.
   - **Setting2:** Monitor WMI activity for unexpected remote executions.

@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/blog/from-conti-to-akira-decoding-the-latest-linux-esxi-ransomware-families/](https://www.sentinelone.com/blog/from-conti-to-akira-decoding-the-latest-linux-esxi-ransomware-families/)
+
 # From Conti to Akira  Decoding the Latest Linux & ESXi Ransomware Families
 
 Incident: Conti to Akira Ransomware Attacks
@@ -29,7 +31,7 @@ Detection Signature:
    - Port: 902, 443 (commonly used for ESXi management)
    - Severity: Critical
    - Incident: Conti to Akira Ransomware Attacks
-   - Signature name: ìESXi Exploitation Attemptî
+   - Signature name: ‚ÄúESXi Exploitation Attempt‚Äù
    - Internal checks:
      - Setting1: Ensure ESXi management ports (902, 443) are not exposed to the external Internet.
      - Setting2: Verify that ESXi management interfaces are only accessible from trusted IP addresses.

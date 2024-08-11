@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/wip26-espionage-threat-actors-abuse-cloud-infrastructure-in-targeted-telco-attacks/](https://www.sentinelone.com/labs/wip26-espionage-threat-actors-abuse-cloud-infrastructure-in-targeted-telco-attacks/)
+
 # Threat Actors Abuse Cloud Infrastructure in Targeted Telco Attacks
 
 Incident: WIP26 Espionage | Threat Actors Abuse Cloud Infrastructure in Targeted Telco Attacks
@@ -31,7 +33,7 @@ Detection Signature:
 - **Port:** Various (common HTTP/HTTPS ports: 80, 443)
 - **Severity:** Critical
 - **Incident:** WIP26
-- **Signature name:** ìCloud Service Abuse for C2î
+- **Signature name:** ‚ÄúCloud Service Abuse for C2‚Äù
 - **Internal checks:**
   - Setting1: Ensure emails from unknown sources containing links or attachments are flagged or quarantined.
   - Setting2: Monitor cloud service access logs for unusual activity, such as access from unfamiliar IP addresses or unusual times.

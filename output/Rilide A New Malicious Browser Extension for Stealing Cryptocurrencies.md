@@ -1,3 +1,5 @@
+Source: [https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/rilide-a-new-malicious-browser-extension-for-stealing-cryptocurrencies/](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/rilide-a-new-malicious-browser-extension-for-stealing-cryptocurrencies/)
+
 # Rilide A New Malicious Browser Extension for Stealing Cryptocurrencies
 
 **Incident:** Rilide: A New Malicious Browser Extension for Stealing Cryptocurrencies

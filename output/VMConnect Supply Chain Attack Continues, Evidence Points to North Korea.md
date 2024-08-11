@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/vmconnect-supply-chain-campaign-continues](https://www.reversinglabs.com/blog/vmconnect-supply-chain-campaign-continues)
+
 # VMConnect Supply Chain Attack Continues, Evidence Points to North Korea
 
 Incident: VMConnect Supply Chain Attack

@@ -1,3 +1,5 @@
+Source: [https://www.zscaler.com/blogs/security-research/janelarat-repurposed-bx-rat-variant-targeting-latam-fintech](https://www.zscaler.com/blogs/security-research/janelarat-repurposed-bx-rat-variant-targeting-latam-fintech)
+
 # JanelaRAT Repurposed BX Rat Variant Targeting LATAM FinTech
 
 Incident: JanelaRAT Campaign Targeting LATAM FinTech

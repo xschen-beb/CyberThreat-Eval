@@ -1,3 +1,5 @@
+Source: [https://www.cadosecurity.com/tracking-diicot-an-emerging-romanian-threat-actor/](https://www.cadosecurity.com/tracking-diicot-an-emerging-romanian-threat-actor/)
+
 # Tracking Diicot An Emerging Romanian Threat Actor
 
 ### Incident: Diicot Malware Campaign
@@ -30,7 +32,7 @@
 - **Port:** 22, 2000
 - **Severity:** Critical
 - **Incident:** Diicot Malware Campaign
-- **Signature name:** ìSSH Brute Force Attackî
+- **Signature name:** ‚ÄúSSH Brute Force Attack‚Äù
 - **Internal checks:**
   - **Setting1:** SSH should use key-based authentication.
   - **Setting2:** SSH should not be accessible from the external internet except from trusted IPs.

@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/kimsuky-evolves-reconnaissance-capabilities-in-new-global-campaign/](https://www.sentinelone.com/labs/kimsuky-evolves-reconnaissance-capabilities-in-new-global-campaign/)
+
 # Kimsuky Evolves Reconnaissance Capabilities in New Global Campaign
 
 Incident: Kimsuky ReconShark Attack
@@ -25,7 +27,7 @@ Service: Microsoft Office (Word, Excel, etc.)
 Port: Not applicable (local execution of macros)
 Severity: Critical
 Incident: Kimsuky ReconShark Attack
-Signature name: ìMalicious macro execution in Microsoft Officeî
+Signature name: ‚ÄúMalicious macro execution in Microsoft Office‚Äù
 Internal checks:
    - Setting1: Macros should be disabled by default in Microsoft Office applications.
    - Setting2: Only allow macros from trusted locations or signed by trusted publishers.

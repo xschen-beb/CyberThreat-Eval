@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/malvirt-net-virtualization-thrives-in-malvertising-attacks/](https://www.sentinelone.com/labs/malvirt-net-virtualization-thrives-in-malvertising-attacks/)
+
 # MalVirt   .NET Virtualization Thrives in Malvertising Attacks
 
 Incident: MalVirt Malvertising Campaign
@@ -25,7 +27,7 @@ Detection Signature:
   - Port: N/A (networks and endpoints should be monitored)
   - Severity: Critical
   - Incident: MalVirt Malvertising Campaign
-  - Signature name: ìMalVirt Loader Detectionî
+  - Signature name: ‚ÄúMalVirt Loader Detection‚Äù
   - Internal checks:
     - Setting1: Monitor for the presence of unexpected .NET assemblies and virtualization frameworks like KoiVM.
     - Setting2: Detect and alert on the loading of unsigned or suspiciously signed drivers, such as the Process Explorer driver.

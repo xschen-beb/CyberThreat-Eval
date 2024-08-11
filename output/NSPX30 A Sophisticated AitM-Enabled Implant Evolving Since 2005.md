@@ -1,3 +1,5 @@
+Source: [https://www.welivesecurity.com/en/eset-research/nspx30-sophisticated-aitm-enabled-implant-evolving-since-2005/](https://www.welivesecurity.com/en/eset-research/nspx30-sophisticated-aitm-enabled-implant-evolving-since-2005/)
+
 # NSPX30 A Sophisticated AitM-Enabled Implant Evolving Since 2005
 
 Incident: NSPX30 Adversary-in-the-Middle Attack
@@ -33,7 +35,7 @@ Detection Signature:
    - **Port**: Varies (commonly HTTP/HTTPS ports like 80, 443)
    - **Severity**: Critical
    - **Incident**: NSPX30 Adversary-in-the-Middle Attack
-   - **Signature name**: ìNSPX30 deployment via hijacked updatesî
+   - **Signature name**: ‚ÄúNSPX30 deployment via hijacked updates‚Äù
    - **Internal checks**:
      - Setting1: Ensure all software updates are fetched over HTTPS.
      - Setting2: Verify the integrity of downloaded update files using digital signatures.

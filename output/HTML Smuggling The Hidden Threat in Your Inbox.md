@@ -1,3 +1,5 @@
+Source: [https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/html-smuggling-the-hidden-threat-in-your-inbox/](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/html-smuggling-the-hidden-threat-in-your-inbox/)
+
 # HTML Smuggling The Hidden Threat in Your Inbox
 
 Incident: HTML Smuggling: The Hidden Threat in Your Inbox

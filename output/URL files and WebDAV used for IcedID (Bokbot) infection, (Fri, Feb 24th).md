@@ -1,3 +1,5 @@
+Source: [https://isc.sans.edu/diary/rss/29578](https://isc.sans.edu/diary/rss/29578)
+
 # URL files and WebDAV used for IcedID (Bokbot) infection, (Fri, Feb 24th)
 
 Incident: IcedID (Bokbot) infection via URL files and WebDAV
@@ -29,11 +31,11 @@ Service: WebDAV
 Port: 80 (HTTP)
 Severity: Critical
 Incident: IcedID (Bokbot) infection via URL files and WebDAV
-Signature name: ìWebDAV malicious activityî
+Signature name: ‚ÄúWebDAV malicious activity‚Äù
 Internal checks:
-    - Setting1: WebDAV server should require authentication for access. ñ In platform
-    - Setting2: WebDAV server should not be accessible from the external Internet without proper access control ñ Inside VMs
-    - Setting3: WebDAV server should be kept up to date with security patches ñ Inside VMs
+    - Setting1: WebDAV server should require authentication for access. ‚Äì In platform
+    - Setting2: WebDAV server should not be accessible from the external Internet without proper access control ‚Äì Inside VMs
+    - Setting3: WebDAV server should be kept up to date with security patches ‚Äì Inside VMs
 External scanning:
     - Port (80) open
     - WebDAV accessible without authentication

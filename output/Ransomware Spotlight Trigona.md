@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-trigona](https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-trigona)
+
 # Ransomware Spotlight Trigona
 
 Incident: Trigona Ransomware Attack
@@ -21,11 +23,11 @@ Detection Signature:
 - **Port**: MSSQL (1433), ADSelfService Plus (varies based on configuration)
 - **Severity**: Critical
 - **Incident**: Trigona Ransomware Attack
-- **Signature name**: ìZoho ManageEngine ADSelfService Plus CVE-2021-40539î and ìMSSQL brute-force attackî
+- **Signature name**: ‚ÄúZoho ManageEngine ADSelfService Plus CVE-2021-40539‚Äù and ‚ÄúMSSQL brute-force attack‚Äù
   - **Internal checks**:
-    - **Setting1**: Ensure Zoho ManageEngine ADSelfService Plus is updated to the latest version. ñ In platform
-    - **Setting2**: Monitor and limit access to MSSQL server ports (1433) to trusted IP addresses only. ñ Inside VMs
-    - **Setting3**: Enforce strong password policies and MFA for MSSQL servers. ñ Inside VMs
+    - **Setting1**: Ensure Zoho ManageEngine ADSelfService Plus is updated to the latest version. ‚Äì In platform
+    - **Setting2**: Monitor and limit access to MSSQL server ports (1433) to trusted IP addresses only. ‚Äì Inside VMs
+    - **Setting3**: Enforce strong password policies and MFA for MSSQL servers. ‚Äì Inside VMs
   - **External scanning**:
     - **Port (1433) open**
     - **Zoho ManageEngine ADSelfService Plus vulnerable version detected**

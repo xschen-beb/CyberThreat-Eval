@@ -1,4 +1,6 @@
-# New Phishing-As-A-Service Tool “Greatness” Already Seen In The Wild
+Source: [https://blog.talosintelligence.com/new-phishing-as-a-service-tool-greatness-already-seen-in-the-wild/](https://blog.talosintelligence.com/new-phishing-as-a-service-tool-greatness-already-seen-in-the-wild/)
+
+# New Phishing-As-A-Service Tool â€œGreatnessâ€ Already Seen In The Wild
 
 Incident: "Greatness" Phishing-as-a-Service (PaaS) Tool
 
@@ -20,7 +22,7 @@ Service: Web Server (hosting the phishing kit)
 Port: 80, 443   
 Severity: Critical  
 Incident: "Greatness" Phishing-as-a-Service Tool  
-Signature name: “Greatness Phishing Kit Deployment”    
+Signature name: â€œGreatness Phishing Kit Deploymentâ€    
 Internal checks:    
     - Setting1: Ensure that web servers hosting Microsoft 365 login pages are not compromised.    
     - Setting2: Verify that no unauthorized scripts or phishing kits are deployed on web servers.    

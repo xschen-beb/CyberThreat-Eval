@@ -1,3 +1,5 @@
+Source: [https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/a-noteworthy-threat-how-cybercriminals-are-abusing-onenote-part-2/](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/a-noteworthy-threat-how-cybercriminals-are-abusing-onenote-part-2/)
+
 # A Noteworthy Threat How Cybercriminals are Abusing OneNote
 
 Incident: Abuse of OneNote for Malware Delivery

@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/eastern-asian-android-assault-fluhorse/](https://research.checkpoint.com/2023/eastern-asian-android-assault-fluhorse/)
+
 # Eastern Asian Android Assault - FluHorse
 
 **Incident:** Eastern Asian Android Assault - FluHorse

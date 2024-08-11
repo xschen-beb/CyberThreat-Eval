@@ -1,3 +1,5 @@
+Source: [https://sysdig.com/blog/labrat-cryptojacking-proxyjacking-campaign/](https://sysdig.com/blog/labrat-cryptojacking-proxyjacking-campaign/)
+
 # LABRAT Stealthy Cryptojacking and Proxyjacking Campaign Targeting GitLab 
 
 ### Incident: LABRAT: Stealthy Cryptojacking and Proxyjacking Campaign Targeting GitLab

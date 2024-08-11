@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/f/behind-the-scenes-unveiling-the-hidden-workings-of-earth-preta.html](https://www.trendmicro.com/en_us/research/23/f/behind-the-scenes-unveiling-the-hidden-workings-of-earth-preta.html)
+
 # Behind the Scenes Unveiling the Hidden Workings of Earth Preta
 
 ### Incident: Earth Preta APT Campaign

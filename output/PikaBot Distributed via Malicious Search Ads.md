@@ -1,3 +1,5 @@
+Source: [https://www.malwarebytes.com/blog/threat-intelligence/2023/12/pikabot-distributed-via-malicious-ads](https://www.malwarebytes.com/blog/threat-intelligence/2023/12/pikabot-distributed-via-malicious-ads)
+
 # PikaBot Distributed via Malicious Search Ads
 
 Incident: PikaBot Distributed via Malicious Search Ads

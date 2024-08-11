@@ -1,3 +1,5 @@
+Source: [https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-353a](https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-353a)
+
 # StopRansomware ALPHV Blackcat
 
 Incident: ALPHV Blackcat Ransomware Attack
@@ -26,7 +28,7 @@ Detection Signature:
 - Port: Various based on service (e.g., 443 for HTTPS, 80 for HTTP, etc.)
 - Severity: Critical
 - Incident: ALPHV Blackcat Ransomware Attack
-- Signature name: ìALPHV Blackcat activity detectedî
+- Signature name: ‚ÄúALPHV Blackcat activity detected‚Äù
 - Internal checks:
   - Setting1: Unauthorized remote access tools should not be installed or executed.
   - Setting2: Implement application allowlisting to block unlisted applications.

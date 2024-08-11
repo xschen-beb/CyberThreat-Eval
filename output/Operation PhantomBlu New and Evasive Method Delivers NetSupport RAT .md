@@ -1,3 +1,5 @@
+Source: [https://perception-point.io/blog/operation-phantomblu-new-and-evasive-method-delivers-netsupport-rat/](https://perception-point.io/blog/operation-phantomblu-new-and-evasive-method-delivers-netsupport-rat/)
+
 # Operation PhantomBlu New and Evasive Method Delivers NetSupport RAT 
 
 Incident: Operation PhantomBlu: New and Evasive Method Delivers NetSupport RAT
@@ -37,7 +39,7 @@ Detection Signature:
    Port: N/A (as this is primarily an email and document-based attack)
    Severity: Critical
    Incident: Operation PhantomBlu
-   Signature name: ìOLE Template Manipulation in Emailî
+   Signature name: ‚ÄúOLE Template Manipulation in Email‚Äù
    Internal checks:
       - Setting1: Monitor for OLE objects in incoming email attachments - In email security solutions
       - Setting2: Detect and alert on the use of PowerShell to download and execute scripts - In endpoint protection solutions
@@ -70,5 +72,5 @@ IoCs:
      - 46[.]105[.]141[.]54
 
    - Others:
-     - Message ID contains: ìsendinblue.comî
-     - Return Path contains: ìsender-sib.comî
+     - Message ID contains: ‚Äúsendinblue.com‚Äù
+     - Return Path contains: ‚Äúsender-sib.com‚Äù

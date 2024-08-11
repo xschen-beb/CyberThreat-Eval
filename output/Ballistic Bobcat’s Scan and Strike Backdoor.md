@@ -1,3 +1,5 @@
+Source: [https://www.welivesecurity.com/en/eset-research/sponsor-batch-filed-whiskers-ballistic-bobcats-scan-strike-backdoor/](https://www.welivesecurity.com/en/eset-research/sponsor-batch-filed-whiskers-ballistic-bobcats-scan-strike-backdoor/)
+
 # Ballistic Bobcat’s Scan and Strike Backdoor
 
 ### Incident: Sponsoring Access Campaign by Ballistic Bobcat 

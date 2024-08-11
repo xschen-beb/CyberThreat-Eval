@@ -1,3 +1,5 @@
+Source: [https://www.malwarebytes.com/blog/threat-intelligence/2023/07/socgholish-copycat-delivers-netsupport-rat](https://www.malwarebytes.com/blog/threat-intelligence/2023/07/socgholish-copycat-delivers-netsupport-rat)
+
 # FakeSG Enters the FakeUpdates Arena to Deliver NetSupport RAT
 
 Incident: FakeSG enters the ‘FakeUpdates’ arena to deliver NetSupport RAT

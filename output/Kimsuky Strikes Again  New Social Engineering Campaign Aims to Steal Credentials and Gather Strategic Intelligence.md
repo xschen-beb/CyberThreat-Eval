@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/kimsuky-new-social-engineering-campaign-aims-to-steal-credentials-and-gather-strategic-intelligence/](https://www.sentinelone.com/labs/kimsuky-new-social-engineering-campaign-aims-to-steal-credentials-and-gather-strategic-intelligence/)
+
 # Kimsuky Strikes Again  New Social Engineering Campaign Aims to Steal Credentials and Gather Strategic Intelligence
 
 Incident: Kimsuky Social Engineering & Credential Theft Campaign

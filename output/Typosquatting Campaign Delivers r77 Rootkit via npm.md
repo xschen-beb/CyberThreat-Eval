@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/r77-rootkit-typosquatting-npm-threat-research](https://www.reversinglabs.com/blog/r77-rootkit-typosquatting-npm-threat-research)
+
 # Typosquatting Campaign Delivers r77 Rootkit via npm
 
 Incident: Typosquatting campaign delivers r77 rootkit via npm
@@ -19,7 +21,7 @@ Detection Signature:
 - Port: N/A (since it's a package management issue, not a network service issue)
 - Severity: Critical
 - Incident: Typosquatting campaign on npm
-- Signature name: ìMalicious npm package detectedî
+- Signature name: ‚ÄúMalicious npm package detected‚Äù
   - Internal checks:
     - Setting1: Ensure npm packages are sourced from trusted registries.
     - Setting2: Implement monitoring of npm package usage within development environments.

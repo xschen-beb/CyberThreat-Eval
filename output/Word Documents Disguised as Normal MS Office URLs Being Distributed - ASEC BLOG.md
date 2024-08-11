@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/42554/](https://asec.ahnlab.com/en/42554/)
+
 # Word Documents Disguised as Normal MS Office URLs Being Distributed - ASEC BLOG
 
 Incident: Word Documents Disguised as Normal MS Office URLs Being Distributed
@@ -27,14 +29,14 @@ Mitigation: Educate users to verify the source of document files before opening 
 
 5. **Incident Response Plan:**
    - Develop and maintain an incident response plan to handle security breaches.
-   - Conduct regular drills to ensure the planís effectiveness and readiness.
+   - Conduct regular drills to ensure the plan‚Äôs effectiveness and readiness.
 
 Detection Signature:
    Service: HTTP
    Port: 80 (HTTP)
    Severity: Critical
    Incident: Malicious Word Document Distribution
-   Signature name: ìDisguised Malicious Office URLsî
+   Signature name: ‚ÄúDisguised Malicious Office URLs‚Äù
    Internal checks:
       - Setting1: Monitor outgoing HTTP requests to known malicious domains.
       - Setting2: Implement URL filtering to block access to suspicious domains.

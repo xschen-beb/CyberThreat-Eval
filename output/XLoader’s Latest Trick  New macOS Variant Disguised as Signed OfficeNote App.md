@@ -1,6 +1,8 @@
-# XLoaderís Latest Trick  New macOS Variant Disguised as Signed OfficeNote App
+Source: [https://www.sentinelone.com/blog/xloaders-latest-trick-new-macos-variant-disguised-as-signed-officenote-app/](https://www.sentinelone.com/blog/xloaders-latest-trick-new-macos-variant-disguised-as-signed-officenote-app/)
 
-Incident: XLoaderís Latest Trick - New macOS Variant Disguised as Signed OfficeNote App
+# XLoader‚Äôs Latest Trick  New macOS Variant Disguised as Signed OfficeNote App
+
+Incident: XLoader‚Äôs Latest Trick - New macOS Variant Disguised as Signed OfficeNote App
 
 Root cause: The root cause of this incident is the distribution of a new variant of the XLoader malware disguised as a legitimate OfficeNote application signed with a now-revoked Apple developer signature.
 
@@ -41,7 +43,7 @@ Service: macOS System
 Port: N/A
 Severity: Critical
 Incident: XLoader Variant Disguised as OfficeNote
-Signature name: ìMalicious macOS Application - OfficeNoteî
+Signature name: ‚ÄúMalicious macOS Application - OfficeNote‚Äù
 Internal checks:
   - Setting1: Verify the developer signature of applications before execution.
   - Setting2: Monitor for creation of hidden directories and unauthorized persistence agents.

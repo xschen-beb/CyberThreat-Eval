@@ -1,3 +1,5 @@
+Source: [https://www.trellix.com/en-us/about/newsroom/stories/research/skuld-the-infostealer-that-speaks-golang.html](https://www.trellix.com/en-us/about/newsroom/stories/research/skuld-the-infostealer-that-speaks-golang.html)
+
 # Skuld The Infostealer That Speaks Golang
 
 Incident: Skuld Infostealer Incident
@@ -20,7 +22,7 @@ Detection Signature:
 - Port: Not applicable (being stealthy and using regular application ports)
 - Severity: Critical
 - Incident: Skuld Infostealer
-- Signature name: ìSkuld Infostealer Detectionî
+- Signature name: ‚ÄúSkuld Infostealer Detection‚Äù
   - Internal checks:
     - Setting1: Monitor for unauthorized modifications to %APPDATA%\BetterDiscord\data\betterdiscord.asar and %APPDATA%\DiscordTokenProtector\config.json.
     - Setting2: Detect and block unauthorized JavaScript injection attempts in Discord.

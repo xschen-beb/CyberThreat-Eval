@@ -1,3 +1,5 @@
+Source: [https://blog.sucuri.net/2023/12/40-new-domains-of-magecart-veteran-atmzow-found-in-google-tag-manager.html](https://blog.sucuri.net/2023/12/40-new-domains-of-magecart-veteran-atmzow-found-in-google-tag-manager.html)
+
 # 40 New Domains of Magecart Veteran ATMZOW Found in Google Tag Manager
 
 Incident: Magecart Skimming Campaign via Google Tag Manager
@@ -32,7 +34,7 @@ Service: Google Tag Manager
 Port: Not applicable (web service)
 Severity: Critical
 Incident: Magecart Skimming
-Signature name: ìMalicious GTM Containerî
+Signature name: ‚ÄúMalicious GTM Container‚Äù
 Internal checks:
 - Setting1: Regularly audit Google Tag Manager containers for unauthorized scripts.
 - Setting2: Implement CSP and SRI.

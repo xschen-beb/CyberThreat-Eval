@@ -1,3 +1,5 @@
+Source: [https://nsfocusglobal.com/warning-newly-discovered-apt-attacker-atlascross-exploits-red-cross-blood-drive-phishing-for-cyberattack/](https://nsfocusglobal.com/warning-newly-discovered-apt-attacker-atlascross-exploits-red-cross-blood-drive-phishing-for-cyberattack/)
+
 # Red Cross-Themed Phishing Attacks Distributing DangerAds and AtlasAgent Backdoors
 
 ### Incident: AtlasCross Exploits Red Cross Blood Drive Phishing for Cyberattack

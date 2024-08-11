@@ -1,3 +1,5 @@
+Source: [https://securityintelligence.com/x-force/hive0051-malicious-operations-enabled-dns-fluxing/](https://securityintelligence.com/x-force/hive0051-malicious-operations-enabled-dns-fluxing/)
+
 # Hive0051’s Large Scale Malicious Operations Enabled by Synchronized Multi-Channel DNS Fluxing
 
 Incident: Hive0051 Multi-Channel DNS Fluxing Operations

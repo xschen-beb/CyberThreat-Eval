@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/following-the-lnk-metadata-trail/](https://blog.talosintelligence.com/following-the-lnk-metadata-trail/)
+
 # Following the LNK Metadata Trail
 
 **Incident:** Malicious LNK files used for initial access by various malware families
@@ -33,7 +35,7 @@
 - **Port:** Not applicable
 - **Severity:** High
 - **Incident:** Malicious LNK file usage
-- **Signature name:** ìMalicious LNK file with wiped metadataî
+- **Signature name:** ‚ÄúMalicious LNK file with wiped metadata‚Äù
 - **Internal checks:**
   - **Setting1:** Monitor for LNK files with missing or suspicious metadata fields (e.g., empty MAC timestamps).
   - **Setting2:** Use endpoint protection solutions to detect and block the execution of LNK files.

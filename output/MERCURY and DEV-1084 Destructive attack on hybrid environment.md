@@ -1,3 +1,5 @@
+Source: [https://www.microsoft.com/en-us/security/blog/2023/04/07/mercury-and-dev-1084-destructive-attack-on-hybrid-environment/](https://www.microsoft.com/en-us/security/blog/2023/04/07/mercury-and-dev-1084-destructive-attack-on-hybrid-environment/)
+
 # MERCURY and DEV-1084 Destructive attack on hybrid environment
 
 **Incident:** MERCURY and DEV-1084: Destructive attack on hybrid environment
@@ -60,7 +62,7 @@
 - **Port:** 8080 (for Apache Tomcat), 443 (for Azure AD Connect)
 - **Severity:** Critical
 - **Incident:** Exploitation of unpatched vulnerabilities and misuse of privileged credentials
-- **Signature name:** ìLog4j vulnerability exploitationî and ìAzure AD Connect compromiseî
+- **Signature name:** ‚ÄúLog4j vulnerability exploitation‚Äù and ‚ÄúAzure AD Connect compromise‚Äù
 - **Internal checks:**
   - Setting1: Ensure all internet-facing devices are patched against known vulnerabilities.
   - Setting2: Monitor for suspicious activities involving privileged accounts.

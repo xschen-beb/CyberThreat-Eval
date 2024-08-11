@@ -1,3 +1,5 @@
+Source: [https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/agent-teslas-new-ride-the-rise-of-a-novel-loader/](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/agent-teslas-new-ride-the-rise-of-a-novel-loader/)
+
 # Agent Teslas New Ride The Rise of a Novel Loader
 
 Incident: Agent Tesla's New Ride: The Rise of a Novel Loader
@@ -39,11 +41,11 @@ Service: HTTP Proxy
 Port: 80  
 Severity: Critical  
 Incident: Agent Tesla Loader Deployment  
-Signature name: ìAgent Tesla Loader Emailî    
+Signature name: ‚ÄúAgent Tesla Loader Email‚Äù    
 Internal checks:
-- Setting1: Ensure email gateway rules are in place to block suspicious attachments. ñ Email Security  
-- Setting2: Monitor for execution of unknown .NET executables. ñ Endpoint Security  
-- Setting3: Check for unauthorized AMSI bypass attempts. ñ Endpoint Security  
+- Setting1: Ensure email gateway rules are in place to block suspicious attachments. ‚Äì Email Security  
+- Setting2: Monitor for execution of unknown .NET executables. ‚Äì Endpoint Security  
+- Setting3: Check for unauthorized AMSI bypass attempts. ‚Äì Endpoint Security  
 
 External scanning:
 - Monitor for suspicious user-agent strings indicative of the loader's HTTP requests.

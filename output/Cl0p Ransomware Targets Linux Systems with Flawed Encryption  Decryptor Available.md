@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/cl0p-ransomware-targets-linux-systems-with-flawed-encryption-decryptor-available/](https://www.sentinelone.com/labs/cl0p-ransomware-targets-linux-systems-with-flawed-encryption-decryptor-available/)
+
 # Cl0p Ransomware Targets Linux Systems with Flawed Encryption  Decryptor Available
 
 Incident: Cl0p Ransomware Targets Linux Systems with Flawed Encryption

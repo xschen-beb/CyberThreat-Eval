@@ -1,3 +1,5 @@
+Source: [https://blog.qualys.com/qualys-insights/2023/09/18/the-mgm-cybersecurity-breach-learnings-and-prevention-measures](https://blog.qualys.com/qualys-insights/2023/09/18/the-mgm-cybersecurity-breach-learnings-and-prevention-measures)
+
 # MGM Casinos ESXi Servers Allegedly Encrypted in Ransomware Attack
 
 Incident: MGM Cybersecurity Breach

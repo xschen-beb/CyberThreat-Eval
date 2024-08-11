@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-play](https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-play)
+
 # Ransomware Spotlight Play
 
 Incident: Play Ransomware Attacks
@@ -43,7 +45,7 @@ Detection Signature:
    - **Port:** 443 (common for HTTPS and SSL VPN)
    - **Severity:** Critical
    - **Incident:** Play Ransomware
-   - **Signature name:** ìPlay ransomware initial accessî
+   - **Signature name:** ‚ÄúPlay ransomware initial access‚Äù
    
    Internal checks:
    - Setting1: Ensure Microsoft Exchange Server and FortiOS SSL VPN are patched for known vulnerabilities.

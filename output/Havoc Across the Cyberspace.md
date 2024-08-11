@@ -1,3 +1,5 @@
+Source: [https://www.zscaler.com/blogs/security-research/havoc-across-cyberspace](https://www.zscaler.com/blogs/security-research/havoc-across-cyberspace)
+
 # Havoc Across the Cyberspace
 
 Incident: Havoc Across the Cyberspace
@@ -19,11 +21,11 @@ Detection Signature:
    Port: 80
    Severity: Critical
    Incident: Havoc C2 Framework Exploitation
-   Signature name: ìHavoc C2 Communicationî
+   Signature name: ‚ÄúHavoc C2 Communication‚Äù
    Internal checks:
-       - Setting1: Monitor for unauthorized HTTP traffic ñ In network devices
-       - Setting2: Block unknown external HTTP requests ñ In network devices
-       - Setting3: Detect unauthorized executable downloads ñ In endpoint protection systems
+       - Setting1: Monitor for unauthorized HTTP traffic ‚Äì In network devices
+       - Setting2: Block unknown external HTTP requests ‚Äì In network devices
+       - Setting3: Detect unauthorized executable downloads ‚Äì In endpoint protection systems
    External scanning:
        - Port 80 open
        - HTTP traffic to suspicious IP (e.g., 146.190.48.229)

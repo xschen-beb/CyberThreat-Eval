@@ -1,3 +1,5 @@
+Source: [https://www.intezer.com/blog/research/phishing-campaign-targets-nuclear-energy-industry/](https://www.intezer.com/blog/research/phishing-campaign-targets-nuclear-energy-industry/)
+
 # Phishing Campaign Targets Chinese Nuclear Energy Industry
 
 ### Incident: Phishing Campaign Targets Chinese Nuclear Energy Industry

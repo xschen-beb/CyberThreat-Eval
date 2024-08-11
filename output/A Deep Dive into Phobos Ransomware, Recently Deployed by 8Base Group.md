@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/deep-dive-into-phobos-ransomware/](https://blog.talosintelligence.com/deep-dive-into-phobos-ransomware/)
+
 # A Deep Dive into Phobos Ransomware, Recently Deployed by 8Base Group
 
 Incident: Phobos Ransomware Deployment by 8Base Group

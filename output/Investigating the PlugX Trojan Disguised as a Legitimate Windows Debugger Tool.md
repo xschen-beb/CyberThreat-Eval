@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/b/investigating-the-plugx-trojan-disguised-as-a-legitimate-windows.html](https://www.trendmicro.com/en_us/research/23/b/investigating-the-plugx-trojan-disguised-as-a-legitimate-windows.html)
+
 # Investigating the PlugX Trojan Disguised as a Legitimate Windows Debugger Tool
 
 Incident: PlugX Trojan Disguised as Legitimate Windows Debugger Tool
@@ -20,7 +22,7 @@ Detection Signature:
   Service: Windows OS
   Severity: Critical
   Incident: PlugX Trojan 
-  Signature name: ìPlugX DLL sideloading detectionî
+  Signature name: ‚ÄúPlugX DLL sideloading detection‚Äù
   Internal checks:
     - Setting1: Monitor for execution of x32dbg.exe from non-standard directories.
     - Setting2: Check for the presence of suspicious DLLs (e.g., x32bridge.dll) in the same directory as legitimate executables.

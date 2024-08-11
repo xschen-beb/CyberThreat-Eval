@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/55219/](https://asec.ahnlab.com/en/55219/)
+
 # Malicious Batch File (.bat) Disguised as a Document Viewer Being Distributed (Kimsuky) - ASEC BLOG
 
 Incident: Malicious Batch File (*.bat) Disguised as a Document Viewer Distributed by Kimsuky
@@ -30,12 +32,12 @@ Detection Signature:
    Port: 25 (SMTP)
    Severity: Critical
    Incident: Malicious Batch File (*.bat) Disguised as a Document Viewer
-   Signature name: ìMalicious Batch File Email Distributionî
+   Signature name: ‚ÄúMalicious Batch File Email Distribution‚Äù
    
    Internal checks:
-   - Setting1: Scan all incoming email attachments for batch files (*.bat). ñ Email Gateway
-   - Setting2: Quarantine emails with suspicious batch file attachments for further analysis. ñ Email Gateway
-   - Setting3: Alert security teams upon detection of malicious batch file attachments. ñ Email Gateway
+   - Setting1: Scan all incoming email attachments for batch files (*.bat). ‚Äì Email Gateway
+   - Setting2: Quarantine emails with suspicious batch file attachments for further analysis. ‚Äì Email Gateway
+   - Setting3: Alert security teams upon detection of malicious batch file attachments. ‚Äì Email Gateway
 
    External scanning:
    - Check for known malicious URLs used to distribute batch files.

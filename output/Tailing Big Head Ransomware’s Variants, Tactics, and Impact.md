@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/g/tailing-big-head-ransomware-variants-tactics-and-impact.html](https://www.trendmicro.com/en_us/research/23/g/tailing-big-head-ransomware-variants-tactics-and-impact.html)
+
 # Tailing Big Head Ransomware’s Variants, Tactics, and Impact
 
 **Incident: Big Head Ransomware Variants Analysis**

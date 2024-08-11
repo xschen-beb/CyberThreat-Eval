@@ -1,3 +1,5 @@
+Source: [https://blog.google/threat-analysis-group/zimbra-0-day-used-to-steal-email-data-from-government-organizations/](https://blog.google/threat-analysis-group/zimbra-0-day-used-to-steal-email-data-from-government-organizations/)
+
 # Zimbra 0-Day Used to Steal Email Data From Government Organizations
 
 **Incident:** Zimbra 0-day Exploit Targeting International Government Organizations

@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/rorschach-a-new-sophisticated-and-fast-ransomware/](https://research.checkpoint.com/2023/rorschach-a-new-sophisticated-and-fast-ransomware/)
+
 # Rorschach – A New Sophisticated and Fast Ransomware
 
 ### Incident: Rorschach Ransomware Attack

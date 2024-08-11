@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2024/magnet-goblin-targets-publicly-facing-servers-using-1-day-vulnerabilities/](https://research.checkpoint.com/2024/magnet-goblin-targets-publicly-facing-servers-using-1-day-vulnerabilities/)
+
 # Magnet Goblin Targets Publicly Facing Servers Using 1-Day Vulnerabilities
 
 ### Incident: Magnet Goblin Targets Publicly Facing Servers Using 1-Day Vulnerabilities
@@ -41,7 +43,7 @@
 - **Port:** Various (depending on the service exploited)
 - **Severity:** Critical
 - **Incident:** Magnet Goblin Exploitation
-- **Signature name:** ì1-Day Vulnerability Exploitationî
+- **Signature name:** ‚Äú1-Day Vulnerability Exploitation‚Äù
     - **Internal checks:**
         - **Setting1:** Ensure Ivanti Connect Secure VPN and other services are patched with the latest security updates.
         - **Setting2:** Restrict access to management interfaces from the internal network only.

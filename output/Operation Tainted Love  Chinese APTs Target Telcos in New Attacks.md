@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/operation-tainted-love-chinese-apts-target-telcos-in-new-attacks/](https://www.sentinelone.com/labs/operation-tainted-love-chinese-apts-target-telcos-in-new-attacks/)
+
 # Operation Tainted Love  Chinese APTs Target Telcos in New Attacks
 
 ### Incident: Operation Tainted Love | Chinese APTs Target Telcos in New Attacks
@@ -41,9 +43,9 @@
   - **Incident:** Tainted Love
   - **Signature name:** "Unauthorized Webshell Execution on Exchange"
   - **Internal Checks:**
-    - **Setting1:** Microsoft Exchange Server should not allow unauthorized webshells – Inside VMs
-    - **Setting2:** Check for unauthorized file modifications in C:\MS_DATA – Inside VMs
-    - **Setting3:** Ensure strong authentication mechanisms are in place – Inside VMs
+    - **Setting1:** Microsoft Exchange Server should not allow unauthorized webshells â€“ Inside VMs
+    - **Setting2:** Check for unauthorized file modifications in C:\MS_DATA â€“ Inside VMs
+    - **Setting3:** Ensure strong authentication mechanisms are in place â€“ Inside VMs
   - **External Scanning:**
     - **Port (443) open**
     - **Presence of known webshell signatures**

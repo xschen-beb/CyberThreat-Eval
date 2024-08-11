@@ -1,3 +1,5 @@
+Source: [https://securityintelligence.com/x-force/x-force-uncovers-global-netscaler-gateway-credential-harvesting-campaign/](https://securityintelligence.com/x-force/x-force-uncovers-global-netscaler-gateway-credential-harvesting-campaign/)
+
 # X-Force Uncovers Global NetScaler Gateway Credential Harvesting Campaign
 
 Incident: NetScaler Gateway Credential Harvesting Campaign

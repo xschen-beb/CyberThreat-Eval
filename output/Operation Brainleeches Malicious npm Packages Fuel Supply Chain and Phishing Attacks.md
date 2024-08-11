@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/operation-brainleeches-malicious-npm-packages-fuel-supply-chain-and-phishing-attacks](https://www.reversinglabs.com/blog/operation-brainleeches-malicious-npm-packages-fuel-supply-chain-and-phishing-attacks)
+
 # Operation Brainleeches Malicious npm Packages Fuel Supply Chain and Phishing Attacks
 
 Incident: Operation Brainleeches: Malicious npm packages fuel supply chain and phishing attacks

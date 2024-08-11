@@ -1,3 +1,5 @@
+Source: [https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/deobfuscating-the-recent-emotet-epoch-4-macro/](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/deobfuscating-the-recent-emotet-epoch-4-macro/)
+
 # Deobfuscating the Recent Emotet Epoch 4 Macro
 
 Incident: Emotet Epoch 4 Malware Campaign
@@ -35,7 +37,7 @@ Detection Signature:
    Port: N/A (Email vector)
    Severity: Critical
    Incident: Emotet Epoch 4 Malware Campaign
-   Signature name: ìEmotet OneNote Attachmentî
+   Signature name: ‚ÄúEmotet OneNote Attachment‚Äù
    Internal checks:
        - Setting1: Monitor for large attachments with zero-byte padding in incoming emails.
        - Setting2: Enable advanced email attachment scanning for OneNote and other document formats.

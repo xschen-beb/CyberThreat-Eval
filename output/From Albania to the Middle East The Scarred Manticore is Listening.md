@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/from-albania-to-the-middle-east-the-scarred-manticore-is-listening/](https://research.checkpoint.com/2023/from-albania-to-the-middle-east-the-scarred-manticore-is-listening/)
+
 # From Albania to the Middle East The Scarred Manticore is Listening
 
 **Incident:** Scarred Manticore Espionage Campaign

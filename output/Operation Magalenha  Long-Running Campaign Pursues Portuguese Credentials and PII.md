@@ -1,3 +1,5 @@
+Source: [https://www.sentinelone.com/labs/operation-magalenha-long-running-campaign-pursues-portuguese-credentials-and-pii/](https://www.sentinelone.com/labs/operation-magalenha-long-running-campaign-pursues-portuguese-credentials-and-pii/)
+
 # Operation Magalenha  Long-Running Campaign Pursues Portuguese Credentials and PII
 
 Incident: Operation Magalenha

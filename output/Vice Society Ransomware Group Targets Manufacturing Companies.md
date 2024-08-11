@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/a/vice-society-ransomware-group-targets-manufacturing-companies.html](https://www.trendmicro.com/en_us/research/23/a/vice-society-ransomware-group-targets-manufacturing-companies.html)
+
 # Vice Society Ransomware Group Targets Manufacturing Companies
 
 Incident: Vice Society Ransomware Group Targets Manufacturing Companies
@@ -41,7 +43,7 @@ Detection Signature:
 - **Port:** 3389
 - **Severity:** Critical
 - **Incident:** Vice Society Ransomware Attack
-- **Signature name:** ìRDP Brute-Force Detectionî
+- **Signature name:** ‚ÄúRDP Brute-Force Detection‚Äù
   
 Internal checks:
 - **Setting1:** Ensure RDP port (3389) is not exposed on external Internet-facing interfaces.

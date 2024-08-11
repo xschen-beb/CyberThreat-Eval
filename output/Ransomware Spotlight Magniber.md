@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-magniber](https://www.trendmicro.com/vinfo/us/security/news/ransomware-spotlight/ransomware-spotlight-magniber)
+
 # Ransomware Spotlight Magniber
 
 Incident: Magniber Ransomware Attack
@@ -30,7 +32,7 @@ Detection Signature:
    - Port: Various (primarily used for web traffic and command execution)
    - Severity: Critical
    - Incident: Magniber Ransomware Attack
-   - Signature name: ìMagniber Ransomware Executionî
+   - Signature name: ‚ÄúMagniber Ransomware Execution‚Äù
    - Internal checks:
        - Setting1: Ensure patches for known vulnerabilities (CVE-2022-44698, CVE-2021-34527, etc.) are applied. - In platform
        - Setting2: Monitor for unauthorized execution of MSI installers and JavaScript files. - Inside VMs

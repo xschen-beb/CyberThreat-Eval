@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/educated-manticore-iran-aligned-threat-actor-targeting-israel-via-improved-arsenal-of-tools/](https://research.checkpoint.com/2023/educated-manticore-iran-aligned-threat-actor-targeting-israel-via-improved-arsenal-of-tools/)
+
 # Educated Manticore - Iran Aligned Threat Actor Targeting Israel via Improved Arsenal of Tools
 
 **Incident: Educated Manticore - Iran Aligned Threat Actor Targeting Israel**
@@ -51,7 +53,7 @@
    - **Port:** 80/443
    - **Severity:** Critical
    - **Incident:** Educated Manticore 
-   - **Signature name:** ìISO Image Phishing Campaignî
+   - **Signature name:** ‚ÄúISO Image Phishing Campaign‚Äù
    - **Internal checks:**
      - Setting1: Monitor for unusual file types (e.g., ISO) in email attachments.
      - Setting2: Analyze download patterns for suspicious activity.

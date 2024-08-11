@@ -1,3 +1,5 @@
+Source: [https://www.welivesecurity.com/en/eset-research/lazarus-luring-employees-trojanized-coding-challenges-case-spanish-aerospace-company/](https://www.welivesecurity.com/en/eset-research/lazarus-luring-employees-trojanized-coding-challenges-case-spanish-aerospace-company/)
+
 # Lazarus Luring Employees with Trojanized Coding Challenges
 
 Incident: Lazarus luring employees with trojanized coding challenges at a Spanish aerospace company
@@ -21,7 +23,7 @@ Detection Signature:
 - **Port**: Not applicable (This attack vector involves user execution rather than a service listening on a port)
 - **Severity**: Critical
 - **Incident**: Lazarus spearphishing and trojanized executables
-- **Signature name**: ìLazarus trojanized executable executionî
+- **Signature name**: ‚ÄúLazarus trojanized executable execution‚Äù
     - **Internal checks**:
         - **Setting1**: Monitor execution of unusual or unexpected applications, particularly those not commonly used within the organization.
         - **Setting2**: Implement behavioral analysis to detect side-loading and reflective DLL injection techniques.

@@ -1,3 +1,5 @@
+Source: [https://research.checkpoint.com/2023/chinese-threat-actors-targeting-europe-in-smugx-campaign/](https://research.checkpoint.com/2023/chinese-threat-actors-targeting-europe-in-smugx-campaign/)
+
 # Chinese Threat Actors Targeting Europe in SmugX Campaign
 
 Incident: SmugX Campaign Targeting European Government Entities
@@ -36,7 +38,7 @@ Service: Web Servers (HTTP/HTTPS)
 Port: 80 (HTTP), 443 (HTTPS)
 Severity: Critical
 Incident: SmugX Campaign
-Signature name: ìHTML Smuggling Detectionî 
+Signature name: ‚ÄúHTML Smuggling Detection‚Äù 
 Internal checks:
   - Setting1: Monitor for suspicious JavaScript or HTML files attempting to download additional payloads.
   - Setting2: Inspect HTTP/HTTPS traffic for patterns indicative of HTML Smuggling techniques (e.g., createObjectURL, msSaveOrOpenBlob).

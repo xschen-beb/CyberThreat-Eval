@@ -1,3 +1,5 @@
+Source: [https://www.netskope.com/blog/evasive-phishing-campaign-steals-cloud-credentials-using-cloudflare-r2-and-turnstile](https://www.netskope.com/blog/evasive-phishing-campaign-steals-cloud-credentials-using-cloudflare-r2-and-turnstile)
+
 # Evasive Phishing Campaign Steals Cloud Credentials Using Cloudflare R2 and Turnstile
 
 ### Incident: Evasive Phishing Campaign Steals Cloud Credentials Using Cloudflare R2 and Turnstile

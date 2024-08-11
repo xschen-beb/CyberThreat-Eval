@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/emotet-switches-to-onenote/](https://blog.talosintelligence.com/emotet-switches-to-onenote/)
+
 # Emotet Resumes Spam Operations, Switches to OneNote
 
 Incident: Emotet Resumes Spam Operations, Switches to OneNote
@@ -35,7 +37,7 @@ Detection Signature:
 - **Port**: Not applicable (OneNote is typically used over standard HTTP/HTTPS ports, 80/443)
 - **Severity**: Critical
 - **Incident**: Emotet Resumes Spam Operations
-- **Signature name**: ìEmotet OneNote Malspamî
+- **Signature name**: ‚ÄúEmotet OneNote Malspam‚Äù
 - **Internal checks**:
     - **Setting1**: Ensure email attachments are scanned for malicious content.
     - **Setting2**: Configure endpoint protection to detect and block OneNote-based malware.

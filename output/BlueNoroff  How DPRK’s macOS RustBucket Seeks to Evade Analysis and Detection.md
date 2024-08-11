@@ -1,6 +1,8 @@
-# BlueNoroff  How DPRKís macOS RustBucket Seeks to Evade Analysis and Detection
+Source: [https://www.sentinelone.com/blog/bluenoroff-how-dprks-macos-rustbucket-seeks-to-evade-analysis-and-detection/](https://www.sentinelone.com/blog/bluenoroff-how-dprks-macos-rustbucket-seeks-to-evade-analysis-and-detection/)
 
-**Incident:** BlueNoroff | DPRKís macOS RustBucket Malware Campaign
+# BlueNoroff  How DPRK‚Äôs macOS RustBucket Seeks to Evade Analysis and Detection
+
+**Incident:** BlueNoroff | DPRK‚Äôs macOS RustBucket Malware Campaign
 
 **Root cause:** Multi-stage malware campaign targeting macOS users with sophisticated evasion and detection techniques.
 
@@ -35,7 +37,7 @@
 - **Port:** N/A (focus is on malware behavior rather than a specific service port)
 - **Severity:** Critical
 - **Incident:** RustBucket Malware Campaign
-- **Signature name:** ìRustBucket multi-stage malware detectionî
+- **Signature name:** ‚ÄúRustBucket multi-stage malware detection‚Äù
 - **Internal checks:**
   - **Setting1:** Monitor for execution of AppleScript (.app) files that lack user interfaces.
   - **Setting2:** Detect and alert on the creation of hidden files in the `/Users/Shared/` directory.

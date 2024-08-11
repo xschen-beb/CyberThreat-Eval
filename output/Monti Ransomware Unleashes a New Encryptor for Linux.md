@@ -1,3 +1,5 @@
+Source: [https://www.trendmicro.com/en_us/research/23/h/monti-ransomware-unleashes-a-new-encryptor-for-linux.html](https://www.trendmicro.com/en_us/research/23/h/monti-ransomware-unleashes-a-new-encryptor-for-linux.html)
+
 # Monti Ransomware Unleashes a New Encryptor for Linux
 
 Incident: Monti Ransomware Attack on Linux Systems
@@ -9,7 +11,7 @@ Impact: Legal and government sectors targeted, exact number of devices and finan
 Mitigation: 
 1. Implement multifactor authentication (MFA) to prevent attackers from moving laterally within the network.
 2. Follow the 3-2-1 backup rule: Create three copies of your data, store them in two different formats, and keep one copy offsite.
-3. Employ advanced security solutions such as Trend Vision Oneô, Trend Cloud Oneô ñ Workload Security, Trend Microô Deep Discoveryô Email Inspector, and Trend Micro Apex Oneô.
+3. Employ advanced security solutions such as Trend Vision One‚Ñ¢, Trend Cloud One‚Ñ¢ ‚Äì Workload Security, Trend Micro‚Ñ¢ Deep Discovery‚Ñ¢ Email Inspector, and Trend Micro Apex One‚Ñ¢.
 4. Regularly update and patch systems to close vulnerabilities that ransomware can exploit.
 
 Detection Signature:
@@ -17,11 +19,11 @@ Detection Signature:
     Port: Commonly 22 (but can vary)
     Severity: Critical
     Incident: Monti Ransomware Activity
-    Signature name: ìMonti Ransomware Indicatorsî
+    Signature name: ‚ÄúMonti Ransomware Indicators‚Äù
     Internal checks:
-        - Setting1: Ensure OpenSSH service is configured securely ñ In platform
-        - Setting2: Verify that SSH port (22) is not exposed to the Internet unless absolutely necessary ñ Inside VMs
-        - Setting3: Enforce strong, unique passwords and use MFA for SSH access ñ Inside VMs
+        - Setting1: Ensure OpenSSH service is configured securely ‚Äì In platform
+        - Setting2: Verify that SSH port (22) is not exposed to the Internet unless absolutely necessary ‚Äì Inside VMs
+        - Setting3: Enforce strong, unique passwords and use MFA for SSH access ‚Äì Inside VMs
     External scanning:
         - Port (22) open
         - Indicators of compromise related to Monti ransomware

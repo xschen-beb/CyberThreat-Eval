@@ -1,3 +1,5 @@
+Source: [https://securelist.com/malvertising-through-search-engines/108996/](https://securelist.com/malvertising-through-search-engines/108996/)
+
 # Malvertising in Google Search Results Delivering Stealers
 
 Incident: Malvertising in Google search results delivering stealers

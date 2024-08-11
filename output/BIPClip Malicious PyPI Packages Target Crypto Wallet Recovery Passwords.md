@@ -1,3 +1,5 @@
+Source: [https://www.reversinglabs.com/blog/bipclip-malicious-pypi-packages-target-crypto-wallet-recovery-passwords](https://www.reversinglabs.com/blog/bipclip-malicious-pypi-packages-target-crypto-wallet-recovery-passwords)
+
 # BIPClip Malicious PyPI Packages Target Crypto Wallet Recovery Passwords
 
 **Incident**: BIPClip: Malicious PyPI packages target crypto wallet recovery passwords
@@ -21,7 +23,7 @@
 - **Port**: Not applicable
 - **Severity**: Critical
 - **Incident**: BIPClip: Malicious PyPI packages targeting crypto wallet recovery passwords
-- **Signature name**: ìMalicious PyPI package detectedî
+- **Signature name**: ‚ÄúMalicious PyPI package detected‚Äù
 - **Internal checks**:
   - **Setting1**: Ensure all dependencies are verified and scanned for malicious code.
   - **Setting2**: Monitor for unexpected HTTP POST requests originating from development environments.

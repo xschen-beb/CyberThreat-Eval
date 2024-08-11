@@ -1,4 +1,6 @@
-# New Details on TinyTurlaís Post-Compromise Activity Reveal Full Kill Chain
+Source: [https://blog.talosintelligence.com/tinyturla-full-kill-chain/](https://blog.talosintelligence.com/tinyturla-full-kill-chain/)
+
+# New Details on TinyTurla‚Äôs Post-Compromise Activity Reveal Full Kill Chain
 
 Incident: TinyTurla Post-Compromise Activities
 
@@ -27,11 +29,11 @@ Detection Signature:
   Port: 5985, 5986
   Severity: Critical
   Incident: TinyTurla Post-Compromise Activities
-  Signature name: ìUnauthorized WinRM Connectionsî
+  Signature name: ‚ÄúUnauthorized WinRM Connections‚Äù
   Internal checks:
-    - Setting1: Ensure WinRM ports (5985, 5986) are not exposed to the external Internet. ñ In platform
-    - Setting2: Verify that WinRM ports (5985, 5986) are not listening on the external Internet. ñ Inside VMs
-    - Setting3: Ensure WinRM service is secured with authentication credentials and limited to authorized users. ñ Inside VMs
+    - Setting1: Ensure WinRM ports (5985, 5986) are not exposed to the external Internet. ‚Äì In platform
+    - Setting2: Verify that WinRM ports (5985, 5986) are not listening on the external Internet. ‚Äì Inside VMs
+    - Setting3: Ensure WinRM service is secured with authentication credentials and limited to authorized users. ‚Äì Inside VMs
   External scanning:
     - Port (5985, 5986) open
     - Unsecured WinRM connections

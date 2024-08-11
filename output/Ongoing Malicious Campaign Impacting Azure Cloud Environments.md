@@ -1,3 +1,5 @@
+Source: [https://www.proofpoint.com/us/blog/cloud-security/community-alert-ongoing-malicious-campaign-impacting-azure-cloud-environments](https://www.proofpoint.com/us/blog/cloud-security/community-alert-ongoing-malicious-campaign-impacting-azure-cloud-environments)
+
 # Ongoing Malicious Campaign Impacting Azure Cloud Environments
 
 Incident: Microsoft Azure Cloud Security Attack

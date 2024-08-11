@@ -1,3 +1,5 @@
+Source: [https://blog.talosintelligence.com/arid-viper-mobile-spyware/](https://blog.talosintelligence.com/arid-viper-mobile-spyware/)
+
 # Arid Viper Disguising Mobile Spyware as Updates for Non-Malicious Android Applications
 
 ### Incident: Arid Viper disguising mobile spyware as updates for non-malicious Android applications
@@ -31,7 +33,7 @@
 - **Port**: N/A (as Firebase generally uses HTTPS over port 443)
 - **Severity**: Critical
 - **Incident**: Firebase project compromise by Arid Viper
-- **Signature Name**: ìFirebase project misuseî
+- **Signature Name**: ‚ÄúFirebase project misuse‚Äù
 - **Internal Checks**:
   - **Setting1**: Ensure Firebase databases are not in test mode and enforce strict access controls.
   - **Setting2**: Monitor Firebase logs for unauthorized access attempts.

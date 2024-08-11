@@ -1,3 +1,5 @@
+Source: [https://asec.ahnlab.com/en/51908/](https://asec.ahnlab.com/en/51908/)
+
 # CoinMiner (KONO DIO DA) Distributed to Linux SSH Servers
 
 Incident: "KONO DIO DA" CoinMiner Distributed to Linux SSH Servers
@@ -25,9 +27,9 @@ Detection Signature:
   - Incident: Unauthorized SSH Access and CoinMiner Installation
   - Signature name: "Unauthorized SSH Access and CoinMiner Installation"
   - Internal checks:
-    - Setting1: Ensure SSH port (22 or custom) is not exposed to the external Internet without strict controls – In platform
-    - Setting2: Ensure SSH port (22 or custom) does not listen on external Internet without proper firewall rules – Inside VMs
-    - Setting3: Enforce the use of strong authentication credentials and/or SSH keys for SSH access – Inside VMs
+    - Setting1: Ensure SSH port (22 or custom) is not exposed to the external Internet without strict controls â€“ In platform
+    - Setting2: Ensure SSH port (22 or custom) does not listen on external Internet without proper firewall rules â€“ Inside VMs
+    - Setting3: Enforce the use of strong authentication credentials and/or SSH keys for SSH access â€“ Inside VMs
   - External scanning:
     - Port (22 or custom) open
     - Detect brute-force login attempts and unauthorized access attempts
