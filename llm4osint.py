@@ -234,9 +234,11 @@ fw = open(output_filename, "a")
 num = 0
 with open(input_filename) as f:
     for line in f:
+
         info = json.loads(line)
         info["title"] = ''.join([char for char in info["title"] if char not in ['#','@',':','|','/','\\','*','\'','\"','?']])
         num += 1
+        
         '''
         if num < 2:
             continue
@@ -257,6 +259,7 @@ with open(input_filename) as f:
             # dig_deeper(blog)
             md_filename = "empty-output/"+info["title"]+".md"
             with open(md_filename,"w") as mdf:
+                mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
                 mdf.write("# "+info["title"] + "\n\n")
                 mdf.write("This blog does not have enough info to help people understand the root cause behind the incident.")
                 mdf.write("\n")
@@ -316,6 +319,7 @@ with open(input_filename) as f:
         console.print(md)
         md_filename = "output/"+info["title"]+".md"
         with open(md_filename,"w", encoding='utf-8') as mdf:
+            mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
             mdf.write("# "+info["title"] + "\n\n")
             mdf.write(response_message.choices[0].message.content)
             mdf.write("\n")
@@ -326,3 +330,26 @@ with open(input_filename) as f:
         fw.flush()
         # break
 
+'''
+=============useless code====================
+md_filename = "empty-output/"+info["title"]+".md"
+if os.path.isfile(md_filename):
+    out_md_filename = "empty-output-tmp/"+info["title"]+".md"
+else:
+    md_filename = "output/"+info["title"]+".md"
+    if os.path.isfile(md_filename):
+        out_md_filename = "output-tmp/"+info["title"]+".md"
+    else:
+        print(f"no file for {info['title']}")
+print (f"{num}  {info['url']}")
+
+with open(out_md_filename, 'w', encoding='utf-8') as outfile:
+    outfile.write(f"Source: [{info['url']}]({info['url']})\n\n")
+    try:
+        with open(md_filename, 'r', encoding='utf-8') as infile:
+            outfile.write(infile.read())
+    except:
+        with open(md_filename, 'r') as infile:
+            outfile.write(infile.read())
+continue
+'''
