@@ -461,7 +461,7 @@ with open(input_filename) as f:
         
         # if num < 2:
         #     continue
-        if num > 2:
+        if num > 5:
             break
         
         print(RED +  f"==> The input is: " + RESET)
@@ -561,7 +561,7 @@ with open(input_filename) as f:
         with open(md_filename,"w", encoding='utf-8') as mdf:
             mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
             mdf.write("# "+info["title"] + "\n\n")
-            mdf.write(response_message.choices[0].message.content)
+            mdf.write(new_ti)
             mdf.write("\n")
 
         # print(response_message.choices[0].message.content)

@@ -14,7 +14,6 @@ playwright = "^1.44.0"
 playwright-stealth = "^1.0.6"
 
 
-
 [tool.pdm.build]
 includes = []
 [build-system]
@@ -33,6 +32,7 @@ dependencies = [
     "playwright>=1.45.1",
     "playwright-stealth<2.0.0,>=1.0.6",
     "rich>=13.7.1",
+    "setuptools>=73.0.1",
 ]
 name = "llm4misconf"
 version = "0.1.0"
