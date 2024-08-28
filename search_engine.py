@@ -282,10 +282,25 @@ def google_web_search(t_keywords):
     return res
 
 
+def extract_text(html_text):
+    soup = BeautifulSoup(html_text, "html.parser")
+    text = soup.get_text(separator='\n', strip=True)
+    return text
+    lines = text.splitlines()
+    cleaned_lines = [line.strip() for line in lines if line.strip()]
+    return "\n".join(cleaned_lines)
+
+
 def remove_html_tags(html_text):
     soup = BeautifulSoup(html_text, "html.parser")
-    text = soup.get_text()
-    return text
+    
+    for tag in soup(["script", "style", "meta"]):
+        tag.decompose()
+
+    # Get the cleaned HTML
+    cleaned_html = soup.prettify()
+    return cleaned_html
+
     lines = text.splitlines()
     cleaned_lines = [line.strip() for line in lines if line.strip()]
     return "\n".join(cleaned_lines)
@@ -308,6 +323,32 @@ def click_into_page(url):
     res = re.sub(r'\s+', ' ', res)  
     return res
 
+
+def click_into_page_original(url):
+    res_html = url_open_v1(url)
+    # print(res_html)
+    res = extract_text(res_html)
+    res = re.sub(r'\s+', ' ', res)  
+    return res
+
+
+from playwright.sync_api import sync_playwright
+def url_open_with_browser(link):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)  # 或 p.firefox.launch() 或 p.webkit.launch()
+        page = browser.new_page()  
+        page.goto(link, wait_until='domcontentloaded')
+        html = page.content()  
+        browser.close()
+        return html
+
+def click_into_page_with_browser(url, is_text=True):
+    res_html = url_open_with_browser(url)
+    if is_text:
+        return extract_text(res_html)
+    res = remove_html_tags(res_html)
+    res = re.sub(r'\s+', ' ', res)  
+    return res
 
 if __name__ == "__main__":
     # for j in range(2):
@@ -334,7 +375,19 @@ if __name__ == "__main__":
     # res = remove_html_tags(res_html)
     # print(res)
 
-    res = url_open_v1("https://news.yahoo.com/")
+
+    # Create an instance of the class with the browser type
+    # scraper = WebScraper("chromium")
+    # # Call the scrape_text method with a web page url and store the result in a variable
+    # text = scraper.scrape_text("https://www.bleepingcomputer.com/news/security/android-tv-box-on-amazon-came-pre-installed-with-malware/")
+    # # Print the result
+    # print("output: ",text)
+
+    a = click_into_page_with_browser("https://github.com/DesktopECHO/T95-H616-Malware")
+    print(a)
+    # print(click_into_page("https://www.bleepingcomputer.com/news/security/android-tv-box-on-amazon-came-pre-installed-with-malware/"))
+
+    # res = url_open_v1("https://news.yahoo.com/")
     # # res = click(0, res)
     # print(res)
     # print(remove_html_tags(res))
