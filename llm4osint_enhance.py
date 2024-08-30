@@ -59,92 +59,6 @@ def api_call(messages, func_list, json_enabled=True):
                     max_tokens = 4096
                 )
 
-
-def dig_deeper(blog, identified_links):
-    # print("This is a critical security event.")
-    # print("Summary:", response_dict["summary"])
-    # print("Service:", response_dict["service"])
-    # print("Impact:", response_dict["impact"])
-
-    print(RED + "Step 2:" + RESET, "Search realated exploit documents or attack details. (LLM iteratively search and analyze the results)")
-
-    sys_prompt = """
-    You are a security expert. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including concrete entities, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. 
-    You output should be json format with query the key.   
-    """
-    # If you wan to include specific words in the results, please use double quotes.
-
-    messages = [
-        {"role": "system", "content": sys_prompt},
-    ]
-
-    
-    misconf_qeustion = f"Here is the blog: {blog}."
-
-    messages.append({"role": "user", "content": misconf_qeustion})
-    
-    response_message = api_call(messages, [])
-
-    # print(response_message)
-    print(response_message.choices[0].message.content)
-    info = json.loads(response_message.choices[0].message.content)
-    messages.append({"role": "assistant", "content": response_message.choices[0].message.content})
-    query = info["query"]
-    end_flag = False
-    while True:
-        if end_flag:
-            break
-        print(RED + "LLM Decision: " +RESET, "Google Query -> : ", query)
-        google_search_results = google_web_search(query + ' "details"')
-        # google_search_results = google_web_search(query + ' "What we know about"')
-
-        results_filtering_prompt = f"""
-        This is the google search results.
-        {str(google_search_results)}
-        Please provide the top 1 link that you think are most relevant to the incident. But not in {identified_links}. It can help understand the root cause (including, vulnerable/misconfigured services, how to mitigate). Your output should be json format with link as the key.
-        """
-        messages.append({"role": "user", "content": results_filtering_prompt})
-        response_message = api_call(messages, [])
-        # print(response_message)
-        print(RED + "LLM Selected Link: " + RESET, response_message.choices[0].message.content)
-        info = json.loads(response_message.choices[0].message.content)
-        messages.append({"role": "assistant", "content": response_message.choices[0].message.content})
-        link = info["link"]
-        while True: 
-            # print(RED + "New Selected Link: " + RESET, link)
-            page_content = click_into_page_with_browser(link)
-            
-            print("Page Content: ", [page_content[0:500]])
-
-            content_analysis_prompt = f"""
-            This is the detailed information of the link you provided. 
-            {page_content[0:6000]}
-            Please analyze this report to identify if these blogs have enough info to help people understand the root cause (including, vulnerable/misconfigured services, how to mitigate) bechind the incident.
-            If yes, please output <END>
-            Else, please provide a new search query or a new link to search more information. with the key "query" or "link".
-            """
-            messages.append({"role": "user", "content": content_analysis_prompt})
-            response_message = api_call(messages, [])
-            # print(response_message)
-            print(RED + "LLM Analysis Decision: " +RESET, [response_message.choices[0].message.content])
-            
-            if "<END>" in response_message.choices[0].message.content.strip():
-                print("===> End of the search.")
-                end_flag = True
-                break
-            else:
-                info = json.loads(response_message.choices[0].message.content)
-                if "query" in info:
-                    query = info["query"]
-                    break
-                if "link" in info:
-                    link = info["link"]
-                    continue
-
-    return {"link": link, "content": page_content}
-
-
-
 def categorize(blog):
     print(RED+ "==> Categorizing the blog (identify if it is news or technical report)." +RESET)
     category_prompt = f"""
@@ -169,27 +83,9 @@ def categorize(blog):
         return False
     
 
-def gen_queries_links(blog):
-    analysis_prompt = f"""
-    You are a security researcher. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including concrete entities, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. 
-    You output should be json format with query the key. Please also provide the links that described the same incident mentioned in the blog with the key "links".  
-    """
-
-    messages = [
-        {"role": "system", "content": analysis_prompt},
-    ]
-
-    misconf_qeustion = f"Here is the blog: {blog}."
-
-    messages.append({"role": "user", "content": misconf_qeustion})
-
-    # response_message = api_call(messages, [], json_enabled=False)
-    response_message = api_call(messages, [])
-    return response_message.choices[0].message.content
-
 def compare_docs(original, new_doc):
     content_analysis_prompt = f"""
-    You are a security expert. I will give you a original blog and a new found document. You goal is to step-by-step identify if the new found document described the same incident comapred to the original blog (i.e. talking the same thing). If not, identify if the new found document described a similar incident.
+    You are a security expert. I will give you a original blog and a new found document. You goal is to step-by-step identify if the new found document described the same incident comapred to the original blog (i.e. talking the same thing with different aspects). If not, identify if the new found document described a similar incident.
     Then, please analyze the new found document to identify if it has enough info to help people understand the root cause (including, vulnerable/misconfigured services, how to mitigate) bechind the incident.
     Please output your decision in JSON format with the key "is_same", "is_similar" or "is_enough" and "explanation".
     The original blog is: {original}
@@ -203,6 +99,7 @@ def compare_docs(original, new_doc):
     
     info = json.loads(response_message.choices[0].message.content)
     return info
+
 
 def find_related_ones(blog):
     print(RED + "==> Find more related documents." + RESET)
@@ -231,12 +128,6 @@ def find_related_ones(blog):
     # Step 2: Click into the links to get the content
     print(RED + "==> Click into the some links to get the content." + RESET)
     all_related_docs = []
-
-    # Demo: click into the first link
-    # with open("beelp.txt") as f:
-    #     text = f.read()
-    # print("hard load: ", [text[0:500]])
-    # all_related_docs.append({"link": "https://www.bleepingcomputer.com/news/security/android-tv-box-on-amazon-came-pre-installed-with-malware/", "content": text})
 
     identified_links = []
     identified_links.append(blog["link"])
@@ -295,7 +186,7 @@ def find_related_ones(blog):
             
             print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
 
-            info = compare_docs(blog["blog"], page_content)
+            info = compare_docs(blog["blog"], page_content[0:10000])
             if info["is_same"]:
                 all_related_docs.append({"link": link, "blog": page_content, "is_same": True, "is_enough": info["is_enough"]})
     
@@ -309,7 +200,7 @@ def enrichment(original, related_docs):
     for doc in related_docs[1:]:
 
         analysis_prompt = f"""
-        You are a security researcher. I will give a threat report and a new found document. You goal is to see if we can add some new info to the report based on new found documents. Please merge the new info into original and mark for your changes in the enhanced report and and cite the new found doc with the following format *Your changes* (link to new found document).
+        You are a security researcher. I will give a threat report and a new found document. You goal is to see if we can add some new info to the report based on new found documents. Please merge the new info into original and mark for your changes in the enhanced report and and cite the new found doc with the following format *The changes* (link to new found document).
         
         You will generate increasingly entity-dense threat report based on the new found document. Repeat the following 2 steps 2 times.
         Step 1: Identify 1-4 informative Entities (";" delimited) from the new found document which are missing from the previously generated threat report.
@@ -330,13 +221,14 @@ def enrichment(original, related_docs):
         - Missing entities can appear anywhere in the new summary.
         - Never drop entities from the previous summary. If space cannot be made, add fewer new entities.
 
-        Answer in JSON. it has two keys. One is "thoughts", which described you step-by step thinks. Another is final_report.
+        Answer in JSON. it has two keys. One is "thoughts", which described you step-by step thinks. Another is 'final_report'.
+        
         """
 
         # """
         # You will generate increasingly entity-dense threat report based on the new found document. Repeat the following 2 steps 2 times.
 
-        # Step 1: Identify 1-4 informative Entities (";" delimited) from the new found document which are missing from the previously generated threat report.
+        # Step 1: Identify 1-4 informative Entities (";" delimited) from the new found  which are missing from the previously generated threat report.
         # Step 2: Write a new, denser threat report to merge every entity and detail from the previous summary plus the Missing Entities.
 
         # A Missing Entity is:
@@ -355,64 +247,6 @@ def enrichment(original, related_docs):
         # - Never drop entities from the previous summary. If space cannot be made, add fewer new entities.
         # """
 
-
-        old_analysis_prompt = f"""
-
-        You are a security researcher. I will give a threat report and a new found documents. You goal is to see if you can add some new info to the report based on new found documents. please mark for your changes
-        in the enhanced report.
-
-        You will generate increasingly entity-dense summaries based on the new found document. Repeat the following 2 steps 2 times.
-
-        Step 1: Identify 1-4 informative Entities (";" delimited) from the new Article which are missing from the previously generated summary.
-        Step 2: Write a new, denser summary of identical length which covers every entity and detail from the previous summary plus the Missing Entities.
-
-        A Missing Entity is:
-        - Relevant: to the main story.
-        - Specific: descriptive yet concise (5 words or fewer).
-        - Novel: not in the previous summary.
-        - Faithful: present in the Article.
-        - Anywhere: located anywhere in the Article.
-        
-        Guidelines:
-        - Make every word count: re-write the previous summary to improve flow and make space for additional entities.
-        - Make space with fusion, compression, and removal of uninformative phrases like "the article discusses".
-        - The summaries should become highly dense and concise yet self-contained, e.g., easily understood without the Article.
-        - Missing entities can appear anywhere in the new summary.
-        - Never drop entities from the previous summary. If space cannot be made, add fewer new entities.
-        
-        Remember, use the exact same structure for each summary. 
-        Answer in JSON. it has two keys. One is "thoughts", which should be a list (length 2) of dictionaries whose keys are "Missing_Entities" and "new_threat_report". Another is final_report. Please inlculde you changes in the end of the report.
-        """
-        
-        new_prompt = """
-        You are a security researcher. I will give a threat report and a new found documents. You goal is to see if you can add some new info to the report based on new found documents. please add mark for your changes
-        output the enhanced report.
-
-        You will generate increasingly concise, entity-dense summaries of the above Article. Repeat the following 2 steps 5 times.
-
-        Step 1: Identify 1-3 informative Entities (";" delimited) from the Article which are missing from the previously generated summary.
-        Step 2: Write a new, denser summary of identical length which covers every entity and detail from the previous summary plus the Missing Entities.
-
-        A Missing Entity is:
-        - Relevant: to the main story.
-        - Specific: descriptive yet concise (5 words or fewer).
-        - Novel: not in the previous summary.
-        - Faithful: present in the Article.
-        - Anywhere: located anywhere in the Article.
-        
-        Guidelines:
-        - The first summary should be long (4-5 sentences, ~80 words) yet highly non-specific, containing little information beyond the entities marked as missing. Use overly verbose language and fillers (e.g., "this article discusses") to reach ~80 words.
-        - Make every word count: re-write the previous summary to improve flow and make space for additional entities.
-        - Make space with fusion, compression, and removal of uninformative phrases like "the article discusses".
-        - The summaries should become highly dense and concise yet self-contained, e.g., easily understood without the Article.
-        - Missing entities can appear anywhere in the new summary.
-        - Never drop entities from the previous summary. If space cannot be made, add fewer new entities.
-        
-        Remember, use the exact same number if words for ehch summary. 
-        Answer in JSON. The JSON should be a list (length 5) of dictionaries whose keys are "Missing_Entities" and "Denser_Summary".
-        """
-
-
         messages = [
             {"role": "system", "content": analysis_prompt},
         ]
@@ -423,7 +257,7 @@ def enrichment(original, related_docs):
 
         # response_message = api_call(messages, [], json_enabled=False)
         response_message = api_call(messages, [])
-        
+        print(response_message.choices[0].message.content)
         json_response = json.loads(response_message.choices[0].message.content)
         
         original = json_response["final_report"]
@@ -451,7 +285,7 @@ def get_titles_processed():
 # titles_processed = get_titles_processed()
 titles_processed = []
 print(f"the list: {titles_processed}")
-fw = open(output_filename, "w")
+fw = open(output_filename, "a")
 num = 0
 with open(input_filename) as f:
     for line in f:
@@ -459,8 +293,8 @@ with open(input_filename) as f:
         info["title"] = ''.join([char for char in info["title"] if char not in ['#','@',':','|','/','\\','*','\'','\"','?']])
         num += 1
         
-        # if num < 2:
-        #     continue
+        if num < 2:
+            continue
         if num > 5:
             break
         
@@ -506,7 +340,7 @@ with open(input_filename) as f:
             
             Organization/industry/location: Who was targeted/vicim? (if known)
             
-            Start date – Eend date: When did the attack happen? (if known)
+            Start date – End date: When did the attack happen? (if known)
 
             MITRE TTPs: How was the attack carried out?  (if known)
 
@@ -557,11 +391,14 @@ with open(input_filename) as f:
         print(RED +  "The Enhanced Data is: " + RESET)
         print(new_ti)
 
-        md_filename = "output/"+info["title"]+".md"
+        md_filename = "new_output/"+info["title"]+".md"
         with open(md_filename,"w", encoding='utf-8') as mdf:
             mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
             mdf.write("# "+info["title"] + "\n\n")
-            mdf.write(new_ti)
+            mdf.write(json.dumps(new_ti))
+            mdf.write("\n")
+            mdf.write("Related Docs: \n")
+            mdf.write(str([i["link"] for i in related_docs]))
             mdf.write("\n")
 
         # print(response_message.choices[0].message.content)
