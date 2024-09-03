@@ -30,7 +30,7 @@ client = AzureOpenAI(
 )
 
 input_filename = "Published_Articles_2023.jsonl"
-output_filename = "Enhanced_Data_Published_Articles_2023.jsonl"
+output_filename = "Enhanced_Data_Published_Articles_2023_v1.jsonl"
 
 # @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 def api_call(messages, func_list, json_enabled=True):
@@ -282,152 +282,134 @@ def get_titles_processed():
     return list_of_titles
 
 
-# titles_processed = get_titles_processed()
-titles_processed = []
-print(f"the list: {titles_processed}")
-fw = open(output_filename, "a")
-num = 0
-with open(input_filename) as f:
-    for line in f:
-        info = json.loads(line)
-        info["title"] = ''.join([char for char in info["title"] if char not in ['#','@',':','|','/','\\','*','\'','\"','?']])
-        num += 1
-        
-        if num < 2:
-            continue
-        if num > 5:
-            break
-        
-        print(RED +  f"==> The input is: " + RESET)
-        print(info)
-
-        if info["title"] in titles_processed:
-            print(info["title"] + " has been processed. Continue to the next case.\n")
-            continue
-
-        print(RED +  f"==> Start to process the blog: " + RESET)
-        print("link: ", info['url'])
-        print("title: ", info['title'])
-        link = info["url"]
-        blog = click_into_page_with_browser(link, is_text=False)
-        print(f"Blog: {blog[:2000]} ...........")
-
-        # if not categorize(blog):
-        #     # dig_deeper(blog)
-        #     md_filename = "empty-output/"+info["title"]+".md"
-        #     with open(md_filename,"w") as mdf:
-        #         mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
-        #         mdf.write("# "+info["title"] + "\n\n")
-        #         mdf.write("This blog does not have enough info to help people understand the root cause behind the incident.")
-        #         mdf.write("\n")
-        #     fw.write(json.dumps(info) + "\n")
-        #     fw.flush()
-        #     continue
-
-        related_docs = find_related_ones({"link": info["url"], "blog": blog})
-
-        # Enhance the documents
-        print(RED +  f"=> Enhance the blog: {info['url']}" + RESET)
-        analysis_prompt = f"""
-            You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident.
-
-            You should provide a signature in the following format:    
-            Incident: Shanghai Police Datalake Leak
+def main():
+    # titles_processed = get_titles_processed()
+    titles_processed = []
+    print(f"the list: {titles_processed}")
+    fw = open(output_filename, "a")
+    num = 0
+    with open(input_filename) as f:
+        for line in f:
+            info = json.loads(line)
+            info["title"] = ''.join([char for char in info["title"] if char not in ['#','@',':','|','/','\\','*','\'','\"','?']])
+            num += 1
             
-            Root cause: the root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
+            if num < 2:
+                continue
+            if num > 5:
+                break
             
-            Threat Actor/group/campaign: Who carried out the attack? In could a orgainze a malware family, etc (if known)
-            
-            Organization/industry/location: Who was targeted/vicim? (if known)
-            
-            Start date – End date: When did the attack happen? (if known)
+            print(RED +  f"==> The input is: " + RESET)
+            print(info)
 
-            MITRE TTPs: How was the attack carried out?  (if known)
+            if info["title"] in titles_processed:
+                print(info["title"] + " has been processed. Continue to the next case.\n")
+                continue
 
-            Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
+            print(RED +  f"==> Start to process the blog: " + RESET)
+            print("link: ", info['url'])
+            print("title: ", info['title'])
+            link = info["url"]
+            blog = click_into_page_with_browser(link, is_text=False)
+            print(f"Blog: {blog[:2000]} ...........")
 
-            Mitigation: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation**
+            # if not categorize(blog):
+            #     # dig_deeper(blog)
+            #     md_filename = "empty-output/"+info["title"]+".md"
+            #     with open(md_filename,"w") as mdf:
+            #         mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
+            #         mdf.write("# "+info["title"] + "\n\n")
+            #         mdf.write("This blog does not have enough info to help people understand the root cause behind the incident.")
+            #         mdf.write("\n")
+            #     fw.write(json.dumps(info) + "\n")
+            #     fw.flush()
+            #     continue
 
-            Detection Signature: (How to detect? i.e., detection rules)
-                Service: Redis, CouchDB, etc. (it is a concrete service name, not general words like "database")  
-                Port: 6379 (make it concrete if possible)   
-                Severity: Critical
-                Incident: XXX 
-                Signature name: “Redis publicly accessible”    
-                Internal checks (see next)    
-                    - Setting1: Redis port (6379) should not be exposed on external Internet. – In platform    
-                    - Setting2: Redis port (6379) should not listen on the external Internet – Inside VMs    
-                    - Setting3: Redis server should secure with authentication credentials. – Inside VMs    
-                External scanning (see next)    
-                    - Port (6379) open
-                    - Redis no-pass-login
-            
-            IoCs: How do I know I am affected? (for example, IP, domain, hash, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please provide all the IoCs you found in the document.
-            """
+            related_docs = find_related_ones({"link": info["url"], "blog": blog})
 
-        messages = [
-            {"role": "system", "content": analysis_prompt},
-        ]
+            # Enhance the documents
+            print(RED +  f"=> Enhance the blog: {info['url']}" + RESET)
+            analysis_prompt = f"""
+                You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident.
 
-        misconf_qeustion = f"Here is the blog: {blog}."
-        messages.append({"role": "user", "content": misconf_qeustion})
-        response_message = api_call(messages, [], json_enabled=False)
-        original = response_message.choices[0].message.content
+                You should provide a signature in the following format:    
+                Incident: Shanghai Police Datalake Leak
+                
+                Root cause: the root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
+                
+                Threat Actor/group/campaign: Who carried out the attack? In could a orgainze a malware family, etc (if known)
+                
+                Organization/industry/location: Who was targeted/vicim? (if known)
+                
+                Start date – End date: When did the attack happen? (if known)
 
-        print(RED + "==> The first enhanced one: " + RESET)
-        console = Console()
-        md = Markdown(original)
-        aligned_md = Align.left(md)
-        console.print(md)
+                MITRE TTPs: How was the attack carried out?  (if known)
 
-        # merge related doc together to ehnchace the density
-        new_ti = enrichment(original, related_docs)
+                Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
 
-        print(RED + "==> The original one: " + RESET)
-        console = Console()
-        md = Markdown(info["content"])
-        aligned_md = Align.left(md)
-        console.print(md)   
-        print(RED +  "The Enhanced Data is: " + RESET)
-        print(new_ti)
+                Mitigation: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation**
 
-        md_filename = "new_output/"+info["title"]+".md"
-        with open(md_filename,"w", encoding='utf-8') as mdf:
-            mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
-            mdf.write("# "+info["title"] + "\n\n")
-            mdf.write(json.dumps(new_ti))
-            mdf.write("\n")
-            mdf.write("Related Docs: \n")
-            mdf.write(str([i["link"] for i in related_docs]))
-            mdf.write("\n")
+                Detection Signature: (How to detect? i.e., detection rules)
+                    Service: Redis, CouchDB, etc. (it is a concrete service name, not general words like "database")  
+                    Port: 6379 (make it concrete if possible)   
+                    Severity: Critical
+                    Incident: XXX 
+                    Signature name: “Redis publicly accessible”    
+                    Internal checks (see next)    
+                        - Setting1: Redis port (6379) should not be exposed on external Internet. – In platform    
+                        - Setting2: Redis port (6379) should not listen on the external Internet – Inside VMs    
+                        - Setting3: Redis server should secure with authentication credentials. – Inside VMs    
+                    External scanning (see next)    
+                        - Port (6379) open
+                        - Redis no-pass-login
+                
+                IoCs: How do I know I am affected? (for example, IP, domain, hash, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please provide all the IoCs you found in the document.
+                """
 
-        # print(response_message.choices[0].message.content)
-        info["enhanced"] = new_ti
-        info["related_docs"] = [i["link"] for i in related_docs]
-        fw.write(json.dumps(info) + "\n")
-        fw.flush()
-        # break
+            messages = [
+                {"role": "system", "content": analysis_prompt},
+            ]
 
-'''
-=============useless code====================
-md_filename = "empty-output/"+info["title"]+".md"
-if os.path.isfile(md_filename):
-    out_md_filename = "empty-output-tmp/"+info["title"]+".md"
-else:
-    md_filename = "output/"+info["title"]+".md"
-    if os.path.isfile(md_filename):
-        out_md_filename = "output-tmp/"+info["title"]+".md"
-    else:
-        print(f"no file for {info['title']}")
-print (f"{num}  {info['url']}")
+            misconf_qeustion = f"Here is the blog: {blog}."
+            messages.append({"role": "user", "content": misconf_qeustion})
+            response_message = api_call(messages, [], json_enabled=False)
+            original = response_message.choices[0].message.content
 
-with open(out_md_filename, 'w', encoding='utf-8') as outfile:
-    outfile.write(f"Source: [{info['url']}]({info['url']})\n\n")
-    try:
-        with open(md_filename, 'r', encoding='utf-8') as infile:
-            outfile.write(infile.read())
-    except:
-        with open(md_filename, 'r') as infile:
-            outfile.write(infile.read())
-continue
-'''
+            print(RED + "==> The first enhanced one: " + RESET)
+            console = Console()
+            md = Markdown(original)
+            aligned_md = Align.left(md)
+            console.print(md)
+
+            # merge related doc together to ehnchace the density
+            new_ti = enrichment(original, related_docs)
+
+            print(RED + "==> The original one: " + RESET)
+            console = Console()
+            md = Markdown(info["content"])
+            aligned_md = Align.left(md)
+            console.print(md)   
+            print(RED +  "The Enhanced Data is: " + RESET)
+            print(new_ti)
+
+            md_filename = "new-output_v1/"+info["title"]+".md"
+            with open(md_filename,"w", encoding='utf-8') as mdf:
+                mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
+                mdf.write("# "+info["title"] + "\n\n")
+                mdf.write("# Refine Doc: \n")
+                mdf.write(json.dump(new_ti))
+                mdf.write("\n")
+                mdf.write("# Related Docs: \n")
+                mdf.write(str([i["link"] for i in related_docs]))
+                mdf.write("\n")
+
+            # print(response_message.choices[0].message.content)
+            info["enhanced"] = new_ti
+            info["related_docs"] = [i["link"] for i in related_docs]
+            fw.write(json.dumps(info) + "\n")
+            fw.flush()
+            # break
+
+
+if __name__ == "__main__":
+    main()
