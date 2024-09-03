@@ -294,7 +294,7 @@ def main():
             info["title"] = ''.join([char for char in info["title"] if char not in ['#','@',':','|','/','\\','*','\'','\"','?']])
             num += 1
             
-            if num < 2:
+            if num < 0:
                 continue
             if num > 5:
                 break
@@ -337,7 +337,7 @@ def main():
                 
                 Root cause: the root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
                 
-                Threat Actor/group/campaign: Who carried out the attack? In could a orgainze a malware family, etc (if known)
+                Threat Actor/group/campaign: Who carried out the attack? It could be an orgainzation, a malware family, etc (if known)
                 
                 Organization/industry/location: Who was targeted/vicim? (if known)
                 
