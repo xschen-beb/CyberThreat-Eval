@@ -396,10 +396,12 @@ def main():
             with open(md_filename,"w", encoding='utf-8') as mdf:
                 mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
                 mdf.write("# "+info["title"] + "\n\n")
-                mdf.write("# Refine Doc: \n")
-                mdf.write(json.dump(new_ti))
+                mdf.write("# Enriched Doc (enrihcments marked with *content*(link)): \n")
+                # mdf.write(json.dump(new_ti))
+                for key, value in new_ti.items():
+                    mdf.write(f"## {key}: {value} \n")
                 mdf.write("\n")
-                mdf.write("# Related Docs: \n")
+                mdf.write("# Related articles (describing the same threat) \n")
                 mdf.write(str([i["link"] for i in related_docs]))
                 mdf.write("\n")
 
