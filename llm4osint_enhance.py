@@ -258,7 +258,12 @@ def enrichment(original, related_docs):
         # response_message = api_call(messages, [], json_enabled=False)
         response_message = api_call(messages, [])
         print(response_message.choices[0].message.content)
-        json_response = json.loads(response_message.choices[0].message.content)
+        try:
+            json_response = json.loads(response_message.choices[0].message.content)
+        except json.decoder.JSONDecodeError:
+            print("==> Error in parsing the response.")
+            response_message = api_call(messages, [])
+            json_response = json.loads(response_message.choices[0].message.content)
         
         original = json_response["final_report"]
         print(RED + "===> The enhanced report is: "  + RESET)
@@ -294,8 +299,8 @@ def main():
             info["title"] = ''.join([char for char in info["title"] if char not in ['#','@',':','|','/','\\','*','\'','\"','?']])
             num += 1
             
-            if num < 0:
-                continue
+            # if num < 0:
+            #     continue
             if num > 5:
                 break
             
@@ -392,14 +397,14 @@ def main():
             print(RED +  "The Enhanced Data is: " + RESET)
             print(new_ti)
 
-            md_filename = "new-output_v1/"+info["title"]+".md"
+            md_filename = "new-output/"+info["title"]+".md"
             with open(md_filename,"w", encoding='utf-8') as mdf:
                 mdf.write(f"Source: [{info['url']}]({info['url']})\n\n")
                 mdf.write("# "+info["title"] + "\n\n")
                 mdf.write("# Enriched Doc (enrihcments marked with *content*(link)): \n")
                 # mdf.write(json.dump(new_ti))
                 for key, value in new_ti.items():
-                    mdf.write(f"## {key}: {value} \n")
+                    mdf.write(f" {key}: {value} \n\n")
                 mdf.write("\n")
                 mdf.write("# Related articles (describing the same threat) \n")
                 mdf.write(str([i["link"] for i in related_docs]))
