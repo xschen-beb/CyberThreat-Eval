@@ -15,6 +15,8 @@ import playwright
 from playwright.sync_api import sync_playwright
 from playwright_stealth import stealth_sync
 
+_SUBSCRIPTION_KEY = os.getenv("BING_KEY")
+
 
 def url_open_v1(
     target_url,
@@ -232,13 +234,13 @@ def bing_search(query_str, debug=False):
     """
 
     # Add your Bing Search V7 subscription key and endpoint to your environment variables.
-    subscription_key = os.getenv("BING_KEY")
+    
     endpoint = "https://api.bing.microsoft.com" + "/v7.0/search"
 
     # Construct a request
     mkt = "en-US"
     params = {"q": query_str, "mkt": mkt}
-    headers = {"Ocp-Apim-Subscription-Key": subscription_key}
+    headers = {"Ocp-Apim-Subscription-Key": _SUBSCRIPTION_KEY}
 
     # Call the API
     try:
