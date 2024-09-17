@@ -1,34 +1,18 @@
-"""Module providingFunction use google to search the extracted keywords."""
+"""Module uses search engine to search and open selected links."""
+
 import random
 import time
 import sys
 import re
+import json
+import os
+from pprint import pprint
+import requests
 
 from urllib.parse import quote
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 from playwright_stealth import stealth_sync
-
-# import memcache
-# import yaml
-# import json
-# Reading YAML file
-# with open("autotag_config.yaml", "r") as f:
-#     config = yaml.load(f, Loader=yaml.FullLoader)
-#     globals().update(config)
-
-# enable cache for google search
-# store_db_name = config["query_store_db_name"]
-# mc = memcache.Client(["127.0.0.1:11211"], debug=0)
-# file_db = open(store_db_name, "a", encoding='utf-8')
-# stored_num = 0
-# print("Load queries and results into memcache...")
-# with open(store_db_name, encoding='utf-8') as f:
-#     for line in f:
-#         info = json.loads(line)
-#         if info and mc.set(info["query"].replace(" ", "+"), info["results"]):
-#             stored_num +=1
-# print(f"Loaded {stored_num} items into memcache.")
 
 
 def url_open_v1(
@@ -80,9 +64,7 @@ def url_open_v1(
             )
             cur_time = time.time()
             if show_log:
-                print(
-                    f"browser.launch(): \t\t\t{round(cur_time - last_time, 2)}"
-                )
+                print(f"browser.launch(): \t\t\t{round(cur_time - last_time, 2)}")
             last_time = cur_time
             context = browser.new_context()
             page = context.new_page()
@@ -224,9 +206,7 @@ def extract_search_results(html):
                 # raise ValueError
                 out["url"] = link["href"]
 
-                span = li.find(
-                    "div", {"class": "VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc"}
-                )
+                span = li.find("div", {"class": "VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc"})
                 if type(span) != type(None):
                     content = span.getText()
                     out["text"] = content
@@ -244,17 +224,47 @@ def extract_search_results(html):
     return results
 
 
+def bing_search(query_str, debug=False):
+    """
+    This sample makes a call to the Bing Web Search API with a query and returns relevant web search.
+    Documentation: https://docs.microsoft.com/en-us/bing/search-apis/bing-web-search/overview
+    """
+
+    # Add your Bing Search V7 subscription key and endpoint to your environment variables.
+    subscription_key = os.getenv("BING_KEY")
+    endpoint = "https://api.bing.microsoft.com" + "/v7.0/search"
+
+    # Construct a request
+    mkt = "en-US"
+    params = {"q": query_str, "mkt": mkt}
+    headers = {"Ocp-Apim-Subscription-Key": subscription_key}
+
+    # Call the API
+    try:
+        response = requests.get(endpoint, headers=headers, params=params)
+        response.raise_for_status()
+        if debug:
+            print("Headers:")
+            print(response.headers)
+            print("JSON Response:")
+            pprint(response.json())
+    except Exception as ex:
+        raise ex
+    out = []
+    for page in response.json()["webPages"]["value"]:
+        page_info = {}
+        page_info["title"] = page["name"]
+        page_info["url"] = page["url"]
+        page_info["text"] = page["snippet"]
+        page_info["type"] = "webpage"
+        out.append(page_info)
+    return out
+
+
 def google_web_search(t_keywords):
-    # print(t_keywords, len(t_keywords))
     if len(t_keywords) > 100:
         return [""]
-    # try:
-    # value = mc.get(t_keywords.replace(" ", "+"))
-    # except memcache.Client.MemcachedKeyCharacterError:
-    #     return [""]
-    # print(t_keywords, value)
-    # if value:
-    #     return value
+
     html = search(t_keywords)
     res = extract_search_results(html)
     if len(html) > 200000:
@@ -263,8 +273,6 @@ def google_web_search(t_keywords):
         out = {}
         out["query"] = t_keywords
         out["results"] = res
-        # mc.set(t_keywords.replace(" ", "+"), res)
-        # file_db.write(json.dumps(out) + "\n")
     else:
         sys.stderr.write("..... search again ...")
         random_sleep()
@@ -284,7 +292,7 @@ def google_web_search(t_keywords):
 
 def extract_text(html_text):
     soup = BeautifulSoup(html_text, "html.parser")
-    text = soup.get_text(separator='\n', strip=True)
+    text = soup.get_text(separator="\n", strip=True)
     return text
     lines = text.splitlines()
     cleaned_lines = [line.strip() for line in lines if line.strip()]
@@ -293,7 +301,7 @@ def extract_text(html_text):
 
 def remove_html_tags(html_text):
     soup = BeautifulSoup(html_text, "html.parser")
-    
+
     for tag in soup(["script", "style", "meta"]):
         tag.decompose()
 
@@ -316,11 +324,12 @@ def click(num, all_res):
     out["text"] = res
     return out
 
+
 def click_into_page(url):
     res_html = url_open_v1(url)
     # print(res_html)
     res = remove_html_tags(res_html)
-    res = re.sub(r'\s+', ' ', res)  
+    res = re.sub(r"\s+", " ", res)
     return res
 
 
@@ -328,66 +337,31 @@ def click_into_page_original(url):
     res_html = url_open_v1(url)
     # print(res_html)
     res = extract_text(res_html)
-    res = re.sub(r'\s+', ' ', res)  
+    res = re.sub(r"\s+", " ", res)
     return res
 
 
-from playwright.sync_api import sync_playwright
-def url_open_with_browser(link):
+def url_open_with_browser(link, headless_flag=False):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)  # 或 p.firefox.launch() 或 p.webkit.launch()
-        page = browser.new_page()  
-        page.goto(link, wait_until='domcontentloaded')
-        html = page.content()  
+        browser = p.chromium.launch(
+            headless=headless_flag
+        )  # or p.firefox.launch() or p.webkit.launch()
+        page = browser.new_page()
+        page.goto(link, wait_until="domcontentloaded")
+        html = page.content()
         browser.close()
         return html
 
-def click_into_page_with_browser(url, is_text=True):
-    res_html = url_open_with_browser(url)
+
+def click_into_page_with_browser(url, is_text=True, headless_flag=False):
+    res_html = url_open_with_browser(url, headless_flag=headless_flag)
     if is_text:
         return extract_text(res_html)
     res = remove_html_tags(res_html)
-    res = re.sub(r'\s+', ' ', res)  
+    res = re.sub(r"\s+", " ", res)
     return res
 
+
 if __name__ == "__main__":
-    # for j in range(2):
-    #     print(j)
-    #     for i in [
-    #         '"C3371" XEROX',
-    #         '"E77660" HP',
-    #         "F668",
-    #         "F660",
-    #         "RT-N66U",
-    #         "ZXR10",
-    #         "FRITZ!BoxFonWLAN7360SLUI",  # not match
-    #         '"M501-ECR"',  # only matched picture
-    #         "WYCHYNH01AGGJ01",
-    #     ]:
-    #         print(i)
-    #         res = google_web_search(i)
-    #         print(res, len(res))
-    # res = google_web_search("get nccl version")
-    # print(res, len(res))
-    # print(res[0])
-    # print(res[0]["url"])
-    # res_html = url_open_v1(res[0]["url"])
-    # res = remove_html_tags(res_html)
-    # print(res)
-
-
-    # Create an instance of the class with the browser type
-    # scraper = WebScraper("chromium")
-    # # Call the scrape_text method with a web page url and store the result in a variable
-    # text = scraper.scrape_text("https://www.bleepingcomputer.com/news/security/android-tv-box-on-amazon-came-pre-installed-with-malware/")
-    # # Print the result
-    # print("output: ",text)
-
     a = click_into_page_with_browser("https://github.com/DesktopECHO/T95-H616-Malware")
-    print(a)
-    # print(click_into_page("https://www.bleepingcomputer.com/news/security/android-tv-box-on-amazon-came-pre-installed-with-malware/"))
-
-    # res = url_open_v1("https://news.yahoo.com/")
-    # # res = click(0, res)
-    # print(res)
-    # print(remove_html_tags(res))
+    bing_search("get nccl version")

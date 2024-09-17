@@ -17,7 +17,7 @@ RESET = "\033[0m"
 
 client = AzureOpenAI(
     azure_endpoint = "http://10.150.142.182:9999", 
-    api_key="59ddb6820482b719e33661ccbfa98042",  
+    api_key=os.getenv('PROXY_KEY'),  
     api_version="2023-07-01-preview"
 )
 
