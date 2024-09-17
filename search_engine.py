@@ -11,6 +11,7 @@ import requests
 
 from urllib.parse import quote
 from bs4 import BeautifulSoup
+import playwright
 from playwright.sync_api import sync_playwright
 from playwright_stealth import stealth_sync
 
@@ -347,7 +348,11 @@ def url_open_with_browser(link, headless_flag=False):
             headless=headless_flag
         )  # or p.firefox.launch() or p.webkit.launch()
         page = browser.new_page()
-        page.goto(link, wait_until="domcontentloaded")
+        try:
+            page.goto(link, wait_until="domcontentloaded")
+        except playwright._impl._errors.TimeoutError:
+            browser.close()
+            return ""
         html = page.content()
         browser.close()
         return html

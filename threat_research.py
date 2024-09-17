@@ -36,10 +36,10 @@ RESET = "\033[0m"
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
 
-_DEPLOYMENT_ENV = "local"
-_LOG_ENABLED = True
-_SEARCH_ENGINE = "google"
-_HEADLESS_FLAG = False
+_DEPLOYMENT_ENV = "playground"
+_LOG_ENABLED = False
+_SEARCH_ENGINE = "bing"
+_HEADLESS_FLAG = True
 
 if _DEPLOYMENT_ENV == "local":
     client = AzureOpenAI(
@@ -61,10 +61,6 @@ def debug_print(*args, **kwargs):
         print(*args, **kwargs)
     else:
         pass
-
-
-input_filename = "Published_Articles_2023.jsonl"
-output_filename = "Enhanced_Data_Published_Articles_2023_v1.jsonl"
 
 
 # @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
@@ -288,10 +284,11 @@ def enrichment(original, related_docs):
 
         A Missing Entity is:
         - Relevant: to the main story.
-        - Specific: descriptive yet concise (5 words or fewer).
+        - Specific: descriptive yet concise (5 words or fewer)
         - Novel: not in the previous summary.
         - Faithful: present in the new found document.
         - Anywhere: located anywhere in the new found document.
+        - Security-related: e.g., IoCs (you can add more entities if you think they are important)
         
         Guidelines:
         - Merge the new Entities into the original report. Mark the new information with *Your changes* (link to new found document). Do not create a new key (e.g., 'Added info').
@@ -369,7 +366,7 @@ def get_titles_processed():
     return list_of_titles
 
 
-def threat_research(url):
+def threat_research_core(url):
     link = url
     blog = click_into_page_with_browser(
         link, is_text=False, headless_flag=_HEADLESS_FLAG
@@ -436,7 +433,7 @@ def threat_research(url):
                 - Port (6379) open
                 - Redis no-pass-login
         
-        IoCs: How do I know I am affected? (for example, IP, domain, hash, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please provide all the IoCs you found in the document.
+        IoCs: How do I know I am affected? (for example, IP, domain, hash1, hash256, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  
         """
 
     messages = [
@@ -457,7 +454,7 @@ def threat_research(url):
 
 
 def threat_research_playground(url):
-    new_ti, related_docs = threat_research(url)
+    new_ti, related_docs = threat_research_core(url)
     text_output = ""
 
     text_output += f"Source: [{url}]({url})\n\n"
@@ -473,6 +470,9 @@ def threat_research_playground(url):
 
 
 def main():
+
+    input_filename = "Published_Articles_2023.jsonl"
+    output_filename = "Enhanced_Data_Published_Articles_2023_v1.jsonl"
     # titles_processed = get_titles_processed()
     titles_processed = []
     debug_print(f"the list: {titles_processed}")
@@ -547,8 +547,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    a = threat_research_playground(
-        "https://www.malwarebytes.com/blog/news/2023/01/preinstalled-malware-infested-t95-tv-box-from-amazon"
-    )
-    print(a)
+    main()
+
