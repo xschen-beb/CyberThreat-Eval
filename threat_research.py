@@ -36,10 +36,10 @@ RESET = "\033[0m"
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
 
-_DEPLOYMENT_ENV = "playground"
-_LOG_ENABLED = False
-_SEARCH_ENGINE = "bing"
-_HEADLESS_FLAG = True
+_DEPLOYMENT_ENV = "local"
+_LOG_ENABLED = True
+_SEARCH_ENGINE = "google"
+_HEADLESS_FLAG = False
 
 if _DEPLOYMENT_ENV == "local":
     client = AzureOpenAI(
@@ -288,7 +288,7 @@ def enrichment(original, related_docs):
         - Novel: not in the previous summary.
         - Faithful: present in the new found document.
         - Anywhere: located anywhere in the new found document.
-        - Security-related: e.g., IoCs (you can add more entities if you think they are important)
+        - Security-related: e.g., IoCs (you need to add any IoCs(ip,ip_port, domain, url, email, hash_md5, hash_sha256, hash_sha1) you find in the new found document).
         
         Guidelines:
         - Merge the new Entities into the original report. Mark the new information with *Your changes* (link to new found document). Do not create a new key (e.g., 'Added info').
@@ -401,6 +401,7 @@ def threat_research_core(url):
     debug_print(RED + f"=> Enhance the blog: {url}" + RESET)
     analysis_prompt = f"""
         You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident.
+        **For IoCs, please also extract those (e,g., hash1, hash256, hash_md5) inside the Yara Rule into the IoCs. e.g., extract '"hash1/hash256/hash_md5": "65c6798eedd33aa36d77432b2ba7ef45dfe760092810b4db487210b19299bdcb"' from YARA rule and put it into IoCs **
 
         You should provide a signature in the following format:    
         Incident: Shanghai Police Datalake Leak
@@ -433,7 +434,7 @@ def threat_research_core(url):
                 - Port (6379) open
                 - Redis no-pass-login
         
-        IoCs: How do I know I am affected? (for example, IP, domain, hash1, hash256, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  
+        IoCs: How do I know I am affected? (for example, IP, domain, email, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  
         """
 
     messages = [
@@ -468,11 +469,55 @@ def threat_research_playground(url):
     text_output += "\n"
     return text_output
 
+def eval_threat_research(info, new_ti, related_docs):
+    content_analysis_prompt = f"""
+    You are a security expert assistant designed to validate the quality of an AI-generated report.
+    Your task:    
+    • Compare the AI-generated report with the human generated report provided. Determine if they descibe the same underlying threat/vulnerability/attack, even if phrased differently. Focus on the threat/vulnerability/attack, root cause concepts, and implications rather than exact wording.  
+    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Determine if they show the same indicators.
+    
+    Instructions:    
+    •	If the human-generated report have the same intent or describe the threat/vulnerability/attack, return True.    
+    •	If they describe different threat/vulnerability/attack, return False. 
+    •	If the human-generated report has IoCs and the AI-generated report does not, return False.
+    •	If the AI-generated report covers all IoCs that are in the human-generated report, return True. 
+    •	If the AI-generated report has more IoCs, output them in the explannation.
+    •	Only respond with a single word: True or False.
+    
+    Please output your decision in JSON format with the key "is_same_content", "is_same_iocs" and "explanation".
+    The human generated report is: {info}
+    The AI generated report is: {new_ti}
+    """
+    new_messages = []
+    new_messages.append({"role": "user", "content": content_analysis_prompt})
+    response_message = api_call(new_messages, [])
+    debug_print("Original Human generated report: ")
+    debug_print("Title: ", info["title"])
+    debug_print("Url: ", info["url"])
+    debug_print("Summary: ", info["summary"])
+    debug_print("Content: ", info["content"])
+    debug_print("Indicators: ")
+    for ioc in info["indicators"]:
+        if ioc["source"] == "public":
+            debug_print("   ", ioc["type"], ioc["value"])
+
+    debug_print(
+        RED + "LLM's Evalution " + RESET,
+        [response_message.choices[0].message.content],
+    )
+    
+    eval_info = json.loads(response_message.choices[0].message.content)
+    if not eval_info["is_same_iocs"] or not eval_info["is_same_content"]:
+        debug_print(
+            RED + f"==> Error Report: {eval_info}" + RESET
+        )
+    return eval_info
+
 
 def main():
 
-    input_filename = "Published_Articles_2023.jsonl"
-    output_filename = "Enhanced_Data_Published_Articles_2023_v1.jsonl"
+    input_filename = "articles2024.jsonl"
+    output_filename = "enhanced_articles2024.jsonl"
     # titles_processed = get_titles_processed()
     titles_processed = []
     debug_print(f"the list: {titles_processed}")
@@ -490,10 +535,18 @@ def main():
             )
             num += 1
 
-            # if num < 0:
-            #     continue
-            if num > 5:
+            if num < 0:
+                continue
+            if num >  10:
                 break
+            
+            # Remove the internal indicators
+            iocs = info["indicators"]
+            new_iocs = []
+            for ioc in iocs:
+                if ioc["source"] == "public":
+                    new_iocs.append(ioc)
+            info["indicators"] = new_iocs
 
             debug_print(RED + f"==> The input is: " + RESET)
             debug_print(info)
@@ -508,13 +561,17 @@ def main():
             debug_print("link: ", info["url"])
             debug_print("title: ", info["title"])
 
-            new_ti, related_docs = threat_research(info["url"])
+            new_ti, related_docs = threat_research_core(info["url"])
+            # TODO(xuafeng): add evalution, need to refine
+            eval_results = eval_threat_research(info, new_ti, related_docs)
+            debug_print(RED + "==> The Evaluation Results: " + RESET)
+            debug_print(eval_results)
 
             debug_print(RED + "==> The original one: " + RESET)
             console = Console()
             md = Markdown(info["content"])
             aligned_md = Align.left(md)
-            console.debug_print(md)
+            console.print(md)
             debug_print(RED + "The Enhanced Data is: " + RESET)
             debug_print(new_ti)
 
