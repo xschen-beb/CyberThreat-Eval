@@ -5,6 +5,7 @@ import os
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.align import Align
+from dotenv import load_dotenv
 
 from openai import AzureOpenAI
 # from dotenv import load_dotenv
@@ -22,6 +23,8 @@ BLUE = "\033[34m"
 MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
+
+load_dotenv()
 
 client = AzureOpenAI(
     azure_endpoint = "http://10.150.142.182:9999", 
@@ -139,9 +142,15 @@ def find_related_ones(blog):
             print("==> The link has been identified. Skip it.")
             continue
         identified_links.append(link)
-        page_content = click_into_page_with_browser(link)
-        print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
-        info = compare_docs(blog["blog"], page_content)
+        for i in range(3):
+            try:
+                page_content = click_into_page_with_browser(link)
+                print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
+                info = compare_docs(blog["blog"], page_content)
+                tmp = info["is_same"]
+                break
+            except:
+                continue
         if info["is_same"]:
             all_related_docs.append({"link": link, "blog": page_content, "is_same": True, "is_enough": info["is_enough"]})
         else:
@@ -182,14 +191,21 @@ def find_related_ones(blog):
             identified_links.append(link)
             print(RED + "Delve into the link: " + RESET, link)
             # print(RED + "New Selected Link: " + RESET, link)
-            page_content = click_into_page_with_browser(link)
-            
-            print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
 
-            info = compare_docs(blog["blog"], page_content[0:10000])
+            page_content = ""
+            for i in range(3):
+                try:
+                    page_content = click_into_page_with_browser(link)
+                    print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
+                    info = compare_docs(blog["blog"], page_content[0:10000])
+                    tmp = info["is_same"]
+                    break
+                except:
+                    continue
+            
             if info["is_same"]:
                 all_related_docs.append({"link": link, "blog": page_content, "is_same": True, "is_enough": info["is_enough"]})
-    
+  
     print(RED + "==> New found related documents: " + RESET)
     for doc in all_related_docs:
         print(doc["link"], doc["is_same"], doc["is_enough"], [doc["blog"][:200]])
@@ -255,23 +271,29 @@ def enrichment(original, related_docs):
         print(RED + "===> The new found document is: " + RESET, doc)
         messages.append({"role": "user", "content": misconf_qeustion})
 
-        # response_message = api_call(messages, [], json_enabled=False)
-        response_message = api_call(messages, [])
-        print(response_message.choices[0].message.content)
-        try:
-            json_response = json.loads(response_message.choices[0].message.content)
-        except json.decoder.JSONDecodeError:
-            print("==> Error in parsing the response.")
+        for i in range(3):
+            # response_message = api_call(messages, [], json_enabled=False)
             response_message = api_call(messages, [])
-            json_response = json.loads(response_message.choices[0].message.content)
-        
-        original = json_response["final_report"]
-        print(RED + "===> The enhanced report is: "  + RESET)
-        print(response_message.choices[0].message.content)
-        # console = Console()
-        # md = Markdown(original)
-        # aligned_md = Align.left(md)
-        # console.print(md)
+            print(response_message.choices[0].message.content)
+            try:
+                json_response = json.loads(response_message.choices[0].message.content)
+            except json.decoder.JSONDecodeError:
+                print("==> Error in parsing the response.")
+                response_message = api_call(messages, [])
+                json_response = json.loads(response_message.choices[0].message.content)
+            try:
+                original_tmp = json_response["final_report"]
+                original = original_tmp
+            except:
+                print("==> No final_report found. Repeat now.")
+                continue
+            print(RED + "===> The enhanced report is: "  + RESET)
+            print(response_message.choices[0].message.content)
+            break
+            # console = Console()
+            # md = Markdown(original)
+            # aligned_md = Align.left(md)
+            # console.print(md)
     
     return original
 
@@ -288,8 +310,8 @@ def get_titles_processed():
 
 
 def main():
-    # titles_processed = get_titles_processed()
-    titles_processed = []
+    titles_processed = get_titles_processed()
+    # titles_processed = []
     print(f"the list: {titles_processed}")
     fw = open(output_filename, "a")
     num = 0
@@ -301,8 +323,8 @@ def main():
             
             # if num < 0:
             #     continue
-            if num > 5:
-                break
+            #if num > 5:
+                #break
             
             print(RED +  f"==> The input is: " + RESET)
             print(info)
@@ -315,7 +337,13 @@ def main():
             print("link: ", info['url'])
             print("title: ", info['title'])
             link = info["url"]
-            blog = click_into_page_with_browser(link, is_text=False)
+            blog=""
+            for i in range(3):
+                try:
+                    blog = click_into_page_with_browser(link, is_text=False)
+                    break
+                except:
+                    continue
             print(f"Blog: {blog[:2000]} ...........")
 
             # if not categorize(blog):
