@@ -1,0 +1,32 @@
+Source: [https://www.uptycs.com/blog/remcos-rat-uac-0500-pipe-method](https://www.uptycs.com/blog/remcos-rat-uac-0500-pipe-method)
+
+# UAC-0050 Group Using New Phishing Tactics to Distribute Remcos RAT
+
+# Enriched Doc (enrihcments marked with *content*(link)): 
+ Incident: UAC-0050 Remcos RAT: Pipe Method Used for Evasion in Ukraine Attack 
+
+ Root cause: The root cause behind the incident is the use of a malicious .lnk file to deliver the Remcos RAT malware. This attack is facilitated by leveraging the Windows Interprocess Communication (IPC) pipe method to evade detection by Endpoint Detection and Response (EDR) and antivirus systems. *CERT-UA#8453 and CERT-UA#8494 alerts detail the techniques used* (https://socprime.com/blog/uac-0050-attack-detection-hackers-are-armed-with-remcos-rat-quasar-rat-and-remote-utilities-to-target-ukraine-once-again/). 
+
+ Threat Actor/group/campaign: UAC-0050 
+
+ Organization/industry/location: Ukrainian government agencies 
+
+ Start date – End date: December 21, 2023 – January 03, 2024 
+
+ MITRE TTPs: ['T1218.005: Mshta', 'T1059.001: PowerShell', 'T1071.001: Application Layer Protocol', 'T1547.001: Registry Run Keys / Startup Folder', 'T1055: Process Injection', 'T1553.002: Subvert Trust Controls: Code Signing'] 
+
+ Impact: The specific number of records or devices impacted is not mentioned, but the attack has significant implications for Ukrainian government agencies, including potential espionage and data theft. 
+
+ Mitigation: ["Use sophisticated email filtering solutions: Automatically identify and eliminate spam messages before they reach users' inboxes.", 'Educate users: Refrain from clicking on hyperlinks or opening attachments in emails identified as spam.', 'Deploy network monitoring tools: Identify abnormal communication patterns that could signal the presence of remote access tools.', 'Regularly review and secure system configurations: Ensure unnecessary services and startup entries are disabled or closely monitored.', 'Leverage behavioral analysis tools: Identify unusual activities that may suggest attempts by RATs to establish persistence or communicate with command and control servers.'] 
+
+ Detailed Steps for mitigation: ['Email Filtering: Implement advanced spam filters and educate users on recognizing phishing attempts.', 'Endpoint Protection: Use EDR solutions that can detect and block malicious activities, including unusual pipe usage.', 'Network Monitoring: Deploy IDS/IPS systems to monitor network traffic for signs of data exfiltration or unusual communication patterns.', 'System Hardening: Regularly audit and harden system configurations, disable unused services, and remove unnecessary startup entries.', 'Behavioral Analysis: Implement security solutions that utilize behavioral analysis to detect anomalies indicative of RAT activities.'] 
+
+ Detection Signature: {'Service': 'Windows EDR', 'Port': 'Not applicable (IPC method)', 'Severity': 'Critical', 'Incident': 'Remcos RAT Pipe Method Evasion', 'Signature name': 'Remcos RAT Interprocess Pipe Communication', 'Internal checks': ['Setting1: Monitor for the creation of .lnk files pointing to mshta.exe executions.', 'Setting2: Alert on unusual PowerShell script executions.', 'Setting3: Monitor for unusual process injections or hollowing activities.'], 'External scanning': ['Monitor for known malicious URLs and IP addresses associated with the campaign.', 'Detect and block communications to command and control servers.']} 
+
+ IoCs: {'File Names and MD5 Hashes': ['Lnk file: 56154fedaa70a3e58b7262b7c344d30a', '6.hta: 9b777d69b018701ec5ad19ae3f06553f', 'ofer.docx: 74865c6c290488bd5552aa905c02666c', 'word_update.exe: 7c05cfed156f152139a6b1f0d48b5cc1', 'fmTask_dbg.exe: 7c05cfed156f152139a6b1f0d48b5cc1', 'Remcos: 0b2d0eb5af93a3355244e1319e3de9da'], 'Related hashes': ['Lnk: 7f87d36c989a11edf0de9af392891d89', 'Lnk: f5ee6aa31c950dfe55972e50e02201d3', 'Lnk: 5c734bb1e41fab9c7b2dabd06e27bc7b', 'shablon.hta: 1c3e1e0319dc6aa24166d5e2aaaec675', 'zayava.docx: 818beece85ecd90d413782dd51d939b1', 'Ps1: 8158b43f745e0e7a519458b0150e1b61', 'Ps1: f71ef85824f906856cb3d2205058bdd2', 'Ps1: 8bebea01d914a3c3a2d876417f7d1d54', 'Remcos: b1f8484ee01a7730938210ea6e851888'], 'URLs': ['cluster00<X>[.]ovh[.]net', '194[.]87.31[.]229', '46[.]249.58[.]40', 'new-tech-savvy[.]com/6.hta', 'new-tech-savvy[.]com/5[.]hta', 'new-tech-savvy[.]com/algo[.]hta', 'new-tech-savvy[.]com/shablon[.]hta', 'new-tech-savvy[.]com/word_update[.]exe', 'new-tech-savvy[.]com/zayava[.]docx', 'new-tech-savvy[.]com/ofer[.]docx']} 
+
+ New Information: *Used CyberChef to decrypt RemcosRAT payload, revealing configuration file* (https://www.uptycs.com/blog/threat-research-report-team/remcos-rat-uac-0500-pipe-method), *UAC-0050 utilized Quasar RAT and Remote Utilities in their attacks* (https://socprime.com/blog/uac-0050-attack-detection-hackers-are-armed-with-remcos-rat-quasar-rat-and-remote-utilities-to-target-ukraine-once-again/), *Meduza Stealer found on dark web* (https://www.tanium.com/blog/remcos-rat-meduza-stealer-cyber-threat-intelligence-roundup/), *UAC-0050 employs new phishing tactics* (https://www.tanium.com/blog/remcos-rat-meduza-stealer-cyber-threat-intelligence-roundup/), *Uptycs detected suspicious LNK file* (https://www.tanium.com/blog/remcos-rat-meduza-stealer-cyber-threat-intelligence-roundup/), *Targeted Ukrainian military personnel* (https://thenetworkcompany.net/uac-0050-group-using-new-phishing-tactics-to-distribute-remcos-rat/), *Used mshta.exe to execute HTML applications* (https://thenetworkcompany.net/uac-0050-group-using-new-phishing-tactics-to-distribute-remcos-rat/), *Remcos RAT version 4.9.2 Pro* (https://thenetworkcompany.net/uac-0050-group-using-new-phishing-tactics-to-distribute-remcos-rat/), *Google Chrome as a target for data harvesting* (https://thenetworkcompany.net/uac-0050-group-using-new-phishing-tactics-to-distribute-remcos-rat/). 
+
+
+# Related articles (describing the same threat) 
+['https://www.uptycs.com/blog/remcos-rat-uac-0500-pipe-method', 'https://www.uptycs.com/blog/threat-research-report-team/remcos-rat-uac-0500-pipe-method', 'https://socprime.com/blog/uac-0050-attack-detection-hackers-are-armed-with-remcos-rat-quasar-rat-and-remote-utilities-to-target-ukraine-once-again/', 'https://www.tanium.com/blog/remcos-rat-meduza-stealer-cyber-threat-intelligence-roundup/', 'https://thenetworkcompany.net/uac-0050-group-using-new-phishing-tactics-to-distribute-remcos-rat/']

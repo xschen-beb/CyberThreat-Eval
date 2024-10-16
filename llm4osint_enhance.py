@@ -345,6 +345,10 @@ def main():
                 except:
                     continue
             print(f"Blog: {blog[:2000]} ...........")
+            
+            #if the blog is empty, skip this case
+            if len(blog) < 5:
+                continue
 
             # if not categorize(blog):
             #     # dig_deeper(blog)
@@ -431,8 +435,11 @@ def main():
                 mdf.write("# "+info["title"] + "\n\n")
                 mdf.write("# Enriched Doc (enrihcments marked with *content*(link)): \n")
                 # mdf.write(json.dump(new_ti))
-                for key, value in new_ti.items():
-                    mdf.write(f" {key}: {value} \n\n")
+                if isinstance(new_ti, str):
+                    mdf.write(f"{new_ti} \n\n")
+                else:
+                    for key, value in new_ti.items():
+                        mdf.write(f" {key}: {value} \n\n")
                 mdf.write("\n")
                 mdf.write("# Related articles (describing the same threat) \n")
                 mdf.write(str([i["link"] for i in related_docs]))
