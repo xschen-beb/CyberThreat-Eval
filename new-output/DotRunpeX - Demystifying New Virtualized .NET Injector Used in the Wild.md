@@ -1,0 +1,148 @@
+Source: [https://research.checkpoint.com/2023/dotrunpex-demystifying-new-virtualized-net-injector-used-in-the-wild/](https://research.checkpoint.com/2023/dotrunpex-demystifying-new-virtualized-net-injector-used-in-the-wild/)
+
+# DotRunpeX - Demystifying New Virtualized .NET Injector Used in the Wild
+
+# Enriched Doc (enrihcments marked with *content*(link)): 
+Incident: DotRunpeX Virtualized .NET Injector
+
+Root cause: The root cause behind the incident includes the use of a vulnerable Sysinternals Process Explorer driver for disabling Anti-Malware services, and the protected .NET code using KoiVM virtualizer and ConfuserEx obfuscator. 
+
+Threat Actor/group/campaign: Specific threat actors or groups are not mentioned, but multiple campaigns have been observed using DotRunpeX.
+
+Organization/industry/location: The campaigns targeted various organizations and individuals through phishing emails and malicious websites.
+
+Start date – End date: The oldest sample was dated 2022-10-17, and the first public information appeared on 2022-10-26. The campaigns have continued into 2023.
+
+MITRE TTPs:
+- T1059.001 (Command and Scripting Interpreter: PowerShell)
+- T1059.005 (Command and Scripting Interpreter: Visual Basic)
+- T1059.003 (Command and Scripting Interpreter: Windows Command Shell)
+- T1055.012 (Process Injection: Process Hollowing)
+- T1070.004 (Indicator Removal on Host: File Deletion)
+- T1562.001 (Impair Defenses: Disable or Modify Tools)
+
+Impact: The impact includes the delivery of numerous malware families, including stealers, RATs, loaders, and downloaders, affecting various systems and potentially exposing sensitive data.
+
+Mitigation: 
+- Secure email gateways to filter phishing emails.
+- Use advanced threat protection solutions to monitor and block malicious attachments and links.
+- Implement strong endpoint protection to detect and block malicious processes and injections.
+- Regularly update and patch software, especially security tools.
+- Educate users on recognizing phishing attempts and safe online practices.
+
+Detailed Steps for mitigation:
+1. Implement email filtering and advanced threat protection to block phishing emails.
+2. Use endpoint detection and response (EDR) solutions to monitor and block suspicious activities.
+3. Regularly update software and security tools to mitigate vulnerabilities.
+4. Conduct user training to enhance awareness of phishing and social engineering attacks.
+5. Isolate and analyze suspicious files in a sandbox environment before allowing them to execute.
+
+Detection Signature:
+Service: Sysinternals Process Explorer Driver
+Port: Not applicable
+Severity: Critical
+Incident: DotRunpeX Virtualized .NET Injector
+Signature name: "Sysinternals procexp driver abuse"
+Internal checks:
+- Setting1: Ensure the Sysinternals Process Explorer driver is not running unauthorized.
+- Setting2: Monitor for the creation of "Иисус.sys" file and registry modifications related to "TaskKill".
+- Setting3: Monitor for unusual process injections and process hollowing activities.
+External scanning:
+- Monitor for the presence of known Indicators of Compromise (IoCs) related to DotRunpeX.
+
+IoCs:
+SHA256 Hash:
+- 1e7614f757d40a2f5e2f4bd5597d04878768a9c01aa5f9f23d6c87660f7f0fbc
+- 68ae2ee5ed7e793c1a49cbf1b0dd7f5a3de9cb783b51b0953880994a79037326
+- 317e6817bba0f54e1547dd9acf24ee17a4cda1b97328cc69dc1ec16e11c258fc
+- 65cac67ed2a084beff373d6aba6f914b8cba0caceda254a857def1df12f5154b
+- 81763d8e3b42d07d76b0a74eda4e759981971635d62072c8da91251fc849b91e
+- 0e11704fcc3c36832ba98b80ea44a3013660d1ed3fb48158b982fed9f9050391
+- 0f9e27ec1ed021fd7375ca46f233c06b354d12d57aed44132208cd9308bfee11
+- 881a337aa85a4b01c08706ab941573c5dc9b76ea0e4e1c2693a9b4aa4453ec8c
+- feae44d8927dd41feaed997b3dbf7b41933496d6285b79554b83e72ae8a045c4
+- 1c1fcc4133af77f07d0c0299d0320aa9f447748ebead74b429f73c44d950e38b
+- 35c11f7315d2e5d04d783de4314d8cde2def382f1e3fc49ccc555337c54d63cc
+- 4068637c121888476533a3bbb16bec6bc3b4f81f7b9de635ef3576d56dc54c75
+- 40df5a6e6dcadbe576ce4a8b01cfb82bf3f56a87bae674200e60814eab666c6d
+- 8a0d6e40e545d40956194230f03608859f2a47420a9b11b199142641bc6419ee
+- 7c3803c09a0370aa6484d8ad2f5690b96212d98e45fc8f9cb6022f87dff637fc
+- 93e2ea6f021951369028b73637d9558c8baf3c99d9de1a2a60c1461cb9d571bf
+- d95298befdde567b31571d16f327840fa0f0dd9c54bf876531820910418a52b6
+- 149af913afd7eb2773386d14e88a46449cbc9096e0748cfbaa2e061b59525bf0
+- a73f134ab62a5c23a8c8bafabbfbd5e0408c826ba5418488639724708ec5ef28
+- aca4d6278f31f374262e0388d16ee6fdcdbbad8257374f1feaabf75b0ec23157
+- 50451fda27fd8569c7b32bfe82197b82a8637cac928164e1b091a389060e957e
+- 9ed8eeb1db8909c96a958d91213093d2488dc172a8d22ba62657b9bfeb044fec
+- 6c08c0654726c2f793b5191d5e7c74fdf3a2461118a45aa8527a0a30e3f256fd
+- 283cd48dc1368b6852c2f3168bf7a78ad593df010d9a67ed1c938508da5de783
+- b019a0535ca7466d7884825542ac6910fe037913118e1136dcac7e9ef3dc0dc9
+- b1c9b356c50230629c4697b0527fd7a0fa8d6f0e8342a1eb5b5a4f90d8f0eb86
+- 5bbd9513f0872d23ca43dd553a63a12882be274fef983fab427721257d60eaec
+- 9d9940b60809e3c10cd4540f8e589626a293244a999bea16c259f9712969a742
+- cd4c821e329ec1f7bfe7ecd39a6020867348b722e8c84a05c7eb32f8d5a2f4db
+- cddf8b8da972cb2e560c70d01366f582445441864fcff884b8194eb6c21a768c
+- 6c367333c677c2268df9deaff6ad4e711e73e53504aa1aa845bebfbfe635f1d2
+- 5e3588e8ddebd61c2bd6dab4b87f601bd6a4857b33eb281cb5059c29cfe62b80
+- 244f2d4f3c34d00babef5f1765e91c0abda9dbd1d131fc93ecb48c91ecc801a8
+- 95793df9284fe35c0491e5cfa36bc8f49fd426ccdf35f5fe2f098e07d160a4dc
+- 55ee7efcb3d1d2e0eac0ecadd651d6a299de82d94347ef9862bc981ae619532b
+- 13081992c0ef5c52c2b6224f3ff1ab38160bca9424e7c0470e0c175c920bdc9d
+- 0daef2c2bf086312037ebc91beec0302a7e4d1750f260d02bf815bd13c611559
+- 331ad58c524100da7e459e5c3943e970414617f60b3ed0f1a74f3bf189aafea7
+- 44a11146173db0663a23787bffbb120f3955bc33e60e73ecc798953e9b34b2f2
+- 03fcbab82603df2858f7d6fefdb6ae3cc8e17393af6d44f24634d28fccf3f181
+- 373a86e36f7e808a1db263b4b49d2428df4a13686da7d77edba7a6dd63790232
+- 50ec8a9e59e1bcb0a41477e20f5bb809a80329d56e20cf99e93d756b9e0ceefc
+- 41ea8f9a9f2a7aeb086dedf8e5855b0409f31e7793cbba615ca0498e47a72636
+- 76e129552a30fa5c914d9f946f40b2ec2bbbbeb4e5e2f324e70455725030e157
+- 8fa81f6341b342afa40b7dc76dd6e0a1874583d12ea04acf839251cb5ca61591
+- ae4f3b6c43d5ea8ee68d862362d4e8d7b317889eb9abead948a9b791ad9d7071
+- b4c876d1797efbef614b44e52482c835c32e8ee020975a30fa2d25ed9cf8aa2b
+- d5eda02ff2f05d1e0d06a69018de463ab36497048a1ef2b69af93aa76ccfc07d
+- fa3a9fc2adf9d1ca812e0951e21bf72ba3ec9ceb1c0cf0bfc0171b6d4adadf83
+- 1f2ffabb3b89e6083ca5de70f5d718295c7a633c2d957da7c4469de059efde2c
+- bd133efea4b865f42eb05e0c92e3ab3b58ac087c0682ea9112b96596a7111ff6
+- e6da2d860bd2d0e8b56737b4c8c47cdeea78a404cd0d6fa5a26cbb5ac7682d1d
+- d87a200a26d07a64272e93fb3ae8f8d9e4d34bdfedb0cf7c685a6c97912e967f
+- 7120cf1ad3fdcae7ba6956749a8988e8181837a05948b432cec6ae11229b1d12
+- 304847c69875ec59995fbb453f8d1106f80c5eb380ae6b8676e76f5372290194
+- 25fbe0ff3274b4bc981fa6ec0459e9b95cec6397194e10ea6287bf4b899a9b07
+- 1bc7fc0a4796f7780223b4f0bf8d6816b3721f0b52eedc0df9a32dc4ea4829e8
+- 75236a06aadafc69cc5aa8032468869fb868a9a100b687f19c66be03410c2487
+- ee0d55b9a2d03c5bea9f69f98b042ab7b3064366f335a8a53096387876bf48d7
+- 8de23e90bac05911cbfb6b036c6808ce7c244e4e875cb7edcdb90f75e89e5476
+- 10bbfa36ddd8ea6038e2071320ee84f7a9208a5be3a4dda448e83393cdf39a4d
+- ff72f619907a25f3d99f0c3aa84710c6ff6cb4c3fd8ebad14f85f96c6da49222
+- 242e1c82269725c01108e52376be8ddad39ab29da49356d10e527af6d78058f5
+- ae4d2054a6e1f9ba2c269eace61aac7259adb0645d18da82779717d83174837d
+- bf7b127b1bb81b68439851386cd3d1600bb8b9ec56135e668a88062d913410dd
+- b8bb071899ae7bd16a328c0998b3cd40261d61e564ac77f9bf3e495fab0ad267
+- 17af8118607b9fc1f7b6aa82fd72f4fc115320d293e103dfe356706bb7c581b7
+- 366284c1a0577937c86744349ac47e6e578da500ada3deb857ff233d9851ee6b
+- 3e50f0eaf02d12653d5f757372240adcb5c16a5ab647a667637ba4c50d37aaad
+- 47849f610a30d72660b1725a0b18d78c5204257b3740641727bdcbfd1ebd466a
+- 507f413ac42df115988df498a90fc1ae610cafb66cb30a3a7de53e71ec90e7cd
+- 57f261cc442dd9a4f1cd4ffd281c9855f4f9a736abffaf539d9df2a6ea0dd409
+- 76eed1849d0a0474f9e0a58afcda2cc1ea7af316535b4b4b27ff810a162d4f8f
+- 855b2e04c323a269d3731c093f0bc80ab3497a69ab8d2967847451a87f04fb0a
+- 87134629723b2c6f4d0a74c35fdce89653471d9880b23f4faea6664ae151db0e
+- 8bcc23ec881d61839fc57e8ec7425ac5ed625425fbf265fcb53ad73a73825b18
+- 9177ba0c649f08fa6367d04091a7672fedb82215b26e08346645544f0631ebfd
+- 9246ed27032429f234888b2713529001344850c608cab9f5ab7274195d330bec
+- a487e959e59bc9500c43ac270eaf345eaf28173b07ed7dd82b2495aa19cdab88
+- ada1679a193c9b17b206b3d9ff2a19d64c6c8c5f882a321381c9d5347a8b4b3e
+- c1be6f792bd51d23d848e54cd217bdf9edcbb2b89df741190929f6fa327a10cb
+- db8ed3e6dd7e6818046e7ee1e9c6c91f98aa5ce3113b14fb1c85a50a45569b18
+- ddae8737d7cc35a87274a26b886e6b48ae947aa849c3d7ecb84de6f6d553aa96
+- efa9a303af112ffb6737846755e3a995510fd65b6ced9032dc68cd7bbe4c307d
+- 20b5c7f210320cf23a63ac7f76086a6e257dd0c248d77deff444cb3dcf624799
+- f0ee1ddb789207c2000f728f6adabbe344ded7cba0804926a7cfc53bdbbc54eb
+- f440309e372551fb6ee00ecca71a70a1b8b7e077fe61b0687411147b582ab415
+- 21a570237cdacdb8c69679e59c4dba6aa05f123f9db7470ec34e2f4024c3646b
+- 4e8bf8c770727a3b0f551adcff2716c941234708e679c868ce42532714a29d27
+- 3c0c55b4ce2 
+
+
+# Related articles (describing the same threat) 
+['https://research.checkpoint.com/2023/dotrunpex-demystifying-new-virtualized-net-injector-used-in-the-wild/']
