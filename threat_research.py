@@ -1,7 +1,10 @@
 import json
 import sys
 import os
+import tiktoken
 
+# for exponential backoff
+from tenacity import (retry, stop_after_attempt, wait_random_exponential)
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.align import Align
@@ -64,11 +67,11 @@ def debug_print(*args, **kwargs):
 
 
 # @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-def api_call(messages, func_list, json_enabled=True):
+def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
     if json_enabled:
         return client.chat.completions.create(
             # model="gpt-4-32k",
-            model="gpt-4o",
+            model=model,
             messages=messages,
             # functions= func_list,
             # function_call="auto",  # auto is default, but we'll be explicit
@@ -80,7 +83,7 @@ def api_call(messages, func_list, json_enabled=True):
     else:
         return client.chat.completions.create(
             # model="gpt-4-32k",
-            model="gpt-4o",
+            model=model,
             messages=messages,
             # functions= func_list,
             # function_call="auto",  # auto is default, but we'll be explicit
@@ -154,13 +157,16 @@ def find_related_ones(blog):
     # Step 1: Ask the model to generate search queries and to extract links
     sys_prompt = """
     You are a security expert. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including concrete entities, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. 
-    You output should be json format with queries the key. Please also provide the links that described the same incident mentioned in the blog with the key "links".    
+    You output should be json format with queries the key. Please also provide the links that described the same incident or links that may include IoCs (e.g., The indicators of compromise for this blog entry can be found <a href="/content/dam/trendmicro/global/en/research/24/a/a-look-into-pikabot-spam-wave-campaign/ioc-pikabot-spam-campaign.txt"> here </a>) mentioned in the blog with the key "links". Output format: {"queries": ["query1", "query2"], "links": ["link1", "link2"]}
     """
     # If you wan to include specific words in the results, please use double quotes.
     messages = [
         {"role": "system", "content": sys_prompt},
     ]
     misconf_qeustion = f"Here is the blog: {blog['blog']}."
+    debug_print(RED + "==> Orginal html: " + RESET)
+    debug_print(blog["blog"])
+    
     messages.append({"role": "user", "content": misconf_qeustion})
     response_message = api_call(messages, [])
     info = json.loads(response_message.choices[0].message.content)
@@ -184,7 +190,7 @@ def find_related_ones(blog):
         {"link": blog["link"], "blog": blog["blog"], "is_same": True, "is_enough": True}
     )
 
-    for link in links[:3]:
+    for link in links:
         debug_print(RED + "Delve into the link: " + RESET, link)
         if link in identified_links:
             debug_print("==> The link has been identified. Skip it.")
@@ -192,22 +198,28 @@ def find_related_ones(blog):
         identified_links.append(link)
         page_content = click_into_page_with_browser(link, headless_flag=_HEADLESS_FLAG)
         debug_print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
-        info = compare_docs(blog["blog"], page_content)
-        if info["is_same"]:
-            all_related_docs.append(
-                {
-                    "link": link,
-                    "blog": page_content,
-                    "is_same": True,
-                    "is_enough": info["is_enough"],
-                }
-            )
-        else:
-            debug_print(
-                RED + "==> Not the same incident (not same, crawling bloked)." + RESET,
-                link,
-                page_content[:200],
-            )
+        for i in range(3):
+            try:
+                info = compare_docs(blog["blog"], page_content)
+                if info["is_same"]:
+                    all_related_docs.append(
+                        {
+                            "link": link,
+                            "blog": page_content,
+                            "is_same": True,
+                            "is_enough": info["is_enough"],
+                        }
+                    )
+                else:
+                    debug_print(
+                        RED + "==> Not the same incident (not same, crawling bloked)." + RESET,
+                        link,
+                    page_content[:200],
+                )
+                break
+            except KeyError:
+                debug_print("==> Error in parsing the response.")
+                continue
 
     # Step 3: Search the candidate queries and select related docs
     debug_print("Identfied Links: ", identified_links)
@@ -250,27 +262,44 @@ def find_related_ones(blog):
             identified_links.append(link)
             debug_print(RED + "Delve into the link: " + RESET, link)
             # debug_print(RED + "New Selected Link: " + RESET, link)
-            page_content = click_into_page_with_browser(
-                link, headless_flag=_HEADLESS_FLAG
-            )
+            try:
+                page_content = click_into_page_with_browser(
+                    link, headless_flag=_HEADLESS_FLAG
+                )
+            except:
+                debug_print(RED + "==> Crawling blocked." + RESET)
+                page_content = "Crawling blocked."
 
             debug_print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
 
-            info = compare_docs(blog["blog"], page_content[0:10000])
-            if info["is_same"]:
-                all_related_docs.append(
-                    {
-                        "link": link,
-                        "blog": page_content,
-                        "is_same": True,
-                        "is_enough": info["is_enough"],
-                    }
-                )
+            for i in range(3):
+                try:
+                    info = compare_docs(blog["blog"], page_content[0:10000])
+                    if info["is_same"]:
+                        all_related_docs.append(
+                            {
+                                "link": link,
+                                "blog": page_content,
+                                "is_same": True,
+                                "is_enough": info["is_enough"],
+                            }
+                        )
+                        break 
+                except KeyError:
+                    debug_print("==> Error in parsing the response.")
+                    continue
 
     debug_print(RED + "==> New found related documents: " + RESET)
     for doc in all_related_docs:
         debug_print(doc["link"], doc["is_same"], doc["is_enough"], [doc["blog"][:200]])
     return all_related_docs
+
+
+def num_tokens_from_string(string: str, model_name: str) -> int:
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.encoding_for_model(model_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
 
 
 def enrichment(original, related_docs):
@@ -331,20 +360,30 @@ def enrichment(original, related_docs):
         misconf_qeustion = (
             f"The original report is: {original}. The new found document is: {doc}"
         )
+        if num_tokens_from_string(misconf_qeustion, "gpt-4o") > 128000:
+            misconf_qeustion = f"The original report is: {original}. The new found document is: {doc[0:100000]}"
+
         debug_print(RED + "===> The new found document is: " + RESET, doc)
         messages.append({"role": "user", "content": misconf_qeustion})
 
         # response_message = api_call(messages, [], json_enabled=False)
-        response_message = api_call(messages, [])
-        debug_print(response_message.choices[0].message.content)
-        try:
-            json_response = json.loads(response_message.choices[0].message.content)
-        except json.decoder.JSONDecodeError:
-            debug_print("==> Error in parsing the response.")
-            response_message = api_call(messages, [])
-            json_response = json.loads(response_message.choices[0].message.content)
 
-        original = json_response["final_report"]
+        for i in range(3):
+            try:
+                response_message = api_call(messages, [])
+                debug_print(response_message.choices[0].message.content)
+                json_response = json.loads(response_message.choices[0].message.content)
+                original = json_response["final_report"]
+                break
+            except json.decoder.JSONDecodeError:
+                debug_print("==> Error in parsing the response.")
+                continue
+            except KeyError:
+                debug_print("==> Error in parsing the response.")
+                continue
+                # response_message = api_call(messages, [])
+                # json_response = json.loads(response_message.choices[0].message.content)  
+
         debug_print(RED + "===> The enhanced report is: " + RESET)
         debug_print(response_message.choices[0].message.content)
         # console = Console()
@@ -434,7 +473,7 @@ def threat_research_core(url):
                 - Port (6379) open
                 - Redis no-pass-login
         
-        IoCs: How do I know I am affected? (for example, IP, domain, email, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  
+        IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change http[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         """
 
     messages = [
@@ -474,50 +513,74 @@ def eval_threat_research(info, new_ti, related_docs):
     You are a security expert assistant designed to validate the quality of an AI-generated report.
     Your task:    
     • Compare the AI-generated report with the human generated report provided. Determine if they descibe the same underlying threat/vulnerability/attack, even if phrased differently. Focus on the threat/vulnerability/attack, root cause concepts, and implications rather than exact wording.  
-    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Determine if they show the same indicators.
+    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Please list each IOC in the human-generated report and verify one by one if it is included in the AI-generated report. Ingore the prefix (e.g., hxxp) or some minoir changes (e.g., [:] vs :) Based on the one-by-one comapre to determine if they show the same indicators. 
     
     Instructions:    
     •	If the human-generated report have the same intent or describe the threat/vulnerability/attack, return True.    
     •	If they describe different threat/vulnerability/attack, return False. 
-    •	If the human-generated report has IoCs and the AI-generated report does not, return False.
+    •	If the human-generated report has IoCs and the AI-generated report does not, return False. Output them in the explannation
     •	If the AI-generated report covers all IoCs that are in the human-generated report, return True. 
     •	If the AI-generated report has more IoCs, output them in the explannation.
     •	Only respond with a single word: True or False.
     
-    Please output your decision in JSON format with the key "is_same_content", "is_same_iocs" and "explanation".
+    Please output your decision in JSON format with the key "step_by_step_thinking_for_iocs_comparing", "is_same_content", "is_same_iocs", "is_ai_generated_has_more_iocs", "is_human_generated_has_more_iocs" and "explanation".
     The human generated report is: {info}
     The AI generated report is: {new_ti}
     """
-    new_messages = []
-    new_messages.append({"role": "user", "content": content_analysis_prompt})
-    response_message = api_call(new_messages, [])
-    debug_print("Original Human generated report: ")
-    debug_print("Title: ", info["title"])
-    debug_print("Url: ", info["url"])
-    debug_print("Summary: ", info["summary"])
-    debug_print("Content: ", info["content"])
-    debug_print("Indicators: ")
-    for ioc in info["indicators"]:
-        if ioc["source"] == "public":
-            debug_print("   ", ioc["type"], ioc["value"])
+    for i in range(3):
+        try:
+            new_messages = []
+            new_messages.append({"role": "user", "content": content_analysis_prompt})
+            response_message = api_call(new_messages, [])
 
-    debug_print(
-        RED + "LLM's Evalution " + RESET,
-        [response_message.choices[0].message.content],
-    )
+            f_eval.write("=============================================================== \n")    
+            orignial_one = "### Original Human generated report: "
+            orignial_one = orignial_one + "Title: " + info["title"]
+            orignial_one = orignial_one + "Url: " + info["url"]
+            orignial_one = orignial_one + "Summary: " + info["summary"]
+            orignial_one = orignial_one + "Content: " + info["content"]
+            orignial_one = orignial_one + "Indicators: "
+            for ioc in info["indicators"]:
+                if ioc["source"] == "public":
+                    orignial_one = orignial_one + "   " + ioc["type"] + ioc["value"]
+
+            debug_print(orignial_one)
+            f_eval.write(orignial_one + "\n")
+
+            ai_generated_one = "#### AI generated report: "
+            ai_generated_one = ai_generated_one + str(new_ti)
+            debug_print(ai_generated_one)
+            f_eval.write(ai_generated_one + "\n")
+
+            debug_print(
+                RED + "LLM's Evalution " + RESET,
+                [response_message.choices[0].message.content],
+            )
+            
+            f_eval.write(response_message.choices[0].message.content + "\n")
+
+            eval_info = json.loads(response_message.choices[0].message.content)
+            if not eval_info["is_same_iocs"] or not eval_info["is_same_content"]:
+                debug_print(
+                    RED + f"==> Error Report: {eval_info}" + RESET
+                )
+            break
+        except json.decoder.JSONDecodeError:
+            debug_print("==> Error in parsing the response.")
+            if i == 2:
+                return {}
+            continue
     
-    eval_info = json.loads(response_message.choices[0].message.content)
-    if not eval_info["is_same_iocs"] or not eval_info["is_same_content"]:
-        debug_print(
-            RED + f"==> Error Report: {eval_info}" + RESET
-        )
     return eval_info
 
+f_eval = open("eval_results.txt", "w")
 
 def main():
 
-    input_filename = "articles2024.jsonl"
-    output_filename = "enhanced_articles2024.jsonl"
+    # input_filename = "articles2024.jsonl"
+    input_filename = "2024_failed.jsonl"
+    output_filename = "enhanced_2024_failed.jsonl"
+    # output_filename = "enhanced_articles2024.jsonl"
     # titles_processed = get_titles_processed()
     titles_processed = []
     debug_print(f"the list: {titles_processed}")
@@ -537,7 +600,7 @@ def main():
 
             if num < 0:
                 continue
-            if num >  10:
+            if num >  500:
                 break
             
             # Remove the internal indicators
@@ -559,6 +622,9 @@ def main():
 
             debug_print(RED + f"==> Start to process the blog: " + RESET)
             debug_print("link: ", info["url"])
+            if not info["url"]:
+                debug_print("The URL is empty. Skip this one.")
+                continue
             debug_print("title: ", info["title"])
 
             new_ti, related_docs = threat_research_core(info["url"])
@@ -583,8 +649,11 @@ def main():
                 "# Enriched Doc (enrihcments marked with *content*(link)): \n"
             )
             # mdf.write(json.dump(new_ti))
-            for key, value in new_ti.items():
-                text_output += f" {key}: {value} \n\n"
+            try:
+                for key, value in new_ti.items():
+                    text_output += f" {key}: {value} \n\n"
+            except AttributeError:
+                text_output += f" {new_ti} \n\n"
             text_output += "\n"
             text_output += "# Related articles (describing the same threat) \n"
             text_output += str([i["link"] for i in related_docs])
