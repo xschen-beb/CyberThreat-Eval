@@ -25,7 +25,6 @@ from search_engine import (
     bing_search,
 )
 
-
 # ANSI escape codes
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -220,6 +219,9 @@ def find_related_ones(blog):
             except KeyError:
                 debug_print("==> Error in parsing the response.")
                 continue
+            except playwright._impl._errors.Error:
+                debug_print("==> Crawling blocked.")
+                break
 
     # Step 3: Search the candidate queries and select related docs
     debug_print("Identfied Links: ", identified_links)
@@ -438,7 +440,7 @@ def threat_research_core(url):
 
     # Enhance the documents
     debug_print(RED + f"=> Enhance the blog: {url}" + RESET)
-    analysis_prompt = f"""
+    analysis_prompt = """
         You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident.
         **For IoCs, please also extract those (e,g., hash1, hash256, hash_md5) inside the Yara Rule into the IoCs. e.g., extract '"hash1/hash256/hash_md5": "65c6798eedd33aa36d77432b2ba7ef45dfe760092810b4db487210b19299bdcb"' from YARA rule and put it into IoCs **
 
@@ -474,6 +476,9 @@ def threat_research_core(url):
                 - Redis no-pass-login
         
         IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change http[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
+        The IoCs should be a in the following format:
+        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat"}]'
+        The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
         """
 
     messages = [
@@ -513,9 +518,9 @@ def eval_threat_research(info, new_ti, related_docs):
     You are a security expert assistant designed to validate the quality of an AI-generated report.
     Your task:    
     • Compare the AI-generated report with the human generated report provided. Determine if they descibe the same underlying threat/vulnerability/attack, even if phrased differently. Focus on the threat/vulnerability/attack, root cause concepts, and implications rather than exact wording.  
-    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Please list each IOC in the human-generated report and verify one by one if it is included in the AI-generated report. Ingore the prefix (e.g., hxxp) or some minoir changes (e.g., [:] vs :) Based on the one-by-one comapre to determine if they show the same indicators. 
+    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Please list each IOC in the human-generated report and one by one determine if it is included in the AI-generated report. Ingore the prefix (e.g., hxxp) or some minoir changes (e.g., [:] vs :) Based on the one-by-one comapre to determine if they show the same indicators. 
     
-    Instructions:    
+    Instructions:
     •	If the human-generated report have the same intent or describe the threat/vulnerability/attack, return True.    
     •	If they describe different threat/vulnerability/attack, return False. 
     •	If the human-generated report has IoCs and the AI-generated report does not, return False. Output them in the explannation
@@ -534,20 +539,20 @@ def eval_threat_research(info, new_ti, related_docs):
             response_message = api_call(new_messages, [])
 
             f_eval.write("=============================================================== \n")    
-            orignial_one = "### Original Human generated report: "
-            orignial_one = orignial_one + "Title: " + info["title"]
-            orignial_one = orignial_one + "Url: " + info["url"]
-            orignial_one = orignial_one + "Summary: " + info["summary"]
-            orignial_one = orignial_one + "Content: " + info["content"]
-            orignial_one = orignial_one + "Indicators: "
+            orignial_one = "### Original Human generated report: " + '\n'
+            orignial_one = orignial_one + "Title: " + info["title"]  + '\n'
+            orignial_one = orignial_one + "Url: " + info["url"]  + '\n'
+            orignial_one = orignial_one + "Summary: " + info["summary"]  + '\n'
+            orignial_one = orignial_one + "Content: " + info["content"]  + '\n'
+            orignial_one = orignial_one + "Indicators: "  + '\n'
             for ioc in info["indicators"]:
                 if ioc["source"] == "public":
-                    orignial_one = orignial_one + "   " + ioc["type"] + ioc["value"]
+                    orignial_one = orignial_one + ioc["type"] + "   " + ioc["value"]  + '\n'
 
             debug_print(orignial_one)
             f_eval.write(orignial_one + "\n")
 
-            ai_generated_one = "#### AI generated report: "
+            ai_generated_one = "### AI generated report: "  + '\n'
             ai_generated_one = ai_generated_one + str(new_ti)
             debug_print(ai_generated_one)
             f_eval.write(ai_generated_one + "\n")
@@ -556,7 +561,7 @@ def eval_threat_research(info, new_ti, related_docs):
                 RED + "LLM's Evalution " + RESET,
                 [response_message.choices[0].message.content],
             )
-            
+            f_eval.write("### Evalution Result: " + '\n')
             f_eval.write(response_message.choices[0].message.content + "\n")
 
             eval_info = json.loads(response_message.choices[0].message.content)
@@ -573,14 +578,14 @@ def eval_threat_research(info, new_ti, related_docs):
     
     return eval_info
 
-f_eval = open("eval_results.txt", "w")
+f_eval = open("eval_results_articles_2024_after181.txt", "w")
 
 def main():
 
-    # input_filename = "articles2024.jsonl"
-    input_filename = "2024_failed.jsonl"
-    output_filename = "enhanced_2024_failed.jsonl"
-    # output_filename = "enhanced_articles2024.jsonl"
+    input_filename = "articles2024.jsonl"
+    # input_filename = "2024_failed.jsonl"
+    # output_filename = "enhanced_2024_failed.jsonl"
+    output_filename = "enhanced_articles2024.jsonl"
     # titles_processed = get_titles_processed()
     titles_processed = []
     debug_print(f"the list: {titles_processed}")
@@ -597,8 +602,7 @@ def main():
                 ]
             )
             num += 1
-
-            if num < 0:
+            if num < 181:
                 continue
             if num >  500:
                 break
