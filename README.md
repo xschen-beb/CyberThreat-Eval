@@ -16,5 +16,5 @@ pdm install
 ## Usage
 ```bash
 # run the script
-pdm run python llm4osint_enhance.py
+pdm run python threat_research.py
 ```

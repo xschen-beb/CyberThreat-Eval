@@ -1,13 +1,15 @@
 import json
 import sys
 import os
-import tiktoken
 
+import tiktoken
 # for exponential backoff
+import tenacity
 from tenacity import (retry, stop_after_attempt, wait_random_exponential)
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.align import Align
+import playwright
 
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -65,8 +67,19 @@ def debug_print(*args, **kwargs):
         pass
 
 
-# @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
+    if model == 'gpt-4-32k':
+        return client.chat.completions.create(
+            # model="gpt-4-32k",
+            model=model,
+            messages=messages,
+            # functions= func_list,
+            # function_call="auto",  # auto is default, but we'll be explicit
+            temperature=0.7,
+            # seed=42,
+            max_tokens=8192,
+        )
     if json_enabled:
         return client.chat.completions.create(
             # model="gpt-4-32k",
@@ -130,6 +143,9 @@ def categorize(blog):
 
 
 def compare_docs(original, new_doc):
+    if num_tokens_from_string(new_doc, "gpt-4o") > 120000:
+        new_doc = new_doc[:80000]
+
     content_analysis_prompt = f"""
     You are a security expert. I will give you a original blog and a new found document. You goal is to step-by-step identify if the new found document described the same incident comapred to the original blog (i.e. talking the same thing with different aspects). If not, identify if the new found document described a similar incident.
     Then, please analyze the new found document to identify if it has enough info to help people understand the root cause (including, vulnerable/misconfigured services, how to mitigate) bechind the incident.
@@ -139,6 +155,7 @@ def compare_docs(original, new_doc):
     """
     new_messages = []
     new_messages.append({"role": "user", "content": content_analysis_prompt})
+
     response_message = api_call(new_messages, [])
     # debug_print(response_message)
     debug_print(
@@ -156,12 +173,14 @@ def find_related_ones(blog):
     # Step 1: Ask the model to generate search queries and to extract links
     sys_prompt = """
     You are a security expert. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including concrete entities, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. 
-    You output should be json format with queries the key. Please also provide the links that described the same incident or links that may include IoCs (e.g., The indicators of compromise for this blog entry can be found <a href="/content/dam/trendmicro/global/en/research/24/a/a-look-into-pikabot-spam-wave-campaign/ioc-pikabot-spam-campaign.txt"> here </a>) mentioned in the blog with the key "links". Output format: {"queries": ["query1", "query2"], "links": ["link1", "link2"]}
+    You output should be json format with queries the key. Please also provide the links that described the same incident or links that may include IoCs (e.g., The indicators of compromise for this blog entry can be found <a href="https://www.trendmicro.com/content/dam/trendmicro/global/en/research/24/a/a-look-into-pikabot-spam-wave-campaign/ioc-pikabot-spam-campaign.txt"> here </a>) mentioned in the blog with the key "links". Output format: {"queries": ["query1", "query2"], "links": ["link1", "link2"]}
     """
     # If you wan to include specific words in the results, please use double quotes.
     messages = [
         {"role": "system", "content": sys_prompt},
     ]
+    if num_tokens_from_string(blog["blog"], "gpt-4o") > 120000:
+        blog["blog"] = blog["blog"][:80000]
     misconf_qeustion = f"Here is the blog: {blog['blog']}."
     debug_print(RED + "==> Orginal html: " + RESET)
     debug_print(blog["blog"])
@@ -195,17 +214,18 @@ def find_related_ones(blog):
             debug_print("==> The link has been identified. Skip it.")
             continue
         identified_links.append(link)
-        page_content = click_into_page_with_browser(link, headless_flag=_HEADLESS_FLAG)
-        debug_print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
+
         for i in range(3):
             try:
+                page_content = click_into_page_with_browser(link, headless_flag=_HEADLESS_FLAG)
+                debug_print(RED + "Crawled page content: " + RESET, [page_content[0:4000]])
                 info = compare_docs(blog["blog"], page_content)
-                if info["is_same"]:
+                if info["is_same"] in [True, "True", "true"]:
                     all_related_docs.append(
                         {
                             "link": link,
                             "blog": page_content,
-                            "is_same": True,
+                            "is_same": info["is_same"],
                             "is_enough": info["is_enough"],
                         }
                     )
@@ -220,11 +240,11 @@ def find_related_ones(blog):
                 debug_print("==> Error in parsing the response.")
                 continue
             except playwright._impl._errors.Error:
-                debug_print("==> Crawling blocked.")
+                debug_print("==> Invalid URL.")
                 break
 
     # Step 3: Search the candidate queries and select related docs
-    debug_print("Identfied Links: ", identified_links)
+    debug_print("==> All Identfied Links: ", identified_links)
 
     # New dig deeper
     # new = dig_deeper(blog["blog"], identified_links)
@@ -306,7 +326,7 @@ def num_tokens_from_string(string: str, model_name: str) -> int:
 
 def enrichment(original, related_docs):
     for doc in related_docs[1:]:
-        analysis_prompt = f"""
+        analysis_prompt = """
         You are a security researcher. I will give a threat report and a new found document. You goal is to see if we can add some new info to the report based on new found documents. Please merge the new info into original and mark for your changes in the enhanced report and and cite the new found doc with the following format *The changes* (link to new found document).
         
         You will generate increasingly entity-dense threat report based on the new found document. Repeat the following 2 steps 2 times.
@@ -319,7 +339,7 @@ def enrichment(original, related_docs):
         - Novel: not in the previous summary.
         - Faithful: present in the new found document.
         - Anywhere: located anywhere in the new found document.
-        - Security-related: e.g., IoCs (you need to add any IoCs(ip,ip_port, domain, url, email, hash_md5, hash_sha256, hash_sha1) you find in the new found document).
+        - Security-related: e.g., IoCs (you need to add all IoCs("ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1") you find in the new found document).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         
         Guidelines:
         - Merge the new Entities into the original report. Mark the new information with *Your changes* (link to new found document). Do not create a new key (e.g., 'Added info').
@@ -330,7 +350,12 @@ def enrichment(original, related_docs):
         - Never drop entities from the previous summary. If space cannot be made, add fewer new entities.
 
         Answer in JSON. it has two keys. One is "thoughts", which described you step-by step thinks. Another is 'final_report'.
-        
+        The final report should be in the following format:
+        {
+        "Incident": "XXXX",
+        "Root cause": "XXXX",
+        "XXX": "XXX",
+        }
         """
 
         # """
@@ -363,7 +388,7 @@ def enrichment(original, related_docs):
             f"The original report is: {original}. The new found document is: {doc}"
         )
         if num_tokens_from_string(misconf_qeustion, "gpt-4o") > 128000:
-            misconf_qeustion = f"The original report is: {original}. The new found document is: {doc[0:100000]}"
+            misconf_qeustion = f"The original report is: {original}. The new found document is: {str(doc)[0:100000]}"
 
         debug_print(RED + "===> The new found document is: " + RESET, doc)
         messages.append({"role": "user", "content": misconf_qeustion})
@@ -409,9 +434,14 @@ def get_titles_processed():
 
 def threat_research_core(url):
     link = url
-    blog = click_into_page_with_browser(
-        link, is_text=False, headless_flag=_HEADLESS_FLAG
-    )
+    try:
+        blog = click_into_page_with_browser(
+            link, is_text=False, headless_flag=_HEADLESS_FLAG
+        )
+    except playwright._impl._errors.Error:
+        debug_print("==> Invalid URL.")
+        return "", []
+    
     debug_print(f"Blog: {blog[:2000]} ...........")
 
     # if not categorize(blog):
@@ -449,7 +479,7 @@ def threat_research_core(url):
         
         Root cause: the root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
         
-        Threat Actor/group/campaign: Who carried out the attack? It could be an orgainzation, a malware family, etc (if known)
+        Threat actor/group/campaign: Who carried out the attack? It could be an orgainzation, a malware family, etc (if known)
         
         Organization/industry/location: Who was targeted/vicim? (if known)
         
@@ -459,7 +489,7 @@ def threat_research_core(url):
 
         Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
 
-        Mitigation: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation**
+        Mitigation Steps: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation**
 
         Detection Signature: (How to detect? i.e., detection rules)
             Service: Redis, CouchDB, etc. (it is a concrete service name, not general words like "database")  
@@ -475,9 +505,9 @@ def threat_research_core(url):
                 - Port (6379) open
                 - Redis no-pass-login
         
-        IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change http[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
+        IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         The IoCs should be a in the following format:
-        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat"}]'
+        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","reference": "https://www.XXXX.com/XXX"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","reference": "https://www.XXXX.com/XXX"}]'
         The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
         """
 
@@ -499,34 +529,53 @@ def threat_research_core(url):
 
 
 def threat_research_playground(url):
-    new_ti, related_docs = threat_research_core(url)
-    text_output = ""
+    for i in range(3):
+        try:
+            new_ti, related_docs = threat_research_core(url)
+            text_output = ""
 
-    text_output += f"Source: [{url}]({url})\n\n"
-    text_output += "# Enriched Doc (enrihcments marked with *content*(link)): \n"
-    # mdf.write(json.dump(new_ti))
-    for key, value in new_ti.items():
-        text_output += f" {key}: {value} \n\n"
-    text_output += "\n"
-    text_output += "# Related articles (describing the same threat) \n"
-    text_output += str([i["link"] for i in related_docs])
-    text_output += "\n"
-    return text_output
+            text_output += f"Source: [{url}]({url})\n\n"
+            text_output += "## Related articles (describing the same threat) \n"
+            for i in related_docs:
+                text_output += ("- " + str(i["link"]) + "\n")
+            text_output += "\n"
 
+            text_output += "## Enriched Doc (enrihcments marked with *content*(link)): \n"
+            # mdf.write(json.dump(new_ti))
+            for key, value in new_ti.items():
+                if key == 'Incident':
+                    text_output += f"#### {key}: {value} \n\n"
+                elif key == 'IoCs':
+                    text_output += "#### IoCs: \n"
+                    for ioc in value:
+                        text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['reference']})) \n\n"
+                else:
+                    text_output += f"#### {key} \n {value} \n\n"
+            text_output += "\n"
+            
+
+            return text_output
+        except AttributeError:
+            print("Error in processing the blog.")
+            continue
+        
+
+
+# TODO: using code to evaluate IoCs
 def eval_threat_research(info, new_ti, related_docs):
     content_analysis_prompt = f"""
     You are a security expert assistant designed to validate the quality of an AI-generated report.
     Your task:    
     • Compare the AI-generated report with the human generated report provided. Determine if they descibe the same underlying threat/vulnerability/attack, even if phrased differently. Focus on the threat/vulnerability/attack, root cause concepts, and implications rather than exact wording.  
-    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Please list each IOC in the human-generated report and one by one determine if it is included in the AI-generated report. Ingore the prefix (e.g., hxxp) or some minoir changes (e.g., [:] vs :) Based on the one-by-one comapre to determine if they show the same indicators. 
+    • Compare the indicators filed in the human-generated report with the IoCs in the AI-generated report. Please list each IOC in the human-generated report and one by one determine if it is included in the AI-generated report. Ingore the prefix (e.g., hxxp) or some minoir changes (e.g., [:] vs :) Based on the one-by-one comapre to determine if they include the same indicators. 
     
     Instructions:
-    •	If the human-generated report have the same intent or describe the threat/vulnerability/attack, return True.    
-    •	If they describe different threat/vulnerability/attack, return False. 
-    •	If the human-generated report has IoCs and the AI-generated report does not, return False. Output them in the explannation
-    •	If the AI-generated report covers all IoCs that are in the human-generated report, return True. 
-    •	If the AI-generated report has more IoCs, output them in the explannation.
-    •	Only respond with a single word: True or False.
+    • If the human-generated report have the same intent or describe the threat/vulnerability/attack, return True.    
+    • If they describe different threat/vulnerability/attack, return False. 
+    • If there is one IoC that present in the human-generated report but does not exist in the AI-generated report, return False. Output them in the explannation
+    • If the AI-generated report covers all IoCs that are in the human-generated report, return True. 
+    • If the AI-generated report has more IoCs, output them in the explanation.
+    • Only respond with a single word: True or False.
     
     Please output your decision in JSON format with the key "step_by_step_thinking_for_iocs_comparing", "is_same_content", "is_same_iocs", "is_ai_generated_has_more_iocs", "is_human_generated_has_more_iocs" and "explanation".
     The human generated report is: {info}
@@ -536,7 +585,7 @@ def eval_threat_research(info, new_ti, related_docs):
         try:
             new_messages = []
             new_messages.append({"role": "user", "content": content_analysis_prompt})
-            response_message = api_call(new_messages, [])
+            response_message = api_call(new_messages, [], model="gpt-4-32k")
 
             f_eval.write("=============================================================== \n")    
             orignial_one = "### Original Human generated report: " + '\n'
@@ -552,10 +601,18 @@ def eval_threat_research(info, new_ti, related_docs):
             debug_print(orignial_one)
             f_eval.write(orignial_one + "\n")
 
-            ai_generated_one = "### AI generated report: "  + '\n'
-            ai_generated_one = ai_generated_one + str(new_ti)
-            debug_print(ai_generated_one)
-            f_eval.write(ai_generated_one + "\n")
+            ai_one = "### AI generated report: "  + '\n'
+            ai_one += "# Enriched Doc (enrihcments marked with *content*(link)): \n"
+            # mdf.write(json.dump(new_ti))
+            for key, value in new_ti.items():
+                ai_one += f" {key}: {value} \n\n"
+            ai_one += "\n"
+            ai_one += "# Related articles (describing the same threat) \n"
+            ai_one += str([i["link"] for i in related_docs])
+            ai_one += "\n"
+
+            debug_print(ai_one)
+            f_eval.write(ai_one + "\n")
 
             debug_print(
                 RED + "LLM's Evalution " + RESET,
@@ -583,9 +640,10 @@ f_eval = open("eval_results_articles_2024_after181.txt", "w")
 def main():
 
     input_filename = "articles2024.jsonl"
+    output_filename = "enhanced_articles2024.jsonl"
+
     # input_filename = "2024_failed.jsonl"
     # output_filename = "enhanced_2024_failed.jsonl"
-    output_filename = "enhanced_articles2024.jsonl"
     # titles_processed = get_titles_processed()
     titles_processed = []
     debug_print(f"the list: {titles_processed}")
@@ -632,8 +690,16 @@ def main():
             debug_print("title: ", info["title"])
 
             new_ti, related_docs = threat_research_core(info["url"])
+            if not new_ti:
+                debug_print(RED + "==> The blog does not have enough info. Skip this one." + RESET)
+                continue
+            
             # TODO(xuafeng): add evalution, need to refine
-            eval_results = eval_threat_research(info, new_ti, related_docs)
+            try:
+                eval_results = eval_threat_research(info, new_ti, related_docs)
+            except tenacity.RetryError:
+                debug_print("==> Retry Error")
+                continue
             debug_print(RED + "==> The Evaluation Results: " + RESET)
             debug_print(eval_results)
 
