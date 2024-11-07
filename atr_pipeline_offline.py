@@ -8,7 +8,7 @@ data.pop()
 out_data = []
 
 num = 0
-output_location = "AgentGenReport/"
+output_location = "newnewAgentReport/"
 for i in data:
     num += 1
     if num < 7:
