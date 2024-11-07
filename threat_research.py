@@ -1,6 +1,7 @@
 import json
 import sys
 import os
+import logging
 
 import tiktoken
 # for exponential backoff
@@ -36,6 +37,11 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
+os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
+os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -62,6 +68,8 @@ if _DEPLOYMENT_ENV == "playground":
 
 def debug_print(*args, **kwargs):
     if _LOG_ENABLED:
+        message = ' '.join(str(arg) for arg in args)
+        logging.debug(message)
         print(*args, **kwargs)
     else:
         pass
