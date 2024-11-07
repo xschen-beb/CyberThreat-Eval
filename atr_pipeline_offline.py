@@ -11,8 +11,8 @@ num = 0
 output_location = "AgentGenReport/"
 for i in data:
     num += 1
-    if num > 1:
-        break
+    if num < 7:
+        continue
     # split the data by comma
     print("Processing: ", i)
     i = i.split(",")
