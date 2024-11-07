@@ -172,8 +172,8 @@ def find_related_ones(blog):
 
     # Step 1: Ask the model to generate search queries and to extract links
     sys_prompt = """
-    You are a security expert. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including concrete entities, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. 
-    You output should be json format with queries the key. Please also provide the links that described the same incident or links that may include IoCs (e.g., The indicators of compromise for this blog entry can be found <a href="https://www.trendmicro.com/content/dam/trendmicro/global/en/research/24/a/a-look-into-pikabot-spam-wave-campaign/ioc-pikabot-spam-campaign.txt"> here </a>) mentioned in the blog with the key "links". Output format: {"queries": ["query1", "query2"], "links": ["link1", "link2"]}
+    You are a security expert. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including concrete entities, CVE, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. 
+    You output should be json format with queries the key. Please also provide the links that described the same incident, CVE or links that may include IoCs (e.g., The indicators of compromise for this blog entry can be found <a href="https://www.trendmicro.com/content/dam/trendmicro/global/en/research/24/a/a-look-into-pikabot-spam-wave-campaign/ioc-pikabot-spam-campaign.txt"> here </a>) mentioned in the blog with the key "links". Output format: {"queries": ["query1", "query2"], "links": ["link1", "link2"]}
     """
     # If you wan to include specific words in the results, please use double quotes.
     messages = [
@@ -507,7 +507,7 @@ def threat_research_core(url):
         
         IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         The IoCs should be a in the following format:
-        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","reference": "https://www.XXXX.com/XXX"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","reference": "https://www.XXXX.com/XXX"}]'
+        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","reference": "https://www.XXXX.com/XXX"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","reference": "same as above"}]'
         The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
         """
 
@@ -529,7 +529,7 @@ def threat_research_core(url):
 
 
 def threat_research_playground(url):
-    for i in range(3):
+    for i in range(2):
         try:
             new_ti, related_docs = threat_research_core(url)
             text_output = ""
@@ -548,7 +548,10 @@ def threat_research_playground(url):
                 elif key == 'IoCs':
                     text_output += "#### IoCs: \n"
                     for ioc in value:
-                        text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['reference']})) \n\n"
+                        try:
+                            text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['reference']})) \n\n"
+                        except KeyError:
+                            text_output += f"- {ioc} \n\n"
                 else:
                     text_output += f"#### {key} \n {value} \n\n"
             text_output += "\n"
