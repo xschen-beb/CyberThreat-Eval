@@ -37,8 +37,6 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
-os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
-os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -475,6 +473,9 @@ def threat_research_core(url):
     # "hash_md5",
     # "hash_sha256",
     # "hash_sha1",
+    # "yaml",
+    # "log-based IOC", 
+    # "filaname and path"
 
     # Enhance the documents
     debug_print(RED + f"=> Enhance the blog: {url}" + RESET)
@@ -516,7 +517,7 @@ def threat_research_core(url):
         IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         The IoCs should be a in the following format:
         '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","reference": "https://www.XXXX.com/XXX"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","reference": "same as above"}]'
-        The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
+        The type can be "ip", "ip_port",  "domain", "url", "email", "yaml", "log-based IOC", "filaname and path", "hash_md5", "hash_sha256", "hash_sha1".
         """
 
     messages = [
@@ -554,12 +555,13 @@ def threat_research_playground(url):
                 if key == 'Incident':
                     text_output += f"#### {key}: {value} \n\n"
                 elif key == 'IoCs':
-                    text_output += "#### IoCs: \n"
+                    text_output += "#### IoCs:\n"
                     for ioc in value:
-                        try:
-                            text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['reference']})) \n\n"
-                        except KeyError:
-                            text_output += f"- {ioc} \n\n"
+                        debug_print(f"ioc: {ioc}, type: {type(ioc)}")
+                        if isinstance(ioc, dict):
+                            text_output += f"- {ioc.get('type', '')}: {ioc.get('value', '')} ([link]({ioc.get('reference', '')}))\n\n"
+                        else:
+                            text_output += f"- {ioc}\n\n"
                 else:
                     text_output += f"#### {key} \n {value} \n\n"
             text_output += "\n"
