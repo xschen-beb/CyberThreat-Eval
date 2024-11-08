@@ -1,0 +1,208 @@
+1============================================
+Source: [https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/](https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/)
+
+## Related articles (describing the same threat) 
+- https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/
+- https://blog.talosintelligence.com/warmcookie-analysis/
+- https://github.com/Cisco-Talos/IOCs/tree/main/2024/10/
+- https://www.infosecurity-magazine.com/news/malware-warmcookie-users-malicious/
+
+## Enriched Doc (enrihcments marked with *content*(link)): 
+#### Incident: TA866/Asylum Ambuscade Activity Analysis 
+
+#### Root cause 
+ The attack vectors primarily include malspam, malvertising, and the use of Traffic Distribution Systems (TDS) such as 404 TDS. Misconfigured email servers and lack of proper web filtering allowed the delivery of malicious content. *WarmCookie/BadSpace malware, malicious JavaScript downloaders, email attachments, and CSharp-Streamer-RAT have also been used as initial access and persistence tools by TA866* (https://www.infosecurity-magazine.com/news/malware-warmcookie-users-malicious/). 
+
+#### Threat actor/group/campaign 
+ TA866, also known as Asylum Ambuscade. 
+
+#### Organization/industry/location 
+ The primary targets were organizations in the United States, Canada, United Kingdom, Germany, Italy, Austria, and the Netherlands, spanning sectors such as manufacturing, government, and financial services. 
+
+#### Start date – End date 
+ The activity has been ongoing since at least 2020 and continues to the present, with the latest observations noted in 2024. 
+
+#### MITRE TTPs 
+ ['Reconnaissance: T1589.002', 'Resource Development: T1586.002, T1608.006, T2583.008', 'Initial Access: T1566, T1566.001, T1566.002', 'Execution: T1059.001, T1059.003, T1047', 'Persistence: T1574.002', 'Defense Evasion: T1218.007', 'Discovery: T1069.002, T1016, T1482, T1018, T1057, T1007, T1518.001, T1124, T1082, T1033', 'Command and Control: T1105, T1219, T1071.001'] 
+
+#### Impact 
+ The exact number of impacted records is not specified, but the sectors affected include manufacturing, government, and financial services across multiple countries. *WarmCookie enables adversaries to deploy additional malware like Cobalt Strike and supports command execution, screenshot capture, and payload deployment* (https://www.infosecurity-magazine.com/news/malware-warmcookie-users-malicious/). 
+
+#### Mitigation Steps 
+ ['Implement strong email filtering to block malspam.', 'Use web filtering solutions to prevent access to malicious websites and advertisements.', 'Regularly update and patch systems to mitigate vulnerabilities.', 'Implement multi-factor authentication (MFA) to secure email accounts.', 'Conduct regular security awareness training to educate employees about phishing and malvertising.', 'Monitor and control the use of external tools like AnyDesk and Remote Utilities.'] 
+
+#### Detection Signature 
+ {'Service': 'Email, Web Browsing', 'Port': '80, 443, 25', 'Severity': 'Critical', 'Incident': 'TA866/Asylum Ambuscade', 'Signature name': 'Malspam and Malvertising Detection', 'Internal checks': ['Setting1: Email servers should have robust spam filters configured.', 'Setting2: Web proxies should block access to known malicious domains.', 'Setting3: Implement logging and monitoring to detect unusual email traffic.'], 'External scanning': ['Check for malicious domains and IPs in web traffic.', 'Monitor email servers for suspicious attachments and links.']} 
+
+#### IoCs:
+- url: https://perfectsystems-ltd.com/x-css/cd.msi ([link](https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/)) 
+
+- url: https://perfectsystems-ltd.com/x-css/cd.msi ([link]())
+
+- ip: 185.73.124.164 ([link](https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/)) 
+
+- ip: 185.73.124.164 ([link]())
+
+- ip: 109.236.80.191 ([link](https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/)) 
+
+- ip: 109.236.80.191 ([link]())
+
+- url: https://temp.sh/ThuNJ/2.dll ([link](https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/)) 
+
+- url: https://temp.sh/ThuNJ/2.dll ([link]())
+
+- url: https://temp.sh/esuJB/resident.exe ([link](https://blog.talosintelligence.com/highlighting-ta866-asylum-ambuscade/)) 
+
+- url: https://temp.sh/esuJB/resident.exe ([link]())
+
+- ip: 109.237.80.191 ([link](https://blog.talosintelligence.com/warmcookie-analysis/)) 
+
+- ip: 109.237.80.191 ([link]())
+
+- url: https://github.com/Cisco-Talos/IOCs/tree/main/2024/10 ([link](https://github.com/Cisco-Talos/IOCs/tree/main/2024/10)) 
+
+- url: https://github.com/Cisco-Talos/IOCs/tree/main/2024/10 ([link]())
+
+
+2============================================
+Source: [https://www.bleepingcomputer.com/news/security/bumblebee-malware-returns-after-recent-law-enforcement-disruption/](https://www.bleepingcomputer.com/news/security/bumblebee-malware-returns-after-recent-law-enforcement-disruption/)
+
+## Related articles (describing the same threat) 
+- https://www.bleepingcomputer.com/news/security/bumblebee-malware-returns-after-recent-law-enforcement-disruption/
+- https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs
+- https://www.bleepingcomputer.com/news/security/bumblebee-malware-attacks-are-back-after-4-month-break/
+- https://www.bleepingcomputer.com/news/security/google-ads-push-bumblebee-malware-used-by-ransomware-gangs/
+- https://www.netskope.com/blog/new-bumblebee-loader-infection-chain-signals-possible-resurgence
+- https://www.broadcom.com/support/security-center/protection-bulletin/a-possible-bumblebee-loader-resurgence
+- https://cybersecsentinel.com/bumblebee-malware-adapts-to-evade-detection-in-new-attack-campaign/
+- https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader
+
+## Enriched Doc (enrihcments marked with *content*(link)): 
+#### Incident: Bumblebee Malware Resurgence 
+
+#### Organization/industry/location 
+ Targeting thousands of organizations in the United States *Your changes* (https://www.bleepingcomputer.com/news/security/bumblebee-malware-attacks-are-back-after-4-month-break/). 
+
+#### Start date – End date 
+ The recent activity was observed more than four months after Europol's 'Operation Endgame' in May 2024. 
+
+#### MITRE TTPs 
+ {'T1566.001': 'Phishing: Spearphishing Attachment', 'T1204.002': 'User Execution: Malicious File', 'T1059.001': 'Command and Scripting Interpreter: PowerShell', 'T1105': 'Ingress Tool Transfer', 'T1505.002': 'Server Software Component: Component Object Model and Dynamic-Link Library'} 
+
+#### Impact 
+ Potential deployment of Cobalt Strike beacons, information-stealing malware, and various ransomware strains. 
+
+#### Mitigation Steps 
+ ['Implement strong email filtering to detect and block phishing attempts.', 'Educate employees about phishing threats and encourage them to report suspicious emails.', 'Use endpoint protection solutions that can detect and block malicious file executions.', 'Monitor network traffic for unexpected downloads or connections to suspicious domains.', 'Disable the execution of PowerShell scripts from unknown sources.', 'Regularly update and patch software to mitigate the exploitation of known vulnerabilities.', 'Employ network segmentation to limit the spread of malware within the organization.'] 
+
+#### Detection Signature 
+ {'Service': 'PowerShell', 'Port': 'N/A', 'Severity': 'High', 'Incident': 'Bumblebee Malware Resurgence', 'Signature name': 'Bumblebee PowerShell Execution', 'Internal checks': {'Setting1': 'Monitor for PowerShell execution with the "/qn" option.', 'Setting2': 'Detect the download and execution of MSI files from external servers.', 'Setting3': 'Identify usage of SelfReg table within MSI files.'}, 'External scanning': {'Monitor for connections to known malicious domains associated with Bumblebee. Inspect email attachments for .LNK files and analyze their behavior.': {'type': 'url', 'value': 'http://www.netskope.com/blog/new-bumblebee-loader-infection-chain-signals-possible-resurgence', 'source': 'https://www.bleepingcomputer.com/news/security/bumblebee-malware-returns-after-recent-law-enforcement-disruption/'}, 'IoCs': [{'type': 'url', 'value': 'http://193.242.145.138/mid/w1/Midjourney.msi', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'url', 'value': 'http://193.176.190.41/down1/nvinstall.msi', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': '2bca5abfac168454ce4e97a10ccf8ffc068e1428fa655286210006b298de42fb', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': '106c81f547cfe8332110520c968062004ca58bcfd2dbb0accd51616dd694721f', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': 'c26344bfd07b871dd9f6bd7c71275216e18be265e91e5d0800348e8aa06543f9', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': '0ab5b3e9790aa8ada1bbadd5d22908b5ba7b9f078e8f5b4e8fcc27cc0011cce7', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': 'd3f551d1fb2c307edfceb65793e527d94d76eba1cd8ab0a5d1f86db11c9474c3', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': 'd1cabe0d6a2f3cef5da04e35220e2431ef627470dd2801b4ed22a8ed9a918768', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': '7df703625ee06db2786650b48ffefb13fa1f0dae41e521b861a16772e800c115', 'source': 'https://github.com/netskopeoss/NetskopeThreatLabsIOCs/tree/main/Malware/Bumblebee/IOCs'}, {'type': 'hash_sha256', 'value': '91d29cfe549d8c7ade35f681ea60ce73a48e00c2f6d55a608f86b6f17f494d0d', 'source': 'https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader'}, {'type': 'hash_sha256', 'value': '940182dd2eaf42327457d249f781274b07e7978b62dca0ae4077b438a8e13937', 'source': 'https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader'}, {'type': 'hash_sha256', 'value': 'd6cc3ac995484b99ed790b6f8ceb145492794eb5d01ec4a71123b9975e9bfd20', 'source': 'https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader'}, {'type': 'hash_sha256', 'value': '5d000af554dcd96efa066301b234265892b8bf37bf134f21184096bdc3d7230b', 'source': 'https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader'}, {'type': 'hash_sha256', 'value': '0b0a5f3592df7b538b8d8db4ba621b03896f27c9f112b88d56761972b03e6e58', 'source': 'https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader'}]}} 
+
+#### *Your changes* 
+ Google Ads; SEO poisoning; PowerSploit framework; appcisco.com domain; *Netskope Threat Labs; ZIP file; LNK file; Nvidia and Midjourney installers* (https://www.netskope.com/blog/new-bumblebee-loader-infection-chain-signals-possible-resurgence); *Trickbot or Conti affiliates; MSI installer misuse; High threat score (8.5/10); Phishing emails with ZIP files; in-memory execution; social engineering* (https://cybersecsentinel.com/bumblebee-malware-adapts-to-evade-detection-in-new-attack-campaign/); *obfuscated PowerShell script; .VHD file; DLL; Smash file transfer platform; EXOTIC LILY activity; container.vhd; Quote.lnk; quotefile.ps1; stage2.ps1; payload.dll* (https://www.deepinstinct.com/blog/the-dark-side-of-bumblebee-malware-loader). 
+
+
+3============================================
+Source: [https://www.cyfirma.com/research/the-will-of-d-a-deep-dive-into-divulge-stealer-dedsec-stealer-and-duck-stealer/](https://www.cyfirma.com/research/the-will-of-d-a-deep-dive-into-divulge-stealer-dedsec-stealer-and-duck-stealer/)
+
+## Related articles (describing the same threat) 
+- https://www.cyfirma.com/research/the-will-of-d-a-deep-dive-into-divulge-stealer-dedsec-stealer-and-duck-stealer/
+- https://securityonline.info/divulge-dedsec-and-duck-the-rise-of-advanced-stealer-malware/
+- https://ministang.com/security.php?article=671632274cd6fde9de79aec3
+
+## Enriched Doc (enrihcments marked with *content*(link)): 
+#### Incident: Malware Analysis - Divulge Stealer, Dedsec Stealer, and Duck Stealer 
+
+#### Root cause 
+ The root cause behind the incident includes the utilization of open-source repositories like GitHub to propagate malware, the use of platforms like Discord and Telegram for promotion, and poor cybersecurity practices such as lack of endpoint security and user awareness. 
+
+#### Threat actor/group/campaign 
+ The exact threat actors are not disclosed, but the malware are associated with different developers promoting via underground forums, GitHub, and social media platforms. *Divulge Stealer is promoted on HackForums, Cracked, and GitHub* (https://securityonline.info/divulge-dedsec-and-duck-the-rise-of-advanced-stealer-malware/). 
+
+#### Organization/industry/location 
+ The malware targets general users, focusing on stealing data from browsers, games, and cryptocurrency wallets. *Divulge Stealer has anti-VM capabilities and targets multiple browsers and cryptocurrency wallets* (https://ministang.com/security.php?article=671632274cd6fde9de79aec3). *DedSec Stealer is a copy of Doenerium and employs similar evasion techniques* (https://ministang.com/security.php?article=671632274cd6fde9de79aec3). *Duck Stealer is identified as AZStealer and shares functionalities with the others, including anti-VM features and extensive cryptocurrency wallet targeting* (https://ministang.com/security.php?article=671632274cd6fde9de79aec3). 
+
+#### Start date – End date 
+ The blog was published on October 17, 2024. No specific start date is provided for the attack campaigns. *New publication date: October 29, 2024* (https://securityonline.info/divulge-dedsec-and-duck-the-rise-of-advanced-stealer-malware/). 
+
+#### MITRE TTPs 
+ {'Execution': 'TA0002', 'T1047': 'Windows Management Instrumentation', 'T1059': 'Command and Scripting Interpreter', 'Persistence': 'TA0003', 'T1547.001': 'Registry Run Keys / Startup Folder', 'T1574.002': 'DLL Side-Loading', 'Privilege Escalation': 'TA0004', 'T1055': 'Process Injection', 'Defense Evasion': 'TA0005', 'T1036': 'Masquerading', 'Credential Access': 'TA0006', 'T1003': 'OS Credential Dumping', 'Discovery': 'TA0007', 'T1012': 'Query Registry', 'T1057': 'Process Discovery', 'T1018': 'Remote System Discovery', 'T1082': 'System Information Discovery', 'Collection': 'TA0009', 'T1005': 'Data from Local System', 'Command and Control': 'TA0011', 'T1573': 'Encrypted Channel', 'T1071': 'Application Layer Protocol'} 
+
+#### Impact 
+ The malware affects browsers, game data, cryptocurrency wallets, and other sensitive information, potentially impacting a large number of users and systems worldwide. *Dedsec Stealer targets autofill data, payment card details, and credentials* (https://securityonline.info/divulge-dedsec-and-duck-the-rise-of-advanced-stealer-malware/). 
+
+#### Mitigation Steps 
+ {'1. Implement Defense-in-Depth Strategy': 'Develop a comprehensive defense strategy that combines network segmentation, robust perimeter defenses, and endpoint security.', '2. Invest in Threat Intelligence': 'Engage with threat intelligence services to stay informed about evolving threats.', '3. Enhance Employee Training': 'Conduct regular cybersecurity training programs to educate employees about phishing threats and safe browsing practices.', '4. Develop an Incident Response Plan': 'Establish a robust incident response plan and regularly test and update it.', '5. Conduct Regular Security Audits': 'Perform periodic security audits to assess and improve the security posture.', '6. Update and Patch Systems': 'Regularly update operating systems, software, and applications.', '7. Utilize Advanced Endpoint Protection': 'Deploy advanced endpoint protection solutions with behavioral analysis and heuristic detection.', '8. Implement Application Whitelisting': 'Restrict the execution of unauthorized applications.'} 
+
+#### Detection Signature 
+ {'Service': 'GitHub, Discord, Telegram', 'Port': 'Not applicable', 'Severity': 'Critical', 'Incident': 'Malware Infection', 'Signature Name': 'Open-Source Stealer Promotion Detection', 'Internal Checks': {'Monitor for unusual repository activity on GitHub': 'Inspect Discord and Telegram channels for malware promotion.', 'Ensure endpoint security solutions are in place and actively monitored': 'External Scanning', 'Monitor public repositories for suspicious code': 'Use threat intelligence feeds to detect malware promotion on social platforms.'}} 
+
+#### IoCs:
+- hash_sha256: 5dd0d74ce7e044c93ae79a7d5a66e1a1cd2a8c838c89e19f67279ab91dc19bd9 ([link](https://www.cyfirma.com/research/the-will-of-d-a-deep-dive-into-divulge-stealer-dedsec-stealer-and-duck-stealer/)) 
+
+- hash_sha256: 5dd0d74ce7e044c93ae79a7d5a66e1a1cd2a8c838c89e19f67279ab91dc19bd9 ([link]())
+
+- hash_sha256: 051829813ea3c66e37f184bbfaa2fa3d8752abbfa4828fa5847f1986ae461e3c ([link](https://www.cyfirma.com/research/the-will-of-d-a-deep-dive-into-divulge-stealer-dedsec-stealer-and-duck-stealer/)) 
+
+- hash_sha256: 051829813ea3c66e37f184bbfaa2fa3d8752abbfa4828fa5847f1986ae461e3c ([link]())
+
+- hash_sha256: a2b284d185326ef5a6031fd2278302a715181989230b54f9e4e4d79545a0dde7 ([link](https://www.cyfirma.com/research/the-will-of-d-a-deep-dive-into-divulge-stealer-dedsec-stealer-and-duck-stealer/)) 
+
+- hash_sha256: a2b284d185326ef5a6031fd2278302a715181989230b54f9e4e4d79545a0dde7 ([link]())
+
+
+4============================================
+Source: [https://global.ptsecurity.com/analytics/pt-esc-threat-intelligence/fake-attachment-roundcube-mail-server-attacks-exploit-cve-2024-37383-vulnerability](https://global.ptsecurity.com/analytics/pt-esc-threat-intelligence/fake-attachment-roundcube-mail-server-attacks-exploit-cve-2024-37383-vulnerability)
+
+## Related articles (describing the same threat) 
+- https://global.ptsecurity.com/analytics/pt-esc-threat-intelligence/fake-attachment-roundcube-mail-server-attacks-exploit-cve-2024-37383-vulnerability
+- https://nvd.nist.gov/vuln/detail/CVE-2024-37383
+- https://socradar.io/roundcube-vulnerability-cve-2024-37383-exploited-in-phishing-attacks-targeting-government-agencies-for-credential-theft/
+- https://www.betterworldtechnology.com/post/hackers-exploit-roundcube-webmail-xss-vulnerability-to-steal-login-credentials
+- https://security.snyk.io/vuln/SNYK-PHP-ROUNDCUBEROUNDCUBEMAIL-8235206
+
+## Enriched Doc (enrihcments marked with *content*(link)): 
+#### Incident: Fake attachment. Roundcube mail server attacks exploit CVE-2024-37383 vulnerability 
+
+#### Root cause 
+ The root cause is a stored XSS vulnerability (CVE-2024-37383) in the Roundcube Webmail email client. This vulnerability allows attackers to execute JavaScript code on the user's page by exploiting improper handling of SVG elements within the email body markup *due to improper sanitization of SVG animate attributes* (https://security.snyk.io/vuln/SNYK-PHP-ROUNDCUBEROUNDCUBEMAIL-8235206). 
+
+#### Threat actor/group/campaign 
+ Unknown threat actors *attempted to exploit the vulnerability* (https://www.betterworldtechnology.com/post/hackers-exploit-roundcube-webmail-xss-vulnerability-to-steal-login-credentials). 
+
+#### Organization/industry/location 
+ A governmental organization in a CIS country. 
+
+#### Start date – End date 
+ June 2024 - September 2024 
+
+#### MITRE TTPs 
+ ['T059.007: Execution via JavaScript', 'T1114.003: Remote email collection using the ManageSieve plugin', 'T1056.004: Web portal capture involving login and password input fields'] 
+
+#### Impact 
+ Potential unauthorized access to email accounts, theft of credentials, and corporate email communications. *Victims tricked into revealing credentials via fake login forms embedded in Roundcube’s interface* (https://socradar.io/roundcube-vulnerability-cve-2024-37383-exploited-in-phishing-attacks-targeting-government-agencies-for-credential-theft/). *Captured credentials were sent to a remote server hosted on Cloudflare* (https://www.betterworldtechnology.com/post/hackers-exploit-roundcube-webmail-xss-vulnerability-to-steal-login-credentials). 
+
+#### Mitigation Steps 
+ ['**Update Roundcube Webmail**: Ensure that your Roundcube Webmail installation is updated to version 1.5.7 or later, or version 1.6.7 or later, where the vulnerability has been patched.', '**Regular Software Updates**: Maintain a regular schedule for updating all software to the latest versions to avoid vulnerabilities.', '**Email Filtering**: Implement robust email filtering to detect and quarantine suspicious emails.', '**User Training**: Train users to recognize and avoid phishing attempts and suspicious emails.', '**Content Security Policy (CSP)**: Implement a strict Content Security Policy to restrict the execution of scripts in emails.'] 
+
+#### Detection Signature 
+ {'Service': 'Roundcube Webmail', 'Port': '80 (HTTP), 443 (HTTPS)', 'Severity': 'Critical', 'Incident': 'Exploitation of CVE-2024-37383', 'Signature name': 'Roundcube XSS vulnerability exploited', 'Internal checks': ['Check for Roundcube versions earlier than 1.5.7 or between 1.6 and 1.6.6.', 'Inspect email bodies for suspicious SVG elements and JavaScript code.'], 'External scanning': ['Examine incoming emails for SVG elements with manipulated `href` attributes.']} 
+
+#### IoCs:
+- domain: libcdn.org ([link](https://www.ptsecurity.com/choose-region/?return_url=/analytics/pt-esc-threat-intelligence/fake-attachment-roundcube-mail-server-attacks-exploit-cve-2024-37383-vulnerability)) 
+
+- domain: libcdn.org ([link]())
+
+- domain: rcm.codes ([link](same as above)) 
+
+- domain: rcm.codes ([link]())
+
+- domain: libcdn.org ([link](https://socradar.io/roundcube-vulnerability-cve-2024-37383-exploited-in-phishing-attacks-targeting-government-agencies-for-credential-theft/)) 
+
+- domain: libcdn.org ([link]())
+
+#### Additional Information 
+ {"*CISA's Known Exploited Vulnerabilities Catalog* (https://nvd.nist.gov/vuln/detail/CVE-2024-37383)": "This CVE is listed in CISA's Known Exploited Vulnerabilities Catalog.", '*Debian Linux* (https://nvd.nist.gov/vuln/detail/CVE-2024-37383)': 'Debian Linux is a known affected software configuration.', '*CWE-79* (https://nvd.nist.gov/vuln/detail/CVE-2024-37383)': "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting').", '*CVSS Score* (https://nvd.nist.gov/vuln/detail/CVE-2024-37383)': 'CVSS v3.1 score for this vulnerability is 6.1 (Medium).', '*Victims tricked into revealing credentials via fake login forms embedded in Roundcube’s interface* (https://socradar.io/roundcube-vulnerability-cve-2024-37383-exploited-in-phishing-attacks-targeting-government-agencies-for-credential-theft/)': 'Phishing emails sent in June 2024 contained hidden JavaScript payloads designed to steal credentials from Roundcube users.', "*Exploit Maturity: Mature* (https://security.snyk.io/vuln/SNYK-PHP-ROUNDCUBEROUNDCUBEMAIL, 'value': 'rcm.codes', 'source': 'same as above'}, {'type': 'email', 'value': 'libcdn.org', 'source': 'https://socradar.io/roundcube-vulnerability-cve-2024-37383-exploited-in-phishing-attacks-targeting-government-agencies-for-credential-theft/'}], 'Additional Information': {": "This CVE is listed in CISA's Known Exploited Vulnerabilities Catalog.", '*Exploit Maturity* (https://security.snyk.io/vuln/SNYK-PHP-ROUNDCUBEROUNDCUBEMAIL-8235206)': 'Exploit maturity is classified as mature with an EPSS of 3.65% (92nd percentile).'} 
+
+
+5============================================

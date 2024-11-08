@@ -219,6 +219,8 @@ def find_related_ones(blog):
         if link in identified_links:
             debug_print("==> The link has been identified. Skip it.")
             continue
+        if link.endswith(".png"):
+            continue
         identified_links.append(link)
 
         for i in range(3):
@@ -516,6 +518,8 @@ def threat_research_core(url):
         
         IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list all the IoCs you found in the document, please MAKE SURE to list all the IoCs you found in the document (do not use `etc.`).  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         The IoCs should be a in the following format:
+        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","source": "https://www.wheretheiocfrom.com/XX/XXXX/"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","source": "same as above"}]'
+        The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
         '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","reference": "https://www.XXXX.com/XXX"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","reference": "same as above"}]'
         The type can be "ip", "ip_port",  "domain", "url", "email", "yaml", "log-based IOC", "filaname and path", "hash_md5", "hash_sha256", "hash_sha1".
         """
@@ -557,6 +561,10 @@ def threat_research_playground(url):
                 elif key == 'IoCs':
                     text_output += "#### IoCs:\n"
                     for ioc in value:
+                        try:
+                            text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['source']})) \n\n"
+                        except KeyError:
+                            text_output += f"- {ioc} \n\n"
                         debug_print(f"ioc: {ioc}, type: {type(ioc)}")
                         if isinstance(ioc, dict):
                             text_output += f"- {ioc.get('type', '')}: {ioc.get('value', '')} ([link]({ioc.get('reference', '')}))\n\n"
