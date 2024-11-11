@@ -1,0 +1,3 @@
+Total execution time for link https://www.trendmicro.com/en_us/research/24/k/breaking-down-earth-estries-persistent-ttps-in-prolonged-cyber-o.html: 532.7335431575775 seconds
+Total execution time for link https://www.trendmicro.com/en_us/research/24/k/breaking-down-earth-estries-persistent-ttps-in-prolonged-cyber-o.html: 632.3006811141968 seconds
+Total execution time for link https://unit42.paloaltonetworks.com/detect-dns-hijacking-passive-dns: 614.0145838260651 seconds
