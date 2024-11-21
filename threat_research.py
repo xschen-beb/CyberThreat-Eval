@@ -11,6 +11,8 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.align import Align
 import playwright
+from urllib.parse import urlparse
+
 
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -37,9 +39,8 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+os.environ["PROXY_KEY"]="59ddb6820482b719e33661ccbfa98042"
+os.environ["LOCAL_ENDPOINT"]="http://10.150.142.182:9999"
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -153,13 +154,15 @@ def compare_docs(original, new_doc):
         new_doc = new_doc[:80000]
 
     content_analysis_prompt = f"""
-    You are a security expert. I will give you a original blog and a new found document. You goal is to step-by-step identify if the new found document described the same incident comapred to the original blog (i.e. talking the same thing with different aspects). First, identify if the new found document described a similar incident.
-    Then, please analyze the new found document to identify if it has enough info to help people understand the root cause (including, vulnerable/misconfigured services, how to mitigate) bechind the incident.
+    You are a security expert. I will give you a original blog and a new found document. You goal is to step-by-step identify if the new found document described the same incident comapred to the original blog (i.e. talking the same thing with different aspects). First, identify if the new found document described a similar incident. 
+    Then, please analyze the new found document to identify if it has enough info to help people understand the root cause (including, vulnerable/misconfigured services, how to mitigate) bechind the incident. If a doc has some IoCs related to this incident, we identify it as enough.
     Note that if a new found document covers a few different incidents, we called it a cyber-intel-brief, mark it as not the same incident.
     Please output your decision in JSON format with the key "is_same", "is_similar" or "is_enough" and "explanation". 
     The original blog is: {original}
     The new found document is: {new_doc}
     """
+    # before second paragraph, including malware tools including ...
+    # if doc have ioc, 
     new_messages = []
     new_messages.append({"role": "user", "content": content_analysis_prompt})
 
@@ -182,6 +185,7 @@ def find_related_ones(blog, enable_query=True):
     You are a security expert. I will give a report on the Internet. I want to delve deeper into this incident to see what the reason behind and tech details. Can you sugggest a search query (including threat actor, malware,CVE, date, service or victims) that I can use to search in the search engine to understand the tech details of this attack/incident. Do not include general words like "cybersecurity", "personal information", etc because they are too general to search. You can use the threat actor name, malware name, victims, CVEs, or similar attack chain.
     You output should be json format with queries the key. Please also provide the links that described the same incident, CVE or links that may include IoCs (e.g., The indicators of compromise for this blog entry can be found <a href="https://www.trendmicro.com/content/dam/trendmicro/global/en/research/24/a/a-look-into-pikabot-spam-wave-campaign/ioc-pikabot-spam-campaign.txt"> here </a>) mentioned in the blog with the key "links". Output format: {"queries": ["query1", "query2"], "links": ["link1", "link2"]}
     """
+    # output format add {"malware": "tools"} -> malpedia -> info -> thread_core
     # If you wan to include specific words in the results, please use double quotes.
     messages = [
         {"role": "system", "content": sys_prompt},
@@ -348,13 +352,13 @@ def enrichment(original, related_docs):
         Step 1: Identify 1-4 informative Entities (";" delimited) from the new found document which are missing from the previously generated threat report.
         Step 2: Write a new, denser threat report to merge every entity and detail from the previous summary plus the Missing Entities.
 
-        A Missing Entity is:
+        A Missing Entity is: 
         - Relevant: to the main story.
         - Specific: descriptive yet concise (5 words or fewer)
         - Novel: not in the previous summary.
         - Faithful: present in the new found document.
         - Anywhere: located anywhere in the new found document.
-        - Security-related: e.g., IoCs (MAKE SURE to add all IoCs("ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1") you find in the new found document). Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
+        - Security-related: e.g., IoCs (MAKE SURE to add all IoCs("ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1") you find in the new found document). Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/) 
         
         Guidelines:
         - Merge the new Entities into the original report. Mark the new information with *Your changes* (link to new found document). Do not create a new key (e.g., 'Added info').
@@ -372,6 +376,8 @@ def enrichment(original, related_docs):
         "XXX": "XXX",
         }
         """
+        # if contains threat actors / malware, ..
+        # New item: Threat actors: description
 
         # """
         # You will generate increasingly entity-dense threat report based on the new found document. Repeat the following 2 steps 2 times.
@@ -494,22 +500,22 @@ def threat_research_core(url):
 
     # Enhance the documents
     debug_print(RED + f"=> Enhance the blog: {url}" + RESET)
-    analysis_prompt = """
+    analysis_prompt = r"""
         You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident.
         **For IoCs, please also extract those (e,g., hash1, hash256, hash_md5) inside the Yara Rule into the IoCs. e.g., extract '"hash1/hash256/hash_md5": "65c6798eedd33aa36d77432b2ba7ef45dfe760092810b4db487210b19299bdcb"' from YARA rule and put it into IoCs **
 
         You should provide a signature in the following format:    
         Incident: Shanghai Police Datalake Leak
         
-        Root cause: the root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
+        Root cause: the detailed context of root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
         
-        Threat actor/group/campaign: Who carried out the attack? It could be an orgainzation, a malware family, etc (if known)
+        Threat actor/group/campaign: Who carried out the attack? It could be an orgainzation, a malware family, etc (if known) 
         
         Organization/industry/location: Who was targeted/vicim? (if known)
         
         Start date – End date: When did the attack happen? (if known)
 
-        MITRE TTPs: How was the attack carried out?  (if known)
+        MITRE TTPs: How was the attack carried out?  (if known) And give a confidence score for each piece of TTP, based on related articles and your understanding.
 
         Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
 
@@ -531,17 +537,18 @@ def threat_research_core(url):
         
         IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list top 10 IoCs (IF HAVE) you found in the document.  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
         The IoCs should be a in the following format:
-        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","source": "https://www.wheretheiocfrom.com/XX/XXXX/"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","source": "same as above"}]'
+        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","source": "https://www.wheretheiocfrom.com/XX/XXXX/"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","source": "https://www.wheretheiocfrom.com/XX/XXXX/"}]'
         The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
-        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","reference": "https://www.XXXX.com/XXX"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","reference": "same as above"}]'
-        The type can be "ip", "ip_port",  "domain", "url", "email", "yaml", "log-based IOC", "filaname and path", "hash_md5", "hash_sha256", "hash_sha1".
-        """
+    """
+    ## description about the malware...
+    ## Add confidence / source
+
 
     messages = [
         {"role": "system", "content": analysis_prompt},
     ]
 
-    misconf_qeustion = f"Here is the blog: {blog}."
+    misconf_qeustion = f"Here is the blog: {blog}." # Additional info about thread actor from malpedia(others)
     messages.append({"role": "user", "content": misconf_qeustion})
     response_message = api_call(messages, [], json_enabled=False)
     original = response_message.choices[0].message.content
@@ -554,6 +561,12 @@ def threat_research_core(url):
     return new_ti, related_docs
 
 
+def standardize_url(url):
+    parsed = urlparse(url)
+    # Remove trailing slash and reconstruct the URL
+    return parsed._replace(path=parsed.path.rstrip("/")).geturl()
+
+
 def threat_research_playground(url):
     for i in range(2):
         try:
@@ -562,12 +575,23 @@ def threat_research_playground(url):
 
             text_output += f"Source: [{url}]({url})\n\n"
             text_output += "## Related articles (describing the same threat) \n"
-            for i in related_docs:
-                text_output += ("- " + str(i["link"]) + "\n")
+            # for i in related_docs:
+            #    text_output += ("- " + str(i["link"]) + "\n")
+            # text_output += "\n"
+            # Use a set to store unique URLs
+            unique_urls = set()
+            for doc in related_docs:
+                normalized_url = standardize_url(doc["link"])
+                unique_urls.add(normalized_url)
+
+            # Add unique URLs to the output
+            for unique_url in unique_urls:
+                text_output += f"- {unique_url}\n"
             text_output += "\n"
 
-            text_output += "## Enriched Doc (enrihcments marked with *content*(link)): \n"
+            text_output += "## Enriched Doc (enrichments marked with *content*(link)): \n"
             # mdf.write(json.dump(new_ti))
+            # IoC copy/pasting format
             for key, value in new_ti.items():
                 if key == 'Incident':
                     text_output += f"#### {key}: {value} \n\n"
@@ -631,7 +655,7 @@ def eval_threat_research(info, new_ti, related_docs):
             f_eval.write(orignial_one + "\n")
 
             ai_one = "### AI generated report: "  + '\n'
-            ai_one += "# Enriched Doc (enrihcments marked with *content*(link)): \n"
+            ai_one += "# Enriched Doc (enrichments marked with *content*(link)): \n"
             # mdf.write(json.dump(new_ti))
             for key, value in new_ti.items():
                 ai_one += f" {key}: {value} \n\n"
@@ -745,7 +769,7 @@ def main():
             text_output += f"Source: [{info['url']}]({info['url']})\n\n"
             text_output += "# " + info["title"] + "\n\n"
             text_output += (
-                "# Enriched Doc (enrihcments marked with *content*(link)): \n"
+                "# Enriched Doc (enrichments marked with *content*(link)): \n"
             )
             # mdf.write(json.dump(new_ti))
             try:
