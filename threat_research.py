@@ -39,6 +39,8 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
+os.environ["PROXY_KEY"]="59ddb6820482b719e33661ccbfa98042"
+os.environ["LOCAL_ENDPOINT"]="http://10.150.142.182:9999"
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -534,7 +536,7 @@ def threat_research_core(url):
                 - Redis no-pass-login
         
         IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list top 10 IoCs (IF HAVE) you found in the document.  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
-        The IoCs should be a in the following format:
+        The IoCs should be a in the following format strictly:
         '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","source": "https://www.wheretheiocfrom.com/XX/XXXX/"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","source": "https://www.wheretheiocfrom.com/XX/XXXX/"}]'
         The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
     """
@@ -565,6 +567,85 @@ def standardize_url(url):
     return parsed._replace(path=parsed.path.rstrip("/")).geturl()
 
 
+def format_iocs_markdown(iocs):
+    formatted_iocs = []
+    for ioc in iocs:
+        try:
+            ioc_type = ioc.get("type", "unknown")
+            ioc_value = ioc.get("value", "unknown")
+            ioc_source = ioc.get("source", "unknown")
+            formatted_iocs.append(f"- {ioc_type}: {ioc_value} ([link]({ioc_source}))")
+        except Exception:
+            formatted_iocs.append(f"- Invalid IoC format: {str(ioc)}")
+    return "\n".join(formatted_iocs)
+
+def format_iocs_excel(iocs):
+    formatted_iocs = []
+    for ioc in iocs:
+        try:
+            ioc_type = ioc.get("type", "unknown")
+            ioc_value = ioc.get("value", "unknown")
+            ioc_source = ioc.get("source", "unknown")
+            formatted_iocs.append(f"{ioc_type}\t{ioc_value}\t{ioc_source}")
+        except Exception:
+            formatted_iocs.append(f"Invalid\t{str(ioc)}\t")
+    return "\n".join(formatted_iocs)
+
+
+def threat_research_playground(url):
+    for i in range(2):
+        try:
+            new_ti, related_docs = threat_research_core(url)
+            text_output = ""
+
+            # Add the source URL
+            text_output += f"Source: [{url}]({url})\n\n"
+
+            # Process related articles
+            text_output += "## Related articles (describing the same threat) \n"
+            unique_urls = set()
+            for doc in related_docs:
+                normalized_url = standardize_url(doc["link"])
+                unique_urls.add(normalized_url)
+            for unique_url in unique_urls:
+                text_output += f"- {unique_url}\n"
+            text_output += "\n"
+
+            # Enriched Document Section
+            text_output += "## Enriched Doc (enrichments marked with *content*(link)): \n"
+            paste_ioc_section = "#### paste IoC\n"
+
+            # Process each section of the enriched document
+            for key, value in new_ti.items():
+                if key == 'Incident':
+                    text_output += f"#### {key}: {value} \n\n"
+                elif key == 'IoCs':
+                    text_output += "#### IoCs:\n"
+                    paste_ioc_section += "IoC Type\tIoC Value\tSource Link\n"  # Header for Excel
+                    for ioc in value:
+                        try:
+                            ioc_type = ioc['type']
+                            ioc_value = ioc['value']
+                            ioc_source = ioc.get('source', 'No link provided')
+                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
+                            paste_ioc_section += f"{ioc_type}\t{ioc_value}\t{ioc_source}\n"
+                        except KeyError:
+                            text_output += f"- {ioc} \n\n"
+                            paste_ioc_section += f"Unknown\t{ioc}\tNo link provided\n"
+                    text_output += "- For more IoCs, please refer to the above links. \n\n"
+                else:
+                    text_output += f"#### {key} \n {value} \n\n"
+
+            # Append the paste IoC section
+            text_output += paste_ioc_section + "\n"
+
+            return text_output
+        except AttributeError:
+            print("Error in processing the blog.")
+            continue
+
+
+'''
 def threat_research_playground(url):
     for i in range(2):
         try:
@@ -600,6 +681,8 @@ def threat_research_playground(url):
                             text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['source']})) \n\n"
                         except KeyError:
                             text_output += f"- {ioc} \n\n"
+                        except Exception as e:
+                            text_output += f"- {ioc} \n\n"
                     text_output += "- For more IoCs, please refer to the above links. \n\n"
                 else:
                     text_output += f"#### {key} \n {value} \n\n"
@@ -611,6 +694,7 @@ def threat_research_playground(url):
             print("Error in processing the blog.")
             continue
 
+'''
 
 # TODO: using code to evaluate IoCs
 def eval_threat_research(info, new_ti, related_docs):
