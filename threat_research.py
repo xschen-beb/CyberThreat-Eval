@@ -39,8 +39,6 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
-os.environ["PROXY_KEY"]="59ddb6820482b719e33661ccbfa98042"
-os.environ["LOCAL_ENDPOINT"]="http://10.150.142.182:9999"
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -621,14 +619,15 @@ def threat_research_playground(url):
                     text_output += f"#### {key}: {value} \n\n"
                 elif key == 'IoCs':
                     text_output += "#### IoCs:\n"
-                    paste_ioc_section += "IoC Type\tIoC Value\tSource Link\n"  # Header for Excel
+                    paste_ioc_section += "IoC Value\n"  # Header for Excel
                     for ioc in value:
                         try:
                             ioc_type = ioc['type']
                             ioc_value = ioc['value']
                             ioc_source = ioc.get('source', 'No link provided')
                             text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
-                            paste_ioc_section += f"{ioc_type}\t{ioc_value}\t{ioc_source}\n"
+                            # paste_ioc_section += f"{ioc_type}\t{ioc_value}\t{ioc_source}\n"
+                            paste_ioc_section += f"{ioc_value}\n"
                         except KeyError:
                             text_output += f"- {ioc} \n\n"
                             paste_ioc_section += f"Unknown\t{ioc}\tNo link provided\n"
