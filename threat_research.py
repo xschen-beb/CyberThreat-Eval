@@ -2,7 +2,9 @@ import json
 import sys
 import os
 import logging
-
+import requests
+import base64
+import re
 import tiktoken
 # for exponential backoff
 import tenacity
@@ -12,7 +14,7 @@ from rich.markdown import Markdown
 from rich.align import Align
 import playwright
 from urllib.parse import urlparse
-
+from run_new_prompts import sys_prompt, user_prompt
 
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -30,6 +32,12 @@ from search_engine import (
     bing_search,
 )
 
+API_KEY = "3ffc901469fd1c77c4cccc82873ccbbb8d5ce0b1de9e4e659e0fe4111b84daf3"
+URL = 'https://www.virustotal.com/api/v3/'
+HEADERS = {
+    'x-apikey': API_KEY
+}
+
 # ANSI escape codes
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -39,6 +47,8 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
+os.environ["PROXY_KEY"]="59ddb6820482b719e33661ccbfa98042"
+os.environ["LOCAL_ENDPOINT"]="http://10.150.142.182:9999"
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -590,6 +600,92 @@ def format_iocs_excel(iocs):
     return "\n".join(formatted_iocs)
 
 
+def extract_iocs_from_text(blog, url):
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+    misconf_qeustion = f"Here is the blog: {blog}."
+    messages.append({"role": "user", "content": misconf_qeustion})
+
+    
+    try:
+        response = api_call(messages, [], json_enabled=False)
+        original = response.choices[0].message.content
+        return extract_iocs(original, url)
+    except Exception as e:
+        print(f"Failed to get response for IoC extraction: {e}")
+        return []
+
+
+def extract_iocs(iocs_text, url):
+    iocs_content = re.search(r"<IOCS>\s*\[START\](.*?)\[END\]\s*</IOCS>", iocs_text, re.DOTALL)
+    if not iocs_content:
+        return []
+
+    iocs_content = iocs_content.group(1).strip()
+    iocs_lines = iocs_content.splitlines()
+    
+    iocs_list = []
+
+    for line in iocs_lines:
+        line = line.strip()
+        if line:
+            ioc_match = re.match(r"\|(\w+)\|(.+)", line)
+            if ioc_match:
+                ioc_type = ioc_match.group(1)
+                values = ioc_match.group(2).split(", ")
+                for value in values:
+                    clean_value = value.replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https")
+                    clean_value = re.sub(r'\[://\]', '://', clean_value)
+                    if '|' in str(clean_value):
+                        clean_value = clean_value.strip('|')
+                    iocs_list.append({"type": ioc_type, "value": clean_value, "source": url})
+
+    return iocs_list
+
+def encode_url(url):
+    url_bytes = url.encode("utf-8")
+    base64_bytes = base64.urlsafe_b64encode(url_bytes)
+    base64_string = base64_bytes.decode("utf-8").rstrip("=")
+    return base64_string
+
+
+def check_ioc(ioc_value, ioc_type):
+    try:
+        if ioc_type == 'domain':
+            url = f"{URL}domains/{ioc_value}"
+        elif ioc_type == 'ip':
+            url = f"{URL}ip_addresses/{ioc_value}"
+        elif ioc_type == 'url':
+            submit_url = f"{URL}urls"
+            data = {"url": ioc_value}
+            response = requests.post(submit_url, headers=HEADERS, data=data)
+            response.raise_for_status()
+            encoded_url = encode_url(ioc_value)
+            url = f"{URL}urls/{encoded_url}"
+        elif ioc_type == 'hash':
+            url = f"{URL}files/{ioc_value}"
+        elif ioc_type == 'email':
+            url = f"{URL}emails/{ioc_value}"
+        else:
+            raise ValueError("Unsupported IOC type")
+
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()  
+        if 'data' in response.json():
+            data = response.json()['data']
+            if data['attributes']['last_analysis_stats']['malicious'] > 0:
+                return True
+            else:
+                return False
+        else:
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f"Error checking IoC {ioc_value}: {e}")
+        return True
+
+
 def threat_research_playground(url):
     for i in range(2):
         try:
@@ -613,6 +709,54 @@ def threat_research_playground(url):
             text_output += "## Enriched Doc (enrichments marked with *content*(link)): \n"
             paste_ioc_section = "#### paste IoC\n"
 
+            for key, value in new_ti.items():
+                if key == 'Incident':
+                    text_output += f"#### {key}: {value} \n\n"
+
+            iocs_set = set()
+            for link in unique_urls:
+                blog = click_into_page_with_browser(
+                    link, is_text=False, headless_flag=False
+                )
+                length = num_tokens_from_string(blog, "gpt-4o")
+                if length > 120000:
+                    blog = blog[:120000]
+                
+                iocs_json = extract_iocs_from_text(blog, link)
+                if iocs_json:
+                    for ioc in iocs_json:
+                        ioc_tuple = (ioc['type'], ioc['value'], ioc['source'])
+                        iocs_set.add(ioc_tuple)
+
+            unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_set]
+            print(unique_iocs)
+
+            for ioc_data in unique_iocs:
+                ioc_value = ioc_data["value"]
+                ioc_type = ioc_data["type"]
+
+                try:
+                    if ioc_type in ["hash_md5", "hash_sha1", "hash_sha256"]:
+                        ioc_type_for_check = 'hash'
+                    else:
+                        ioc_type_for_check = ioc_type
+
+                    is_malicious = check_ioc(ioc_value, ioc_type_for_check)
+                    if is_malicious:
+                        ioc_source = ioc_data.get('source', 'No link provided')
+                        text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
+                        paste_ioc_section += f"{ioc_value}\n"
+
+                        print(f"The {ioc_type} {ioc_value} is malicious.")
+                    else:
+                        print(f"The {ioc_type} {ioc_value} is clean.")
+                except Exception as e:
+                    print(e)
+            
+            # For more IoCs note
+            text_output += "- For more IoCs, please refer to the above links. \n\n"
+
+            '''
             # Process each section of the enriched document
             for key, value in new_ti.items():
                 if key == 'Incident':
@@ -634,7 +778,7 @@ def threat_research_playground(url):
                     text_output += "- For more IoCs, please refer to the above links. \n\n"
                 else:
                     text_output += f"#### {key} \n {value} \n\n"
-
+            '''
             # Append the paste IoC section
             text_output += paste_ioc_section + "\n"
 
