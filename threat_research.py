@@ -683,7 +683,8 @@ def check_ioc(ioc_value, ioc_type):
             return False
     except requests.exceptions.RequestException as e:
         print(f"Error checking IoC {ioc_value}: {e}")
-        return True
+        # return True
+        return "Error Information"
 
 
 def threat_research_playground(url):
@@ -710,10 +711,14 @@ def threat_research_playground(url):
             paste_ioc_section = "#### paste IoC\n"
 
             for key, value in new_ti.items():
-                if key == 'Incident':
-                    text_output += f"#### {key}: {value} \n\n"
+                if key == 'IoCs':
+                    continue
+                else:
+                    text_output += f"#### {key} \n {value} \n\n"
 
-            iocs_set = set()
+            text_output += "#### IoCs:\n"
+
+            iocs_dict = {}  # Use a dictionary to remove duplicates by value
             for link in unique_urls:
                 blog = click_into_page_with_browser(
                     link, is_text=False, headless_flag=False
@@ -726,14 +731,16 @@ def threat_research_playground(url):
                 if iocs_json:
                     for ioc in iocs_json:
                         ioc_tuple = (ioc['type'], ioc['value'], ioc['source'])
-                        iocs_set.add(ioc_tuple)
+                        # Use ioc['value'] as the key to ensure uniqueness
+                        iocs_dict[ioc['value']] = ioc_tuple
 
-            unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_set]
+            unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_dict.values()]
             print(unique_iocs)
 
             for ioc_data in unique_iocs:
                 ioc_value = ioc_data["value"]
                 ioc_type = ioc_data["type"]
+                ioc_source = ioc_data.get('source', 'No link provided')  # Ensure a default value
 
                 try:
                     if ioc_type in ["hash_md5", "hash_sha1", "hash_sha256"]:
@@ -742,14 +749,17 @@ def threat_research_playground(url):
                         ioc_type_for_check = ioc_type
 
                     is_malicious = check_ioc(ioc_value, ioc_type_for_check)
-                    if is_malicious:
-                        ioc_source = ioc_data.get('source', 'No link provided')
+                    if is_malicious == True:
+                        # ioc_source = ioc_data.get('source', 'No link provided')
                         text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
                         paste_ioc_section += f"{ioc_value}\n"
 
                         print(f"The {ioc_type} {ioc_value} is malicious.")
-                    else:
+                    elif is_malicious == False:
                         print(f"The {ioc_type} {ioc_value} is clean.")
+                    else:
+                        text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n"
+                        text_output += f"Not found for {ioc_type} {ioc_value} in VT. \n\n"
                 except Exception as e:
                     print(e)
             
