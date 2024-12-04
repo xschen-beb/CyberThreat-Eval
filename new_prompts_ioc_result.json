@@ -1,0 +1,66 @@
+{
+    "filename": "chinese-hackers-compromised-us-government-officials-private-communications-in-recent-telecom-breach.md",
+    "malicious_count": 1,
+    "clean_count": 11,
+    "unable_to_detect_count": 18
+}{
+    "filename": "fake-north-korean-it-worker-activity-cluster.md",
+    "malicious_count": 13,
+    "clean_count": 6,
+    "unable_to_detect_count": 40
+}{
+    "filename": "hackers-now-use-zip-file-concatenation-to-evade-detection.md",
+    "malicious_count": 1,
+    "clean_count": 2,
+    "unable_to_detect_count": 3
+}{
+    "filename": "hackers-use-macos-extended-file-attributes-to-hide-malicious-code.md",
+    "malicious_count": 6,
+    "clean_count": 22,
+    "unable_to_detect_count": 1
+}{
+    "filename": "hamas-linked-threat-group-expands-espionage-and-destructive-operations.md",
+    "malicious_count": 43,
+    "clean_count": 3,
+    "unable_to_detect_count": 7
+}{
+    "filename": "inside-bitdefender-labs-investigation-of-a-malicious-facebook-ad-campaign-targeting-bitwarden-users.md",
+    "malicious_count": 1,
+    "clean_count": 6,
+    "unable_to_detect_count": 7
+}{
+    "filename": "inside-intelligence-center-financially-motivated-chinese-threat-actor-silkspecter-targeting-black-friday-shoppers#a3#new_tab.md",
+    "malicious_count": 13,
+    "clean_count": 2,
+    "unable_to_detect_count": 1
+}{
+    "filename": "malicious-pypi-package-with-37-000-downloads-steals-aws-keys.md",
+    "malicious_count": 4,
+    "clean_count": 8,
+    "unable_to_detect_count": 5
+}{
+    "filename": "north-korean-hackers-create-flutter-apps-to-bypass-macos-security.md",
+    "malicious_count": 1,
+    "clean_count": 1,
+    "unable_to_detect_count": 0
+}{
+    "filename": "north-korean-hackers-use-new-macos-malware-against-crypto-firms.md",
+    "malicious_count": 86,
+    "clean_count": 4,
+    "unable_to_detect_count": 3
+}{
+    "filename": "phishing-emails-increasingly-use-svg-attachments-to-evade-detection.md",
+    "malicious_count": 5,
+    "clean_count": 3,
+    "unable_to_detect_count": 2
+}{
+    "filename": "the-nearest-neighbor-attack-how-a-russian-apt-weaponized-nearby-wi-fi-networks-for-covert-access.md",
+    "malicious_count": 5,
+    "clean_count": 0,
+    "unable_to_detect_count": 0
+}{
+    "filename": "Zero-day-cve-2024-4351-report.pdf.md",
+    "malicious_count": 0,
+    "clean_count": 0,
+    "unable_to_detect_count": 0
+}
