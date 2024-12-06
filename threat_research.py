@@ -47,8 +47,6 @@ MAGENTA = "\033[35m"
 CYAN = "\033[36m"
 RESET = "\033[0m"
 
-os.environ["PROXY_KEY"]="59ddb6820482b719e33661ccbfa98042"
-os.environ["LOCAL_ENDPOINT"]="http://10.150.142.182:9999"
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -542,12 +540,12 @@ def threat_research_core(url):
             External scanning (see next)    
                 - Port (6379) open
                 - Redis no-pass-login
-        
-        IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list top 10 IoCs (IF HAVE) you found in the document.  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
-        The IoCs should be a in the following format strictly:
-        '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","source": "https://www.wheretheiocfrom.com/XX/XXXX/"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","source": "https://www.wheretheiocfrom.com/XX/XXXX/"}]'
-        The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
-    """
+    """   
+        # IoCs: How do I know I am affected? (for example, IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc). If the document does not have IoCs, please output "No IoCs found". If the document has IoCs, please MAKE SURE to list top 10 IoCs (IF HAVE) you found in the document.  Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/)
+        # The IoCs should be a in the following format strictly:
+        # '[{"type":"hash_md5","value":"3edcde37dcecb1b5a70b727ea36521de","source": "https://www.wheretheiocfrom.com/XX/XXXX/"},{"type":"url","value":"http:\/\/50.19.48.59:82\/me1.bat","source": "https://www.wheretheiocfrom.com/XX/XXXX/"}]'
+        # The type can be "ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1".
+    
     ## description about the malware...
     ## Add confidence / source
 
@@ -644,6 +642,7 @@ def extract_iocs(iocs_text, url):
 
     return iocs_list
 
+
 def encode_url(url):
     url_bytes = url.encode("utf-8")
     base64_bytes = base64.urlsafe_b64encode(url_bytes)
@@ -687,6 +686,71 @@ def check_ioc(ioc_value, ioc_type):
         return "Error Information"
 
 
+def llm_judgment_for_ioc_in_blog(ioc_value, original_text): 
+    sys_prompt = f"""
+    ### Role Description
+    You are an expert in cybersecurity. Given the original text below, determine whether the IoC '{ioc_value}' appears in full form in the text, without any modifications or obfuscations. The IoC might be written with markers or characters like '[.]', 'hXXp', 'hXXps', etc., which are commonly used to obfuscate the actual value. No hallucination is allowed.
+
+    ### Task description
+    1. Search for any occurrence of '{ioc_value}' in the original text.
+    2. If you find the IoC, check if it is surrounded by any obfuscations (such as '[.]', 'hXXp', etc.).
+    3. If there are obfuscations, remove them to restore the original IoC.
+    4. If the restored IoC matches the original IoC '{ioc_value}' in the text, return True. Otherwise, return False.
+    5. If the IoC does not appear at all or cannot be fully restored, return False.
+    6. Answer with either 'True' or 'False' directly without any prefixes or explanations.
+
+    ### Example
+    IoC_value given: 147.45.44.83
+    original text: 
+    Indicators of Compromise
+    260f06f0c6c1544afcdd9a380a114489ebdd041b846b68703158e207b7c983d6
+    3317b8e19e19218e5a7c77a47a76f36e37319f383b314b30179b837e46c87c45
+    0d03c7c6335e06c45dd810fba6c52cdb9eafe02111da897696b83811bff0be92
+    604fa32b76dbe266da3979b7a49e3100301da56f0b58c13041ab5febe55354d2
+    6be9c015c82645a448831d9dc8fcae4360228f76dff000953a76e3bf203d3ec8
+    b1a351ee61443b8558934dca6b2fa9efb0a6d2d18bae61ace5a761596604dbfa
+    147[.]45.44.83:6483
+    185[.]196.9.26:6302
+    True
+    """
+
+    user_prompt = f"""
+    ### Task description
+    Given ioc values, parse the original text below according to the task description above.
+
+    IoC_value given: {ioc_value}
+    original text:
+    {original_text}
+    """
+
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+    misconf_qeustion = f"Here is the blog: {original_text}."
+    messages.append({"role": "user", "content": misconf_qeustion})
+
+    try:
+        response = api_call(messages, [], json_enabled=False)
+        original = response.choices[0].message.content
+        return original
+    except Exception as e:
+        return False
+
+
+def filter_url(url, url_list):
+    parsed_url = urlparse(url)
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+
+    for u in url_list:
+        parsed_u = urlparse(u)
+        base_u = f"{parsed_u.scheme}://{parsed_u.netloc}"
+        if base_u == base_url:
+            return True
+    
+    return False
+
+
 def threat_research_playground(url):
     for i in range(2):
         try:
@@ -719,6 +783,10 @@ def threat_research_playground(url):
             text_output += "#### IoCs:\n"
 
             iocs_dict = {}  # Use a dictionary to remove duplicates by value
+            # for each url, extract iocs from url directly
+            blog_for_urls = []
+
+            iocs_dict = {}  # Use a dictionary to remove duplicates by value
             for link in unique_urls:
                 blog = click_into_page_with_browser(
                     link, is_text=False, headless_flag=False
@@ -726,6 +794,9 @@ def threat_research_playground(url):
                 length = num_tokens_from_string(blog, "gpt-4o")
                 if length > 120000:
                     blog = blog[:120000]
+                # Proper formatting for IoCs
+                blog = blog.replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https")
+                blog_for_urls.append({"blog": blog, "source": link})
                 
                 iocs_json = extract_iocs_from_text(blog, link)
                 if iocs_json:
@@ -734,13 +805,18 @@ def threat_research_playground(url):
                         # Use ioc['value'] as the key to ensure uniqueness
                         iocs_dict[ioc['value']] = ioc_tuple
 
+
             unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_dict.values()]
             print(unique_iocs)
 
             for ioc_data in unique_iocs:
                 ioc_value = ioc_data["value"]
+                # if ioc_value in unique_urls or filter_url(ioc_value, unique_urls):
+                if ioc_value in unique_urls or filter_url(ioc_value, unique_urls):
+                    continue
                 ioc_type = ioc_data["type"]
                 ioc_source = ioc_data.get('source', 'No link provided')  # Ensure a default value
+                blogs_for_target_source = next((entry["blog"] for entry in blog_for_urls if entry["source"] == ioc_source), None)
 
                 try:
                     if ioc_type in ["hash_md5", "hash_sha1", "hash_sha256"]:
@@ -750,45 +826,36 @@ def threat_research_playground(url):
 
                     is_malicious = check_ioc(ioc_value, ioc_type_for_check)
                     if is_malicious == True:
-                        # ioc_source = ioc_data.get('source', 'No link provided')
-                        text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
-                        paste_ioc_section += f"{ioc_value}\n"
+                        if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
+                            # ioc_source = ioc_data.get('source', 'No link provided')
+                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
+                            paste_ioc_section += f"{ioc_value}\n"
 
-                        print(f"The {ioc_type} {ioc_value} is malicious.")
+                            print(f"The {ioc_type} {ioc_value} is malicious.")
+                        else:
+                            print(f"The {ioc_type} {ioc_value} not in urls.")
+                            continue
+                            # text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
+                            # text_output += f"Not found for {ioc_type} {ioc_value} in url. \n\n"
+
                     elif is_malicious == False:
                         print(f"The {ioc_type} {ioc_value} is clean.")
                     else:
-                        text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n"
-                        text_output += f"Not found for {ioc_type} {ioc_value} in VT. \n\n"
+                        if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
+                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n"
+                            text_output += f"Found in URL, Not found for {ioc_type} {ioc_value} in VT. \n\n"
+                            print(f"The {ioc_type} {ioc_value} in urls but not in VT.")
+                        else:
+                            print(f"Not Found in URL and VT for {ioc_type} {ioc_value}.")
+                            continue
+                            # text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n"
+                            # text_output += f"Not Found in URL and VT for {ioc_type} {ioc_value}. \n\n"
                 except Exception as e:
                     print(e)
             
             # For more IoCs note
             text_output += "- For more IoCs, please refer to the above links. \n\n"
 
-            '''
-            # Process each section of the enriched document
-            for key, value in new_ti.items():
-                if key == 'Incident':
-                    text_output += f"#### {key}: {value} \n\n"
-                elif key == 'IoCs':
-                    text_output += "#### IoCs:\n"
-                    paste_ioc_section += "IoC Value\n"  # Header for Excel
-                    for ioc in value:
-                        try:
-                            ioc_type = ioc['type']
-                            ioc_value = ioc['value']
-                            ioc_source = ioc.get('source', 'No link provided')
-                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
-                            # paste_ioc_section += f"{ioc_type}\t{ioc_value}\t{ioc_source}\n"
-                            paste_ioc_section += f"{ioc_value}\n"
-                        except KeyError:
-                            text_output += f"- {ioc} \n\n"
-                            paste_ioc_section += f"Unknown\t{ioc}\tNo link provided\n"
-                    text_output += "- For more IoCs, please refer to the above links. \n\n"
-                else:
-                    text_output += f"#### {key} \n {value} \n\n"
-            '''
             # Append the paste IoC section
             text_output += paste_ioc_section + "\n"
 
