@@ -1,3 +1,9 @@
+import sys
+import os
+
+parent_directory = os.path.abspath(os.path.join(os.getcwd(), '..'))
+sys.path.append(parent_directory)
+
 from playwright.sync_api import sync_playwright
 from search_engine import click_into_page_with_browser
 import os
@@ -10,6 +16,8 @@ from bs4 import BeautifulSoup
 import re
 import json
 
+os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
+os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
 
 client = AzureOpenAI(
     azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
@@ -18,7 +26,7 @@ client = AzureOpenAI(
 )
 
 def extract_threat_actor_info(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     pattern = r"#### Threat actor/group/campaign\s*(.*?)(?=\n####|\Z)"
     match = re.search(pattern, content, re.DOTALL)
@@ -31,7 +39,7 @@ def extract_threat_actor_info(file_path):
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-def api_call(messages, func_list, model="gpt-4o", json_enabled=True):
+def api_call(messages, temperature, model="gpt-4o", json_enabled=True):
     if model == 'gpt-4-32k':
         return client.chat.completions.create(
             model=model,
@@ -56,11 +64,14 @@ def api_call(messages, func_list, model="gpt-4o", json_enabled=True):
         )
 
 
-def get_actor(file):
-    threat_actor = extract_threat_actor_info(file)
+# def get_actor(file):
+# input: the contexts containing threat actors
+# output: list of threat actors
+def get_actor(threat_actor):
+    # threat_actor = extract_threat_actor_info(file)
     sys_prompt = f"""
     ### Task description:
-    You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat actors(if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes.
+    You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat actors (if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes.
 
     ### Example:
     Report Content: BrazenBamboo, a Chinese state-affiliated threat actor, developer of DEEPDATA, DEEPPOST, and LIGHTSPY malware families. *BrazenBamboo's cross-platform reach extends to Windows, macOS, and iOS* (https://cyberinsider.com/chinese-hackers-exploit-fortinet-zero-day-to-steal-vpn-credentials/). *APT41 and Space Pirates, suspected to be involved* (https://thehackernews.com/2024/11/warning-deepdata-malware-exploiting.html). *Volexity�s analysis reveals that BrazenBamboo maintains a sophisticated infrastructure for command and control (C2) operations* (https://cybersecuritynews.com/brazenbamboo-apt-forticlient-zero-day/). *DEEPDATA malware uses a modular architecture with 12 unique plugins* (https://securityonline.info/zero-day-vulnerability-in-forticlient-exploited-by-brazenbamboo-apt/). 
@@ -72,7 +83,7 @@ def get_actor(file):
 
     user_prompt = f"""
     ### Task description:
-    I will provide you with an IoC report. Please extract the relevant and potential threat actors(if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes.
+    I will provide you with an IoC report. Please extract the relevant and potential threat actors(if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each item of the list, it should be a phrase or a single word without any prefixes.
 
     ### Result:
     Report Content: {threat_actor}
@@ -81,7 +92,7 @@ def get_actor(file):
     new_messages = [{"role": "system", "content": sys_prompt}]
     new_messages.append({"role": "user", "content": user_prompt})
 
-    response_message = api_call(new_messages, [], model='gpt-4o', json_enabled=False)
+    response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
     response = response_message.choices[0].message.content
     return response
 
@@ -126,7 +137,7 @@ def extract_relevant_section(actor_info, keyword):
     new_messages = [{"role": "system", "content": sys_prompt}]
     new_messages.append({"role": "user", "content": user_prompt})
 
-    response_message = api_call(new_messages, [], model='gpt-4o', json_enabled=False)
+    response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
     response = response_message.choices[0].message.content
     return response
 
@@ -143,7 +154,7 @@ def save_actor_info(actor, actor_info, keyword):
 def augment_threat_actor_context(threat_actor, actor_info):
     sys_prompt = f"""
     ### Task description:
-    Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors.
+    You are an expert in cybersecurity. Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors.
 
     ### Example:
     Threat Actor: BrazenBamboo
@@ -155,7 +166,7 @@ def augment_threat_actor_context(threat_actor, actor_info):
 
     user_prompt = f"""
     ### Task description:
-    Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report.
+    Based on the extracted information about the threat actor from an IoC report, please briefly generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report.
 
     ### Result:
     Threat Actor: {threat_actor}
@@ -166,9 +177,10 @@ def augment_threat_actor_context(threat_actor, actor_info):
     new_messages = [{"role": "system", "content": sys_prompt}]
     new_messages.append({"role": "user", "content": user_prompt})
 
-    response_message = api_call(new_messages, [], model='gpt-4o', json_enabled=False)
+    response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
     response = response_message.choices[0].message.content
     return response
+
 
 def pipeline(file):
     actors = eval(get_actor(file))
@@ -192,14 +204,40 @@ def pipeline(file):
     relevent_section = save_actor_info(actor, actor_info, actor)
     context = augment_threat_actor_context(actors, relevent_section)
     print(context)
-    fo = open('selected_context.txt', 'w')
+    fo = open('wirte_selected_context.txt', 'w')
     fo.write(context)
     context = augment_threat_actor_context(actors, actor_info)
     print(context)
-    fo = open('not_selected_context.txt', 'w')
+    fo = open('wirte_not_selected_context.txt', 'w')
     fo.write(context)
 
 
+def malpedia_pipeline(actors):
+    actors_info = ""
+
+    for actor in actors:
+        if actor:
+            print(f"Extracted Threat Actor: {actor}")
+            actor_url = f"https://malpedia.caad.fkie.fraunhofer.de/actor/{actor.replace(' ', '-').lower()}"
+            if check_page_not_found(actor_url):
+                print(f"Actor {actor} not found, skipping.")
+            else:
+                actor_info = click_into_page_with_browser(actor_url)
+                actors_info += actor_info
+                print(f"Actor Information: {actor_info}")
+        else:
+            print("Failed to extract Threat Actor.")
+
+    relevent_section = save_actor_info(actor, actor_info, actor)
+    context = augment_threat_actor_context(actors, relevent_section)
+    # print(context)
+    return context
+
+
 if __name__ == '__main__':
-    file = '1126-27/1126-27/the-nearest-neighbor-attack-how-a-russian-apt-weaponized-nearby-wi-fi-networks-for-covert-access.md'
-    pipeline(file)
+    file = os.path.join(os.path.dirname(__file__), '..', '241112_AgentReport', 'hamas-linked-threat-group-expands-espionage-and-destructive-operations.md')
+    threat_actor_info = extract_threat_actor_info(file)
+    print(threat_actor_info)
+    threat_actors = eval(get_actor(threat_actor_info))
+    malpedia_pipeline(threat_actors)
+    # pipeline(file)
