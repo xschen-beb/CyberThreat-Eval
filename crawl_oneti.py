@@ -110,6 +110,7 @@ def oneti_pipeline(actors, token):
         if profiles["data"]["totalPages"] > 0:
             print("="*20 +" Using oneti profile " + "="*20 + '\n')
             content = profiles["data"]["content"]
+            print(profiles["data"]["totalPages"])
             for i in range(min(profiles['data']['totalPages'], 5)):
                 actors_info += str(profiles["data"]["content"][i]['content'])
         else:
@@ -127,7 +128,7 @@ if __name__ == '__main__':
     client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
     scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
     token = get_access_token(client_id, scopes)
-    oneti_pipeline('WIRTE', token)
+    oneti_pipeline('Earth Estries', token)
 
 
 
