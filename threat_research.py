@@ -15,6 +15,9 @@ from rich.align import Align
 import playwright
 from urllib.parse import urlparse
 from run_new_prompts import sys_prompt, user_prompt
+from mdti_description.crawl_oneti import get_access_token
+from mdti_description.mdti_pipeline import pipeline, get_actor
+import csv
 
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -62,6 +65,10 @@ if _DEPLOYMENT_ENV == "local":
         api_key=os.getenv("PROXY_KEY"),
         api_version="2024-05-01-preview",
     )
+    client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
+    scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
+    token = get_access_token(client_id, scopes)
+
 
 if _DEPLOYMENT_ENV == "playground":
     client = AzureOpenAI(
@@ -751,6 +758,31 @@ def filter_url(url, url_list):
     return False
 
 
+def get_white_list_urls(csv_file_path):
+    root_urls = set()
+
+    try:
+        with open(csv_file_path, mode='r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            
+            for row in reader:
+                feed_url = row.get('Feed Url')
+                
+                if feed_url:
+                    parsed_url = urlparse(feed_url)
+                    root_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+                    root_urls.add(root_url)  
+                    
+        return list(root_urls)
+    
+    except FileNotFoundError:
+        print(f"Not find for path {csv_file_path}.")
+        return []
+    except Exception as e:
+        print(f"Error in reading file: {e}")
+        return []
+    
+
 def threat_research_playground(url):
     for i in range(2):
         try:
@@ -775,6 +807,12 @@ def threat_research_playground(url):
             paste_ioc_section = "#### paste IoC\n"
 
             for key, value in new_ti.items():
+                if 'Threat actor' in key:
+                    text_output += f"#### {key} \n {value} \n\n"
+                    threat_actors = eval(get_actor(value))
+                    context = pipeline(threat_actors, 'oneti', token)
+                    text_output += f"##### Information from oneti: \n {context}\n\n"
+
                 if key == 'IoCs':
                     continue
                 else:
@@ -808,6 +846,8 @@ def threat_research_playground(url):
 
             unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_dict.values()]
             print(unique_iocs)
+            white_list = get_white_list_urls('All Intelligence Feeds.csv')
+            unique_urls.update(white_list)
 
             for ioc_data in unique_iocs:
                 ioc_value = ioc_data["value"]
@@ -829,7 +869,7 @@ def threat_research_playground(url):
                         if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
                             # ioc_source = ioc_data.get('source', 'No link provided')
                             text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
-                            paste_ioc_section += f"{ioc_value}\n"
+                            paste_ioc_section += f"{ioc_value}\n\n"
 
                             print(f"The {ioc_type} {ioc_value} is malicious.")
                         else:
@@ -860,8 +900,8 @@ def threat_research_playground(url):
             text_output += paste_ioc_section + "\n"
 
             return text_output
-        except AttributeError:
-            print("Error in processing the blog.")
+        except AttributeError as e:
+            print(f"Error in processing the blog: {e}")
             continue
 
 
