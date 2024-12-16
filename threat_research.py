@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 from run_new_prompts import sys_prompt, user_prompt
 from mdti_description.crawl_oneti import get_access_token
 from mdti_description.mdti_pipeline import pipeline, get_actor
+from get_root_cause import root_cause_pipeline, get_root_cause_with_llm
 import csv
 
 from openai import AzureOpenAI
@@ -528,13 +529,18 @@ def threat_research_core(url):
         
         Start date – End date: When did the attack happen? (if known)
 
-        MITRE TTPs: How was the attack carried out?  (if known) And give a confidence score for each piece of TTP, based on related articles and your understanding.
+        MITRE TTPs: How was the attack carried out?  (if known) And give a confidence score('High', 'Medium', 'Low') for each piece of TTP, based on related articles and your understanding. The output format is:
+        - T xx: Technique name, Confidence: xx (e.g., T1203: Phishing: Spearphishing Link, Confidence: High)
+        - T xx: Technique name, Confidence: xx (e.g., T1071: Application Layer Protocol: Web Protocol, Confidence: High)
+        - ...
 
         Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
 
-        Mitigation Steps: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation**
-
-        Detection Signature: (How to detect? i.e., detection rules)
+        Mitigation Steps: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation** The output format is:
+        - Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation** (e.g., based on the article, the Kibana instance was found to be exposed with default settings. To mitigate this, configure strong password policies, implement multi-factor authentication, and restrict access by IP address to only trusted sources. Additionally, ensure that any unnecessary services are disabled to reduce the attack surface.)
+        - ...
+        
+        Detection Signature: (How to detect? i.e., detection rules) The output should be in the following format
             Service: Redis, CouchDB, etc. (it is a concrete service name, not general words like "database")  
             Port: 6379 (make it concrete if possible)   
             Severity: Critical
@@ -807,16 +813,37 @@ def threat_research_playground(url):
             paste_ioc_section = "#### paste IoC\n"
 
             for key, value in new_ti.items():
-                if 'Threat actor' in key:
+                if key == 'Threat actor/group/campaign':
                     text_output += f"#### {key} \n {value} \n\n"
                     threat_actors = eval(get_actor(value))
                     context = pipeline(threat_actors, 'oneti', token)
+                    if '\n\n' in context:
+                        context.strip('\n\n')
                     text_output += f"##### Information from oneti: \n {context}\n\n"
 
-                if key == 'IoCs':
+                elif key == 'Root cause':
+                    actors = eval(get_root_cause_with_llm(value))
+                    context = root_cause_pipeline(actors, token)
+                    if context:
+                        text_output += f"- Additional context: \n {context}\n\n"
+
+                elif key == 'IoCs':
                     continue
                 else:
-                    text_output += f"#### {key} \n {value} \n\n"
+                    formatted_output = ""
+                    try:
+                        if isinstance(eval(value), dict):
+                            for k, v in eval(value).items():
+                                if isinstance(v, dict):
+                                    formatted_output += f"- {k}\n"
+                                    for sub_k, sub_v in v.items():
+                                        formatted_output += f"\t - {sub_k}: {sub_v}\n"
+                                else:
+                                    formatted_output += f"- {k}: {v}\n"
+                        text_output += formatted_output
+                        text_output += '\n'
+                    except Exception as e:
+                        text_output += f"#### {key} \n {value} \n\n"
 
             text_output += "#### IoCs:\n"
 
