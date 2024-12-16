@@ -46,11 +46,6 @@ def process_raw():
     known_files = 0
     unknown_files = 0
 
-
-    # client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
-    # scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
-    # token = get_access_token(client_id, scopes)
-
     unknown = 0
     for file in tqdm(files, desc="Processing Files", unit="file"):
         print(f"File name: {file}")
@@ -93,27 +88,6 @@ def process_raw():
         
         total_files += 1
 
-    '''
-        output = ""
-        sources = ['malpedia', 'oneti']
-        for source in sources:
-            output += f"======================== {source} ========================\n"
-            context = pipeline(threat_actors, source, oneti_token=token)
-            if not context:
-                continue
-            output += str(context)
-            output += f"\n======================== {source} ========================\n"
-            evaluation_scores = evaluate_actor_context(threat_actors, context)
-
-            file_results[source] = evaluation_scores
-            print(f"Evaluation for {source}: {evaluation_scores}")
-
-            # Sum up the new scores for averaging later
-            for key in total_scores:
-                total_scores[key] += evaluation_scores.get(key, 0)
-
-        print(f"\n\n\n{output}")
-    '''
     # Calculate average scores for all files
     avg_scores = {key: total / total_files if total_files > 0 else 0 for key, total in total_scores.items()}
 
@@ -188,7 +162,7 @@ if __name__ == '__main__':
     token = get_access_token(client_id, scopes)
 
     unknown = 0
-    for file in tqdm(files[62:], desc="Processing Files", unit="file"):
+    for file in tqdm(files, desc="Processing Files", unit="file"):
         print(f"File name: {file}")
         flag = True
         threat_actor_info = extract_threat_actor_info(file)
@@ -199,7 +173,7 @@ if __name__ == '__main__':
 
         # Process the sources (malpedia and oneti)
         output = ""
-        sources = ['malpedia']
+        sources = ['oneti']
         for source in sources:
             context = pipeline(threat_actors, source, oneti_token=token)
             print(context)
@@ -215,6 +189,11 @@ if __name__ == '__main__':
             for key in total_scores:
                 total_scores[key] += evaluation_scores.get(key, 0)
 
+            if flag:
+                total_known_scores[key] += evaluation_scores.get(key, 0)
+            if not flag:
+                total_unknown_scores[key] += evaluation_scores.get(key, 0)
+
             # Store the final results
             file_results = {
                 "file": file,
@@ -223,7 +202,7 @@ if __name__ == '__main__':
                 "evaluation_scores": evaluation_scores
             }
 
-            save_results(file_results, "mdti_evaluation_results.json")
+            save_results(file_results, "oneti_evaluation_results.json")
             all_results.append(file_results)
 
             total_files += 1
@@ -245,7 +224,7 @@ if __name__ == '__main__':
         # "oneti_unknown_averages": avg_oneti_unknown_scores
     }
 
-    save_results(results_with_avg, "mdti_evaluation_results.json")
+    save_results(results_with_avg, "oneti_evaluation_results.json")
 
     print(f"Averages: {avg_scores}")
     print(f"Malpedia Known Averages: {avg_malpedia_known_scores}")
