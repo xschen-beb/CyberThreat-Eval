@@ -14,6 +14,7 @@ from rich.markdown import Markdown
 from rich.align import Align
 import playwright
 from urllib.parse import urlparse
+from datetime import datetime
 from run_new_prompts import sys_prompt, user_prompt
 from mdti_description.crawl_oneti import get_access_token
 from mdti_description.mdti_pipeline import pipeline, get_actor
@@ -529,9 +530,11 @@ def threat_research_core(url):
         
         Start date – End date: When did the attack happen? (if known)
 
-        MITRE TTPs: How was the attack carried out?  (if known) And give a confidence score('High', 'Medium', 'Low') for each piece of TTP, based on related articles and your understanding. The output format is:
-        - T xx: Technique name, Confidence: xx (e.g., T1203: Phishing: Spearphishing Link, Confidence: High)
-        - T xx: Technique name, Confidence: xx (e.g., T1071: Application Layer Protocol: Web Protocol, Confidence: High)
+        MITRE TTPs: Provide details on how the attack was carried out. Include a confidence score ('High', 'Medium', 'Low') for each identified TTP based on related articles and your understanding. Additionally, include a justification for each TTP identified from the article. The output format is:
+        - T xx: Technique name, Confidence: xx
+        Justification: Provide a justification for why this TTP is identified based on the report/blog. For example, "This TTP was identified because the report mentions spearphishing emails with malicious links, which aligns with T1203: Phishing: Spearphishing Link."
+        - T xx: Technique name, Confidence: xx
+        Justification: ...
         - ...
 
         Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
@@ -789,6 +792,38 @@ def get_white_list_urls(csv_file_path):
         return []
     
 
+def add_date(text):
+    patterns = [
+        r'\b(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}\b',  
+        r'\b\d{1,2}/\d{1,2}/\d{2,4}\b',                                                          
+        r'\b\d{4}-\d{2}-\d{2}\b'                                                                 
+    ]
+    
+    dates = []
+    
+    for pattern in patterns:
+        matches = re.finditer(pattern, text)
+        for match in matches:
+            date_str = match.group()
+            try:
+                if ',' in date_str:
+                    date_obj = datetime.strptime(date_str, '%B %d, %Y')
+                elif '/' in date_str:
+                    try:
+                        date_obj = datetime.strptime(date_str, '%m/%d/%Y')
+                    except ValueError:
+                        date_obj = datetime.strptime(date_str, '%m/%d/%y')
+                else:
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                
+                formatted_date = date_obj.strftime('%Y-%m-%d')
+                dates.append(formatted_date)
+            except ValueError:
+                continue
+    
+    return dates[0] if dates else None
+
+
 def threat_research_playground(url):
     for i in range(2):
         try:
@@ -818,13 +853,15 @@ def threat_research_playground(url):
                     threat_actors = eval(get_actor(value))
                     context = pipeline(threat_actors, 'oneti', token)
                     if '\n\n' in context:
-                        context.strip('\n\n')
-                    text_output += f"##### Information from oneti: \n {context}\n\n"
+                        context = context.replace('\n\n', '')
+                    text_output += f"- Information from oneti: \n {context}\n\n"
 
                 elif key == 'Root cause':
+                    text_output += f"#### {key} \n {value} \n\n"
                     actors = eval(get_root_cause_with_llm(value))
                     context = root_cause_pipeline(actors, token)
                     if context:
+                        context = context.replace('\n\n', '')
                         text_output += f"- Additional context: \n {context}\n\n"
 
                 elif key == 'IoCs':
@@ -840,8 +877,8 @@ def threat_research_playground(url):
                                         formatted_output += f"\t - {sub_k}: {sub_v}\n"
                                 else:
                                     formatted_output += f"- {k}: {v}\n"
-                        text_output += formatted_output
-                        text_output += '\n'
+                        else:
+                            text_output += f"#### {key} \n {value} \n\n"
                     except Exception as e:
                         text_output += f"#### {key} \n {value} \n\n"
 
@@ -856,6 +893,12 @@ def threat_research_playground(url):
                 blog = click_into_page_with_browser(
                     link, is_text=False, headless_flag=False
                 )
+                date = add_date(blog)
+                if date:
+                    pub_date = date
+                else:
+                    pub_date = "Unspecified"
+
                 length = num_tokens_from_string(blog, "gpt-4o")
                 if length > 120000:
                     blog = blog[:120000]
@@ -866,12 +909,12 @@ def threat_research_playground(url):
                 iocs_json = extract_iocs_from_text(blog, link)
                 if iocs_json:
                     for ioc in iocs_json:
-                        ioc_tuple = (ioc['type'], ioc['value'], ioc['source'])
+                        ioc_tuple = (ioc['type'], ioc['value'], ioc['source'], pub_date)
                         # Use ioc['value'] as the key to ensure uniqueness
                         iocs_dict[ioc['value']] = ioc_tuple
 
 
-            unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_dict.values()]
+            unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2], "publish_date": ioc[3]} for ioc in iocs_dict.values()]
             print(unique_iocs)
             white_list = get_white_list_urls('All Intelligence Feeds.csv')
             unique_urls.update(white_list)
@@ -882,6 +925,7 @@ def threat_research_playground(url):
                 if ioc_value in unique_urls or filter_url(ioc_value, unique_urls):
                     continue
                 ioc_type = ioc_data["type"]
+                pub_date = ioc_data['publish_date']
                 ioc_source = ioc_data.get('source', 'No link provided')  # Ensure a default value
                 blogs_for_target_source = next((entry["blog"] for entry in blog_for_urls if entry["source"] == ioc_source), None)
 
@@ -895,7 +939,7 @@ def threat_research_playground(url):
                     if is_malicious == True:
                         if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
                             # ioc_source = ioc_data.get('source', 'No link provided')
-                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
+                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source}))  Publish date: {pub_date}\n\n"
                             paste_ioc_section += f"{ioc_value}\n\n"
 
                             print(f"The {ioc_type} {ioc_value} is malicious.")
@@ -909,7 +953,7 @@ def threat_research_playground(url):
                         print(f"The {ioc_type} {ioc_value} is clean.")
                     else:
                         if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
-                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n"
+                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source}))   Publish date: {pub_date}\n"
                             text_output += f"Found in URL, Not found for {ioc_type} {ioc_value} in VT. \n\n"
                             print(f"The {ioc_type} {ioc_value} in urls but not in VT.")
                         else:
