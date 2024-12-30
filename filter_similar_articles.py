@@ -1,14 +1,17 @@
-import numpy as np
 import networkx as nx
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
 from search_engine import url_open_with_browser, click_into_page_with_browser
 import re
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 import os
 from openai import AzureOpenAI
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from tenacity import retry, stop_after_attempt, wait_random_exponential
+import json
+from bs4 import BeautifulSoup
+from deprecated import deprecated
+import markdown
+
+os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
+os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
 
 client = AzureOpenAI(
     azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
@@ -53,47 +56,6 @@ def api_call(messages, temperature, model= "gpt-4o", json_enabled=True):
             # seed=42,
             max_tokens=4096,
         )
-    
-'''
-numbers = len(urls)
-articles = []
-for i in range(numbers):
-    content = click_into_page_with_browser(urls[i])
-    articles.append({'id': i+1, 'url': urls[i], 'content': content})
-
-model = SentenceTransformer('all-MiniLM-L6-v2')
-contents = [article['content'] for article in articles]
-embeddings = model.encode(contents)
-similarity_matrix = cosine_similarity(embeddings)
-threshold = 0.85
-duplicate_articles = []
-
-for i in range(len(similarity_matrix)):
-    for j in range(i + 1, len(similarity_matrix)):
-        if similarity_matrix[i][j] > threshold:
-            duplicate_articles.append((i, j))
-
-G = nx.Graph()
-for article in articles:
-    G.add_node(article['id'], content=article['content'])
-    # G.add_node(article['id'], content=article['content'], author=article['author'])
-
-for i, j in duplicate_articles:
-    G.add_edge(articles[i]['id'], articles[j]['id'])
-
-pagerank_scores = nx.pagerank(G)
-unique_articles = set()
-
-for i, j in duplicate_articles:
-    if pagerank_scores[articles[i]['id']] > pagerank_scores[articles[j]['id']]:
-        unique_articles.add(j)
-    else:
-        unique_articles.add(i)
-
-filtered_articles = [article for idx, article in enumerate(articles) if idx not in unique_articles]
-for i in range(len(filtered_articles)):
-    print(filtered_articles[i]['id'])
-'''
 
 def is_valid_url(url):
     try:
@@ -102,21 +64,25 @@ def is_valid_url(url):
     except Exception:
         return False
     
+def normalize_url(url):
+    parsed = urlparse(url)
+    # Sort query parameters for consistent comparison
+    query = urlencode(sorted(parse_qsl(parsed.query)))
+    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', query, ''))
 
 def extract_links_from_content(urls):
-    def normalize_url(url):
-        parsed = urlparse(url)
-        # Sort query parameters for consistent comparison
-        query = urlencode(sorted(parse_qsl(parsed.query)))
-        return urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', query, ''))
     link_pattern = r'https?://[^\s\"\'<>]+'  
     url_links = {}  
 
     for url in urls:
-        content = url_open_with_browser(url)
-        links = set(re.findall(link_pattern, content))
-        normalized_links = {normalize_url(link) for link in links if is_valid_url(link)}
-        url_links[normalize_url(url)] = normalized_links
+        try:
+            content = url_open_with_browser(url)
+            links = set(re.findall(link_pattern, content))
+            normalized_links = {normalize_url(link) for link in links if is_valid_url(link)}
+            url_links[normalize_url(url)] = normalized_links
+        except Exception as e:
+            print(f"Error while processing URL {url}: {e}")
+            continue
 
     references = []
     for url, links in url_links.items():
@@ -125,7 +91,6 @@ def extract_links_from_content(urls):
             if normalized_other_url in links:
                 references.append((url, normalized_other_url))  
     return url_links, references
-
 
 def calculate_pagerank(references, urls):
     url_to_id = {url: idx for idx, url in enumerate(urls)}
@@ -171,12 +136,141 @@ def check_circular_reporting_with_llm(reference_blog, blog):
     response = response_message.choices[0].message.content
     return response
 
+@deprecated(reason="Use the new extract_urls_from_text function")
+def old_extract_urls_from_text(file_path, section_header):
+    urls = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            in_section = False
+            for line_number, line in enumerate(file, start=1):
+                stripped_line = line.strip()
+                
+                if re.match(rf'^##\s+{re.escape(section_header)}\s*$', stripped_line, re.IGNORECASE):
+                    in_section = True
+                    continue
+                
+                if in_section:
+                    if re.match(r'^##\s+', stripped_line) and not re.match(rf'^##\s+{re.escape(section_header)}\s*$', stripped_line, re.IGNORECASE):
+                        break
+                    
+                    if stripped_line.startswith('- '):
+                        m_pure = re.match(r'^-\s*(https?://\S+)', stripped_line)
+                        if m_pure:
+                            url = m_pure.group(1)
+                            urls.append(url)
+                            continue
+                        
+                        m_md = re.match(r'^-\s*\[.*?\]\((https?://\S+)\)', stripped_line)
+                        if m_md:
+                            url = m_md.group(1)
+                            urls.append(url)
+        return urls
+    except FileNotFoundError:
+        return urls
+    except UnicodeDecodeError:
+        return urls
+    
+def extract_urls_from_text(file_path, section_header):
+    urls = []
+    try:
+        with open(file_path, 'r', encoding='iso-8859-1') as file:
+            text = file.read()
+
+        html = markdown.markdown(text)
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        for header in soup.find_all(['h2', 'h3']):
+            if header.text.strip().lower() == section_header.lower():
+                for sibling in header.find_next_siblings():
+                    if sibling.name in ['h2', 'h3']:
+                        break
+                    for li in sibling.find_all('li'):
+                        a_tag = li.find('a', href=True)
+                        if a_tag:
+                            urls.append(a_tag['href'].rstrip(').,'))
+                        else:
+                            text = li.get_text().strip()
+                            if text.startswith('https://') or text.startswith('http://'):
+                                urls.append(text.rstrip(').,'))
+        return urls
+    except FileNotFoundError:
+        return urls
+    except UnicodeDecodeError:
+        return urls
+    
+
+def filter_duplicate_pipeline(file_path, section_header):
+    save_path = f'circular_reporting_result/{file_path}.json'
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    fw = open(save_path, 'w')
+    print(file_path)
+    urls = extract_urls_from_text(file_path, section_header)
+    print(urls)
+    urls = [normalize_url(url) for url in urls]
+    url_links, references = extract_links_from_content(urls)
+    references = [(normalize_url(source), normalize_url(target)) for source, target in references]
+    if not references:
+        for url in urls:
+            result = {"filepath": file_path, "gt_url": "No links", "url": url, "result": 'Yes'}
+            fw.write(json.dumps(result) + '\n')
+        return
+
+    print("Reference Relationships:")
+    for source, target in references:
+        print(f"{source} references {target}")
+
+    pagerank_scores, graph, url_to_id = calculate_pagerank(references, urls)
+    print("\nPageRank Scores:")
+    for url, score in pagerank_scores.items():
+        print(f"{url}: {score:.4f}")
+
+    highest_pagerank_url = max(pagerank_scores, key=pagerank_scores.get)
+    print(f"\nHighest PageRank URL: {highest_pagerank_url}")
+
+    reference_blog_content = click_into_page_with_browser(highest_pagerank_url)
+
+    correct = 0
+
+    for url in urls:
+        if url == highest_pagerank_url:
+            continue
+        
+        try:
+            comparison_blog_content = click_into_page_with_browser(url)
+        except Exception as e:
+            print(f"Error while fetching blog content for URL {url}: {e}")
+            continue        
+        # print(f"\nComparing blog at {url} with the highest PageRank blog...")
+        
+        response = check_circular_reporting_with_llm(reference_blog_content, comparison_blog_content)
+        # print(f"Comparison result for {url}:")
+        print(response)
+        if 'Yes' in response:
+            res = 'Yes'
+            correct += 1
+            print(f"Url: {url}, result: {res}\n")
+            result = {"filepath": file_path, "gt_url": highest_pagerank_url, "url": url, "result": 'Yes'}
+            fw.write(json.dumps(result) + '\n')  
+        else:
+            result = {"filepath": file_path, "gt_url": highest_pagerank_url, "url": url, "result": 'No'}
+            fw.write(json.dumps(result) + '\n')  
+            print(f"Url: {url}, result: No\n")
+
+
+    print(f"Valid rate: {correct / len(urls)-1}")
+            
+
 if __name__ == '__main__':
     """urls = [
         'https://blog.checkpoint.com/research/hamas-linked-threat-group-expands-espionage-and-destructive-operations',
         'https://research.checkpoint.com/2024/hamas-affiliated-threat-actor-expands-to-disruptive-activity/',
         'https://www.govinfosecurity.com/hamas-tied-to-october-wiper-attacks-using-eset-email-a-26795',
     ]"""
+    
+    file_path = 'mdti_description/AgentGenReport/1209/crypto-stealing-malware-posing-as-a-meeting-app-targets-web3-pros.md'
+    section_header = 'Related articles (describing the same threat)'
+
+    '''
     urls = [
     'https://thehackernews.com/2024/12/hackers-using-fake-video-conferencing.html',
     'https://medium.com/@cyberstrategy1/fake-meeting-apps-targeting-web3-professionals-how-meeten-malware-steals-crypto-and-sensitive-521591b4b0fb',
@@ -187,6 +281,9 @@ if __name__ == '__main__':
     'https://www.helpnetsecurity.com/2024/12/06/information-cryptocurrency-stealing-malware-windows-macos',
     'https://www.intego.com/mac-security-blog/mac-malware-masquerades-as-meeting-apps-realst-stealer-is-back'
     ]
+     
+    urls = extract_urls_from_text(file_path, section_header)
+    print(urls)
     url_links, references = extract_links_from_content(urls)
 
     print("Reference Relationships:")
@@ -221,3 +318,17 @@ if __name__ == '__main__':
         response = check_circular_reporting_with_llm(reference_blog_content, comparison_blog_content)
         print(f"Comparison result for {url}:")
         print(response)
+    '''
+
+    directory = 'mdti_description/AgentGenReport'
+    for sub_dir in os.listdir(directory):
+        if sub_dir in ['1101', '1106', '1111', '1112', '1114', '1115', '1118', '1119', '1120', '1121', '1122', '1125']:
+            continue
+        sub_directory = f"{directory}/{sub_dir}"
+        print(sub_directory)
+        for path in os.listdir(sub_directory):
+            if '.md' in path:
+                file_path = f"{sub_directory}/{path}"
+                filter_duplicate_pipeline(file_path, section_header)
+            else:
+                continue
