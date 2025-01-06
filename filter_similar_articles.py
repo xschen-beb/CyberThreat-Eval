@@ -70,26 +70,86 @@ def normalize_url(url):
     query = urlencode(sorted(parse_qsl(parsed.query)))
     return urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', query, ''))
 
+def are_urls_same_except_protocol(url1, url2):
+    parsed_url1 = urlparse(url1)
+    parsed_url2 = urlparse(url2)
+
+    return (parsed_url1.netloc == parsed_url2.netloc and
+            parsed_url1.path == parsed_url2.path and
+            parsed_url1.params == parsed_url2.params and
+            parsed_url1.query == parsed_url2.query and
+            parsed_url1.fragment == parsed_url2.fragment)
+
 def extract_links_from_content(urls):
-    link_pattern = r'https?://[^\s\"\'<>]+'  
+    link_pattern = r'(https?://[^\s\"\'<>]+)'
     url_links = {}  
 
+    # Step 1: Extract all links from each URL's content
     for url in urls:
         try:
             content = url_open_with_browser(url)
             links = set(re.findall(link_pattern, content))
-            normalized_links = {normalize_url(link) for link in links if is_valid_url(link)}
-            url_links[normalize_url(url)] = normalized_links
+            # Store original links instead of normalized ones
+            url_links[url] = {link for link in links if is_valid_url(link)}
         except Exception as e:
             print(f"Error while processing URL {url}: {e}")
             continue
 
     references = []
-    for url, links in url_links.items():
-        for other_url in urls:
-            normalized_other_url = normalize_url(other_url)
-            if normalized_other_url in links:
-                references.append((url, normalized_other_url))  
+    # Step 2: Check reference relationships between URLs
+    for source_url, found_links in url_links.items():
+        for target_url in urls:
+            if source_url == target_url:
+                continue
+                
+            # Check various forms of target URL
+            '''
+            for found_link in found_links:
+                # Protocol-independent comparison
+                if are_urls_same_except_protocol(found_link, target_url):
+                    print(f"Source: {source_url}, references: {target_url}")
+                    references.append((source_url, target_url))
+                    break
+                
+                # Check if URL is contained in content (handles URL rewrites)
+                normalized_found = normalize_url(found_link)
+                normalized_target = normalize_url(target_url)
+                if normalized_target in normalized_found or normalized_found in normalized_target:
+                    print(f"Source: {source_url}, references: {target_url}")
+                    references.append((source_url, target_url))
+                    break
+            '''
+            found_match = False
+            for found_link in found_links:
+                # Clean and normalize URLs for comparison
+                found_link_clean = found_link.rstrip('/.#')
+                target_url_clean = target_url.rstrip('/.#')
+                
+                # Try different matching strategies
+                if any([
+                    are_urls_same_except_protocol(found_link_clean, target_url_clean),
+                    normalize_url(found_link_clean) == normalize_url(target_url_clean),
+                    found_link_clean in target_url_clean or target_url_clean in found_link_clean
+                ]):
+                    references.append((source_url, target_url))
+                    print(f"Source: {source_url}, references: {target_url}")
+                    found_match = True
+                    break
+                
+                # Domain-level matching with path consideration
+                found_domain = urlparse(found_link_clean).netloc.replace('www.', '')
+                target_domain = urlparse(target_url_clean).netloc.replace('www.', '')
+                if found_domain == target_domain:
+                    found_path = urlparse(found_link_clean).path.rstrip('/')
+                    target_path = urlparse(target_url_clean).path.rstrip('/')
+                    if found_path and target_path and (found_path in target_path or target_path in found_path):
+                        references.append((source_url, target_url))
+                        print(f"Source: {source_url}, references: {target_url} (path match)")
+                        found_match = True
+                        break
+            
+            if found_match:
+                continue
     return url_links, references
 
 def calculate_pagerank(references, urls):
@@ -170,11 +230,12 @@ def old_extract_urls_from_text(file_path, section_header):
     except UnicodeDecodeError:
         return urls
     
-def extract_urls_from_text(file_path, section_header):
+# def extract_urls_from_text(file_path, section_header):
+def extract_urls_from_text(text, section_header):
     urls = []
     try:
-        with open(file_path, 'r', encoding='iso-8859-1') as file:
-            text = file.read()
+        # with open(file_path, 'r', encoding='iso-8859-1') as file:
+        #    text = file.read()
 
         html = markdown.markdown(text)
         soup = BeautifulSoup(html, 'html.parser')
@@ -199,65 +260,64 @@ def extract_urls_from_text(file_path, section_header):
         return urls
     
 
-def filter_duplicate_pipeline(file_path, section_header):
-    save_path = f'circular_reporting_result/{file_path}.json'
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    fw = open(save_path, 'w')
-    print(file_path)
-    urls = extract_urls_from_text(file_path, section_header)
-    print(urls)
+# def filter_duplicate_pipeline(file_path, section_header):
+def filter_duplicate_pipeline(source_url, text):
+    text_output = ""
+    section_header = 'Related articles (describing the same threat)'
+    urls = extract_urls_from_text(text, section_header)
     urls = [normalize_url(url) for url in urls]
     url_links, references = extract_links_from_content(urls)
+    print(references)
     references = [(normalize_url(source), normalize_url(target)) for source, target in references]
+    print(references)
     if not references:
         for url in urls:
-            result = {"filepath": file_path, "gt_url": "No links", "url": url, "result": 'Yes'}
-            fw.write(json.dumps(result) + '\n')
-        return
+            result = {"gt_url": "No links", "url": url, "result": 'Yes'}
+        return "No reference relationships found"
 
-    print("Reference Relationships:")
+    # Add reference relationships to output
+    text_output += "### Reference Relationships:\n"
     for source, target in references:
-        print(f"{source} references {target}")
+        text_output += f"Source link: {source}, reference: {target}\n"
 
     pagerank_scores, graph, url_to_id = calculate_pagerank(references, urls)
-    print("\nPageRank Scores:")
+    text_output += "\n### PageRank Scores:\n"
     for url, score in pagerank_scores.items():
-        print(f"{url}: {score:.4f}")
+        text_output += f"{url}: {score:.4f}\n"
 
     highest_pagerank_url = max(pagerank_scores, key=pagerank_scores.get)
-    print(f"\nHighest PageRank URL: {highest_pagerank_url}")
+    normalized_source_url = normalize_url(source_url)
+    
+    if normalized_source_url in pagerank_scores:
+        if pagerank_scores[normalized_source_url] == pagerank_scores[highest_pagerank_url]:
+            highest_pagerank_url = normalized_source_url
+
+    text_output += f"\nHighest PageRank URL: {highest_pagerank_url}\n"
 
     reference_blog_content = click_into_page_with_browser(highest_pagerank_url)
-
-    correct = 0
+    text_output += f"\n### Related urls \n"
 
     for url in urls:
         if url == highest_pagerank_url:
+            text_output += f"- {url}, [Original link with source]\n"
             continue
         
         try:
             comparison_blog_content = click_into_page_with_browser(url)
         except Exception as e:
-            print(f"Error while fetching blog content for URL {url}: {e}")
+            # text_output += f"\nError while fetching blog content for URL {url}: {e}\n"
             continue        
-        # print(f"\nComparing blog at {url} with the highest PageRank blog...")
         
         response = check_circular_reporting_with_llm(reference_blog_content, comparison_blog_content)
-        # print(f"Comparison result for {url}:")
-        print(response)
+        
         if 'Yes' in response:
-            res = 'Yes'
-            correct += 1
-            print(f"Url: {url}, result: {res}\n")
-            result = {"filepath": file_path, "gt_url": highest_pagerank_url, "url": url, "result": 'Yes'}
-            fw.write(json.dumps(result) + '\n')  
+            text_output += f"- {url}, result: With additional information\n"
+            text_output += f"Judgment result for {url}:\n{response}\n\n"
         else:
-            result = {"filepath": file_path, "gt_url": highest_pagerank_url, "url": url, "result": 'No'}
-            fw.write(json.dumps(result) + '\n')  
-            print(f"Url: {url}, result: No\n")
-
-
-    print(f"Valid rate: {correct / len(urls)-1}")
+            continue
+            # text_output += f"- {url}, result: No additional information\n"
+            # text_output += f"Judgment result for {url}:\n{response}\n\n"
+    return text_output
             
 
 if __name__ == '__main__':
@@ -267,8 +327,33 @@ if __name__ == '__main__':
         'https://www.govinfosecurity.com/hamas-tied-to-october-wiper-attacks-using-eset-email-a-26795',
     ]"""
     
-    file_path = 'mdti_description/AgentGenReport/1209/crypto-stealing-malware-posing-as-a-meeting-app-targets-web3-pros.md'
-    section_header = 'Related articles (describing the same threat)'
+    # file_path = 'mdti_description/AgentGenReport/1209/crypto-stealing-malware-posing-as-a-meeting-app-targets-web3-pros.md'
+    # text = open(file_path, 'r', encoding='utf-8').read()
+    text = """## Related articles (describing the same threat) \n 
+- https://thehackernews.com/2023/10/qubitstrike-targets-jupyter-notebooks.html
+- https://hackread.com/qubitstrike-malware-jupyter-notebook-cryptojacking-cloud-data
+- https://www.cadosecurity.com/qubitstrike-an-emerging-malware-campaign-targeting-jupyter-notebooks
+- https://www.bleepingcomputer.com/news/security/qubitstrike-attacks-rootkit-jupyter-linux-servers-to-steal-credentials/
+"""
+    url = 'https://www.bleepingcomputer.com/news/security/qubitstrike-attacks-rootkit-jupyter-linux-servers-to-steal-credentials/'
+    output = filter_duplicate_pipeline(url, text)
+    print(output)
+    # section_header = 'Related articles (describing the same threat)'
+    # file_path = 'example.txt'
+    # filter_duplicate_pipeline(file_path, section_header)
+    # url1 = "https://www.cadosecurity.com/qubitstrike-an-emerging-malware-campaign-targeting-jupyter-notebooks"
+    # url2 = "http://www.cadosecurity.com/qubitstrike-an-emerging-malware-campaign-targeting-jupyter-notebooks"
+
+    # if are_urls_same_except_protocol(url1, url2):
+    #    print(f"{url1} and {url2} are the same except for the protocol.")
+    # else:
+    #     print(f"{url1} and {url2} are different.")
+    # urls = ['https://thehackernews.com/2023/10/qubitstrike-targets-jupyter-notebooks.html', 'https://hackread.com/qubitstrike-malware-jupyter-notebook-cryptojacking-cloud-data', 'https://www.cadosecurity.com/qubitstrike-an-emerging-malware-campaign-targeting-jupyter-notebooks', 'https://www.bleepingcomputer.com/news/security/qubitstrike-attacks-rootkit-jupyter-linux-servers-to-steal-credentials/'] 
+    # urls = ['https://blog.checkpoint.com/research/hamas-linked-threat-group-expands-espionage-and-destructive-operations', 'https://research.checkpoint.com/2024/hamas-affiliated-threat-actor-expands-to-disruptive-activity/','https://www.govinfosecurity.com/hamas-tied-to-october-wiper-attacks-using-eset-email-a-26795']
+    # url, ref = extract_links_from_content(urls)
+    # print(url['https://www.bleepingcomputer.com/news/security/qubitstrike-attacks-rootkit-jupyter-linux-servers-to-steal-credentials/'])
+    # print(ref)
+
 
     '''
     urls = [
@@ -320,7 +405,7 @@ if __name__ == '__main__':
         print(response)
     '''
 
-    directory = 'mdti_description/AgentGenReport'
+    '''directory = 'mdti_description/AgentGenReport'
     for sub_dir in os.listdir(directory):
         if sub_dir in ['1101', '1106', '1111', '1112', '1114', '1115', '1118', '1119', '1120', '1121', '1122', '1125']:
             continue
@@ -332,3 +417,4 @@ if __name__ == '__main__':
                 filter_duplicate_pipeline(file_path, section_header)
             else:
                 continue
+'''

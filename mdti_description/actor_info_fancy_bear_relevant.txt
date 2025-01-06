@@ -1,0 +1,15 @@
+APT28 (Threat Actor)
+Please enable JavaScript to use all features of this site.
+Inventory
+Statistics
+Usage
+ApiVector
+Login
+SYMBOL
+COMMON_NAME
+aka.
+SYNONYMS
+APT28
+(Back to overview)
+aka: APT 28, APT-C-20, ATK5, Blue Athena, BlueDelta, FANCY BEAR, FROZENLAKE, Fancy Bear, Fighting Ursa, Forest Blizzard, G0007, Grey-Cloud, Grizzly Steppe, Group 74, Group-4127, IRON TWILIGHT, ITG05, Pawn Storm, SIG40, SNAKEMACKEREL, STRONTIUM, Sednit, Sofacy, Swallowtail, T-APT-12, TA422, TG-4127, Tsar Team, TsarTeam, UAC-0028
+The Sofacy Group (also known as APT28, Pawn Storm, Fancy Bear and Sednit) is a cyber espionage group believed to have ties to the Russian government. Likely operating since 2007, the group is known to target government, military, and security organizations. It has been characterized as an advanced persistent threat.

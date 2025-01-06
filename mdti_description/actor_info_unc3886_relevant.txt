@@ -1,0 +1,3 @@
+### Extracted relevant section:
+
+UNC3886 is an advanced cyber espionage group with unique capabilities in how they operate on-network as well as the tools they utilize in their campaigns. UNC3886 has been observed targeting firewall and virtualization technologies which lack EDR support. Their ability to manipulate firewall firmware and exploit a zero-day indicates they have curated a deeper-level of understanding of such technologies. UNC3886 has modified publicly available malware, specifically targeting *nix operating systems.

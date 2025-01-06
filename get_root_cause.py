@@ -125,9 +125,12 @@ def root_cause_pipeline(actors, token):
     for actor in actors:
         articles = get_articles(token.token, actor)
         # print("="*20 +" Using related articles " + "="*20 + '\n')
-        content = articles["data"]["content"]
-        for i in range(min(articles['data']['totalPages'], 5)):
-            actors_info += str(content[i]['content'])
+        if articles:
+            content = articles["data"]["content"]
+            for i in range(min(articles['data']['totalPages'], 5)):
+                actors_info += str(content[i]['content'])
+        else:
+            continue
 
     print(f"Actor info: {actors_info}")
     if actors_info:

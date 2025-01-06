@@ -1,0 +1,10 @@
+### Extracted relevant section:
+
+"Space Pirates: analyzing the tools and connections of a new hacker group
+
+FormerFirstRAT
+PlugX
+Poison Ivy
+Rovnix
+ShadowPad
+Zupdax"
