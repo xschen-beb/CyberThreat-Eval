@@ -160,7 +160,7 @@ def save_actor_info(actor, actor_info, keyword):
 def augment_threat_actor_context(threat_actor, actor_info):
     sys_prompt = f"""
     ### Task description:
-    You are an expert in cybersecurity. Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors.
+    You are an expert in cybersecurity. Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors. No explanations or prefix texts are allowed in the output.
 
     ### Example:
     Threat Actor: BrazenBamboo
@@ -172,7 +172,7 @@ def augment_threat_actor_context(threat_actor, actor_info):
 
     user_prompt = f"""
     ### Task description:
-    Based on the extracted information about the threat actor from an IoC report, please briefly generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report.
+    Based on the extracted information about the threat actor from an IoC report, please briefly generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report. No explanations or prefix texts are allowed in the output.
 
     ### Result:
     Threat Actor: {threat_actor}
@@ -220,6 +220,7 @@ def pipeline(file):
 
 def malpedia_pipeline(actors):
     actors_info = ""
+    names = []
 
     for actor in actors:
         if 'None' not in actor:
@@ -232,6 +233,7 @@ def malpedia_pipeline(actors):
                 actor_info = click_into_page_with_browser(actor_url)
                 actors_info += actor_info
                 print(f"Actor Information: {actor_info}")
+                names.append(actor)
         else:
             print("Failed to extract Threat Actor.")
             actor_info = ""
@@ -245,7 +247,7 @@ def malpedia_pipeline(actors):
         # context = augment_threat_actor_context(actors, relevent_section)
         context = ""
 
-    return context
+    return names, context
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ class Step2Prompt:
     2.4 If it is a good mitigation, assign a confidence score between 0 and 100 indicating the likelihood of it being a perfect mitigation for the attack technique described in UserQuestion.
     2.5 Add the RecommendationTitle, score and reason to the output_list.
   3. Sort the output_list by score.
-  4. Filter out all the recommendations in output_list with score below 30.
+  4. Filter out all the recommendations in output_list with score below 80.
   5. It is perfectly normal that output_list is blank or has a single recommendation.
   6. Output the output_list as a json object.
   """

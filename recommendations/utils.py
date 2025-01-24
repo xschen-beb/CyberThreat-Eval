@@ -351,9 +351,16 @@ def process_all_ttps(text, techniques_path="recommendations/Techniques.csv", rec
                 continue
                 
             # Build query
-            user_query = "Suggest recommendations for mitigating the below attack technique:\n"
-            user_query += f"Attack Name: {name}\n"
-            user_query += f"Attack Process: {description}\n"
+            user_query = (
+                "Analyze the following attack technique and provide the most relevant and specific recommendation. "
+                "The recommendation should:\n"
+                "1. Closely match the specific activity described\n"
+                "2. Not be generic or obvious ('no duh') advice\n"
+                "3. Not mention specific vendor products or detections\n"
+                "4. Be actionable and practical\n\n"
+                f"Attack Name: {name}\n"
+                f"Attack Process: {description}\n"
+            )
             
             # Get recommendations
             try:
@@ -407,7 +414,111 @@ def process_all_ttps(text, techniques_path="recommendations/Techniques.csv", rec
         print(f"Error processing TTPs: {str(e)}")
         return []
 
-    
+ 
+def process_rec_dict_ttps(text, techniques_path="recommendations/Techniques.csv", recommendations_path="recommendations/RecDict.csv"):
+    try:
+        # Extract all TTPs
+        ttps = extract_ttps(text)
+        if not ttps:
+            print("No TTPs found")
+            return []
+            
+        print(f"Found TTPs: {ttps}")
+        
+        # Read recommendations data
+        recommendations_df = pd.read_csv(recommendations_path)
+        all_recommendations = []
+        
+        # Process each TTP
+        ttp_recommendations = {}
+        for ttp in ttps:
+            # Get technique information
+            name, description = get_technique_by_id(ttp)
+            if not name or not description:
+                print(f"Warning: Could not find information for TTP {ttp}, skipping")
+                continue
+                
+            # Build query
+            user_query = (
+                "Analyze the following attack technique and provide the most relevant and specific recommendation. "
+                "The recommendation should:\n"
+                "1. Closely match the specific activity described\n"
+                "2. Not be generic or obvious ('no duh') advice\n"
+                "3. Not mention specific vendor products or detections\n"
+                "4. Be actionable and practical\n\n"
+                f"Attack Name: {name}\n"
+                f"Attack Process: {description}\n"
+            )
+            
+            # Get recommendations
+            try:
+                output = mapping(user_query, recommendations_df)
+                possible_recommendations = get_recommendations_filtered(recommendations_df, output)
+                validated_output = validate(user_query, possible_recommendations)
+                
+                # Parse recommendations
+                try:
+                    rec_list = json.loads(validated_output)
+                    if not isinstance(rec_list, dict) or "output_list" not in rec_list:
+                        print(f"Invalid response format for TTP {ttp}")
+                        continue
+                        
+                    current_ttp_recs = []
+                    for rec in rec_list["output_list"]:
+                        if not isinstance(rec, dict):
+                            continue
+
+                        relevance_score = float(rec.get("score", 0))
+                        if relevance_score < 90: 
+                            continue
+                            
+                        rec_title = rec.get("title")
+                        if not rec_title:
+                            continue
+                            
+                        rec_id, rec_desc = get_recommendation_by_title(recommendations_df, rec_title)
+                        if not rec_id or not rec_desc:
+                            continue
+                            
+                        recommendation = {
+                            "ttp_id": ttp,
+                            "ttp_name": name,
+                            "recommendation_id": rec_id,
+                            "title": rec_title,
+                            "description": rec_desc,
+                            "reason": rec.get("reason", ""),
+                            "score": float(rec.get("score", 0))  
+                        }
+                        current_ttp_recs.append(recommendation)
+                        
+                    if current_ttp_recs:
+                        current_ttp_recs.sort(key=lambda x: x["score"], reverse=True)
+                        ttp_recommendations[ttp] = current_ttp_recs[0]
+                        all_recommendations.append(current_ttp_recs[0])
+                        
+                except json.JSONDecodeError as e:
+                    print(f"Error parsing JSON for TTP {ttp}: {str(e)}")
+                    continue
+                    
+            except Exception as e:
+                print(f"Error processing TTP {ttp}: {str(e)}")
+                continue
+        
+        # Deduplicate recommendations based on recommendation_id
+        seen_ids = set()
+        unique_recommendations = []
+        for rec in all_recommendations:
+            if rec["recommendation_id"] not in seen_ids:
+                seen_ids.add(rec["recommendation_id"])
+                unique_recommendations.append(rec)
+        
+        return unique_recommendations
+        
+    except Exception as e:
+        print(f"Error processing TTPs: {str(e)}")
+        return []
+
+   
 
 if __name__ == "__main__":
     '''
@@ -444,16 +555,21 @@ if __name__ == "__main__":
     text = """
     #### MITRE TTPs 
     ['T1190 - Exploit Public-Facing Application (Confidence Score: 75%)', 
-    'T1078 - Valid Accounts (Confidence Score: 50%)', 
-    '*T1059.001 - Command and Scripting Interpreter: PowerShell* (https://socprime.com/blog/uac-0001-aka-apt28-attack-detection/)', 
-    '*T1218 - System Binary Proxy Execution* (https://socprime.com/blog/uac-0001-aka-apt28-attack-detection/)', 
-    '*T1572 - Protocol Tunneling* (https://socprime.com/blog/uac-0001-aka-apt28-attack-detection/)']
-    """
+    'T1078 - Valid Accounts (Confidence Score: 50%)', """
     
-    ttps = extract_ttps(text)
+    #'*T1059.001 - Command and Scripting Interpreter: PowerShell* (https://socprime.com/blog/uac-0001-aka-apt28-attack-detection/)', 
+    #'*T1218 - System Binary Proxy Execution* (https://socprime.com/blog/uac-0001-aka-apt28-attack-detection/)', 
+    #'*T1572 - Protocol Tunneling* (https://socprime.com/blog/uac-0001-aka-apt28-attack-detection/)']
+    
+    
+    # ttps = extract_ttps(text)
 
-    print("找到的 TTPs:")
-    for ttp in ttps:
-        print(f"- {ttp}")
-    rec = process_all_ttps(text)
-    print(rec)
+    # print("找到的 TTPs:")
+    # for ttp in ttps:
+        # print(f"- {ttp}")
+    # rec = process_rec_dict_ttps(text)
+    # print(rec)
+    # for t in rec:
+        # print(t['ttp_id'], t['title'])
+    titles = pd.read_csv('recommendations/RecDict.csv')
+    print(titles['Title'].tolist())

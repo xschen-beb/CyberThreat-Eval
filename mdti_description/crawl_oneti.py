@@ -103,29 +103,30 @@ def get_user_object(token):
 
 def oneti_pipeline(actors, token):
     actors_info = ""
+    names = []
 
     for actor in actors:
         profiles = get_profiles(token.token, actor)
         articles = get_articles(token.token, actor)
-        if profiles["data"]["totalPages"] > 0:
+        if profiles and profiles["data"]["totalPages"] > 0:
             print("="*20 +" Using oneti profile " + "="*20 + '\n')
             content = profiles["data"]["content"]
-            # print(content[0]['description'])
-
+            print(profiles["data"]["totalPages"])
+            names.append(actor)
             for i in range(min(profiles['data']['totalPages'], 5)):
                 actors_info += str(profiles["data"]["content"][i]['description'])
-        else:
+        elif articles and articles['data']['totalPages'] > 0:
             print("="*20 +" Using related articles " + "="*20 + '\n')
             content = articles["data"]["content"]
+            names.append(actor)
             for i in range(min(articles['data']['totalPages'], 5)):
                 actors_info += str(articles["data"]["content"][i]['content'])
+        else:
+            continue
 
-    if actors_info:
-        context = augment_threat_actor_context(actors, actors_info)
-        print(context)
-        return context
-    else:
-        return ""
+    context = augment_threat_actor_context(actors, actors_info)
+    print(context)
+    return names, context
 
 
 if __name__ == '__main__':

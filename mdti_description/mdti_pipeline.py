@@ -111,28 +111,55 @@ def pipeline(threat_actors, source_name, oneti_token):
         return None
     else:
         if source_name.lower() == 'malpedia':
-            context = malpedia_pipeline(threat_actors)
-            return context
+            names, context = malpedia_pipeline(threat_actors)
+            return names, [], context
         elif source_name.lower() == 'oneti':
-            context = oneti_pipeline(threat_actors, oneti_token)
-            return context
+            names, links, context = oneti_pipeline(threat_actors, oneti_token)
+            return names, links, context
     
 if __name__ == '__main__':
+    text = """
+'Not specified    """
+    # url = "https://gbhackers.com/eagerbee-malware"
+    # text = click_into_page_with_browser(url, is_text=True)
+    # print(text)
+    actors = get_actor(text)            
+    print(actors)
     client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
     scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
     token = get_access_token(client_id, scopes)
 
+    actors = eval(actors)
+    if actors and 'None' not in actors:
+        actors = actors[:5]
+        name, context = pipeline(actors, 'oneti', token)
+        print(context)
+        print(name)
+    else:
+        print(000)
+
+    # client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
+    # scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
+    # token = get_access_token(client_id, scopes)
+
+    # threat_actors = ['Forest Blizzard', 'Amethyst Rain']
+    # name, context = pipeline(threat_actors, 'oneti', token)
+    # actors = ", ".join(threat_actors)
+    # print(f"Actors: {actors}\n")
+    # print(context)
+
+
     # file = os.path.join(os.path.dirname(__file__), '..', '241112_AgentReport', 'hamas-linked-threat-group-expands-espionage-and-destructive-operations.md')
-    file = "AgentGenReport/1119/chinese-hackers-exploit-fortinet-vpn-zero-day-to-steal-credentials1.md"
-    threat_actor_info = extract_threat_actor_info(file)
+    # file = "AgentGenReport/1119/chinese-hackers-exploit-fortinet-vpn-zero-day-to-steal-credentials1.md"
+    # threat_actor_info = extract_threat_actor_info(file)
 
-    threat_actors = eval(get_actor(threat_actor_info))
-    output = ""
-    sources = ['malpedia', 'oneti']
-    for source in sources:
-        output += f"======================== {source} ========================\n"
-        context = pipeline(threat_actors, source, oneti_token=token)
-        output += str(context)
-        output += f"\n======================== {source} ========================\n"
+    # threat_actors = eval(get_actor(threat_actor_info))
+    # output = ""
+    # sources = ['malpedia', 'oneti']
+    # for source in sources:
+        # output += f"======================== {source} ========================\n"
+        # context = pipeline(threat_actors, source, oneti_token=token)
+        # output += str(context)
+        # output += f"\n======================== {source} ========================\n"
 
-    print (f"\n\n\n{output}")    
+    # print (f"\n\n\n{output}")    
