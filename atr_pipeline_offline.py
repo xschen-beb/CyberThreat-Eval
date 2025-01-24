@@ -2,6 +2,7 @@ import threading
 from threat_research import threat_research_playground
 
 # open csv file
+# f = open("1204test_Ioc.csv", "r")
 f = open("1115AutomatedThreatResearch.csv", "r")
 data = f.read()
 data = data.split("\n")
@@ -10,7 +11,7 @@ data.pop()
 f.close()
 
 out_data = []
-output_location = "241120_AgentGenReport/"
+output_location = "241211/"
 lock = threading.Lock()
 
 def process_link(i):
@@ -21,7 +22,7 @@ def process_link(i):
     file_name = output_location + link.split("/")[-1] + ".md"
     
     # Write to markdown file
-    fw = open(file_name, "w")
+    fw = open(file_name, "w", encoding='utf-8')
     text_output = threat_research_playground(link)
     fw.write(text_output)
     fw.close()

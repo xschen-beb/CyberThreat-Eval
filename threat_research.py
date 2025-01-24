@@ -8,6 +8,7 @@ import re
 import tiktoken
 # for exponential backoff
 import tenacity
+import ast
 from tenacity import (retry, stop_after_attempt, wait_random_exponential)
 from rich.console import Console
 from rich.markdown import Markdown
@@ -18,9 +19,14 @@ from datetime import datetime
 from run_new_prompts import sys_prompt, user_prompt
 from mdti_description.crawl_oneti import get_access_token
 from mdti_description.mdti_pipeline import pipeline, get_actor
+from mdti_description.mdti_pipeline import get_articles, get_profiles
 from get_root_cause import root_cause_pipeline, get_root_cause_with_llm
+from get_detection import mdti_detection_pipeline
+from filter_similar_articles import *
+from recommendations.utils import *
+from htmldate import find_date
 import csv
-
+import io
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
@@ -37,7 +43,13 @@ from search_engine import (
     bing_search,
 )
 
-API_KEY = "3ffc901469fd1c77c4cccc82873ccbbb8d5ce0b1de9e4e659e0fe4111b84daf3"
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+LOCAL_ENDPOINT = ""
+PROXY_KEY = ""
+CASSIE = ""
+
+API_KEY = ""
 URL = 'https://www.virustotal.com/api/v3/'
 HEADERS = {
     'x-apikey': API_KEY
@@ -60,6 +72,11 @@ _DEPLOYMENT_ENV = "local"
 _LOG_ENABLED = True
 _SEARCH_ENGINE = "google"
 _HEADLESS_FLAG = False
+
+os.environ["LOCAL_ENDPOINT"] = LOCAL_ENDPOINT
+os.environ["PROXY_KEY"] = PROXY_KEY
+# os.environ['ADO_PERSONAL_ACCESS_TOKEN'] = CASSIE
+# pat = os.environ['ADO_PERSONAL_ACCESS_TOKEN']
 
 if _DEPLOYMENT_ENV == "local":
     client = AzureOpenAI(
@@ -84,7 +101,7 @@ def debug_print(*args, **kwargs):
     if _LOG_ENABLED:
         message = ' '.join(str(arg) for arg in args)
         logging.debug(message)
-        print(*args, **kwargs)
+        print(*args, **kwargs) 
     else:
         pass
 
@@ -98,7 +115,7 @@ def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
             messages=messages,
             # functions= func_list,
             # function_call="auto",  # auto is default, but we'll be explicit
-            temperature=0.7,
+            temperature=0.01,
             # seed=42,
             max_tokens=8192,
         )
@@ -109,7 +126,7 @@ def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
             messages=messages,
             # functions= func_list,
             # function_call="auto",  # auto is default, but we'll be explicit
-            temperature=0.7,
+            temperature=0.01,
             response_format={"type": "json_object"},
             # seed=42,
             max_tokens=4096,
@@ -121,7 +138,7 @@ def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
             messages=messages,
             # functions= func_list,
             # function_call="auto",  # auto is default, but we'll be explicit
-            temperature=0.7,
+            temperature=0.01,
             # response_format={ "type": "json_object" },
             # seed=42,
             max_tokens=4096,
@@ -357,11 +374,153 @@ def num_tokens_from_string(string: str, model_name: str) -> int:
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
+def parse_original_text_to_json(text):
+    # Define a dictionary to store parsed data
+    result = {
+        "Incident": "Not specified",
+        "Root cause": "Not specified",
+        "Threat actor/group/campaign": "Not specified",
+        "Organization/industry/location": "Not specified",
+        "Start date – End date": "Not specified",
+        "MITRE TTPs": [],
+        "Impact": "Not specified",
+        "Mitigation Steps": [],
+        "Detection Signature": "Not specified",
+        "IoCs": "No IoCs found"
+    }
+
+    # Extract each section using regex or simple splitting
+    patterns = {
+        "Incident": r"(?<=Incident:)(.*?)(?=\n|$)",
+        "Root cause": r"(?<=Root cause:)(.*?)(?=\n|$)",
+        "Threat actor/group/campaign": r"(?<=Threat actor/group/campaign:)(.*?)(?=\n|$)",
+        "Organization/industry/location": r"(?<=Organization/industry/location:)(.*?)(?=\n|$)",
+        "Start date – End date": r"(?<=Start date – End date:)(.*?)(?=\n|$)",
+        "Impact": r"(?<=Impact:)(.*?)(?=\n|$)"
+    }
+
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            result[key] = match.group(1).strip()
+
+    # Extract Mitigation Steps
+    mitigation_pattern = r"(?<=Mitigation Steps:)(.*?)(?=\n(?:Detection Signature|IoCs|$))"
+    mitigation_match = re.search(mitigation_pattern, text, re.DOTALL)
+    if mitigation_match:
+        steps = [step.strip("- ").strip() for step in mitigation_match.group(1).strip().split("\n") if step.strip()]
+        result["Mitigation Steps"] = steps
+
+    # Extract Detection Signature
+    detection_pattern = r"(?<=Detection Signature:)(.*?)(?=\n(?:IoCs|$))"
+    detection_match = re.search(detection_pattern, text, re.DOTALL)
+    if detection_match:
+        signature_text = detection_match.group(1).strip()
+        service_match = re.search(r"Service:\s*(.*?)(?=\n|$)", signature_text)
+        port_match = re.search(r"Port:\s*(.*?)(?=\n|$)", signature_text)
+        severity_match = re.search(r"Severity:\s*(.*?)(?=\n|$)", signature_text)
+        incident_match = re.search(r"Incident:\s*(.*?)(?=\n|$)", signature_text)
+        signature_name_match = re.search(r"Signature name:\s*(.*?)(?=\n|$)", signature_text)
+
+        internal_checks = {}
+        external_scanning = {}
+
+        internal_pattern = re.compile(r"-\s*(Setting\d+):\s*(.*?)(?=\n|$)")
+        external_pattern = re.compile(r"-\s*(Port|Check for known vulnerabilities):\s*(.*?)(?=\n|$)")
+
+        for match in internal_pattern.finditer(signature_text):
+            internal_checks[match.group(1)] = match.group(2).strip()
+
+        for match in external_pattern.finditer(signature_text):
+            external_scanning[match.group(1)] = match.group(2).strip()
+
+        result["Detection Signature"] = {
+            "Service": service_match.group(1).strip() if service_match else "Not available",
+            "Port": port_match.group(1).strip() if port_match else "Not available",
+            "Severity": severity_match.group(1).strip() if severity_match else "Not available",
+            "Incident": incident_match.group(1).strip() if incident_match else "Not available",
+            "Signature name": signature_name_match.group(1).strip() if signature_name_match else "Not available",
+            "Internal checks": internal_checks,
+            "External scanning": external_scanning
+        }
+
+    # Extract MITRE TTPs with line merging
+    mitre_pattern = r"(?<=MITRE TTPs:)(.*?)(?=\n(?:Impact|$))"
+    mitre_match = re.search(mitre_pattern, text, re.DOTALL)
+
+    if mitre_match:
+        print("MITRE TTPs Section Found!")  # Debugging: Confirm section is found
+        
+        # Split the section into lines and merge justification lines with TTP lines
+        mitre_ttp_lines = [line.strip("- ").strip() for line in mitre_match.group(1).strip().split("\n") if line.strip()]
+        print("Original Lines for TTPs:", mitre_ttp_lines)  # Debugging: Log original lines
+
+        # Merge TTP lines with their justification
+        merged_lines = []
+        temp_line = ""
+        for line in mitre_ttp_lines:
+            if line.startswith("T"):  # New TTP line
+                if temp_line:  # Append the previous complete TTP entry
+                    merged_lines.append(temp_line.strip())
+                temp_line = line  # Start a new TTP entry
+            else:  # Justification line
+                temp_line += " " + line  # Append justification to the current TTP entry
+        if temp_line:  # Add the last entry
+            merged_lines.append(temp_line.strip())
+        
+        print("Merged Lines for TTPs:", merged_lines)  # Debugging: Log merged lines
+
+        # Parse the merged TTP entries
+        ttp_dict = {}
+        for line in merged_lines:
+            print("Processing Line:", line)  # Debugging: Log each line
+            segments = line.split(". Justification: ")  # Split description and justification
+            if len(segments) == 2:
+                ttp_match = re.match(
+                    r"^(T\d+\.\d+|T\d+):\s*(.*?),\s*Confidence:\s*(.*?)$", segments[0], re.IGNORECASE
+                )
+                if ttp_match:
+                    ttp_id = ttp_match.group(1)  # Matches TTP ID (e.g., T1071.001 or T1071)
+                    description = ttp_match.group(2)  # Matches the description (e.g., Application Layer Protocol: Web Protocols)
+                    confidence = ttp_match.group(3)  # Matches the confidence level (e.g., High)
+                    justification = segments[1]  # Matches justification part after split
+
+                    # Add to the TTP dictionary
+                    ttp_dict[ttp_id] = f"{description}, Confidence: {confidence}. Justification: {justification}"
+                    print(f"Added TTP: {ttp_id}, Description: {description}")  # Debugging: Confirm addition
+                else:
+                    print(f"Failed to parse TTP line: {line}")
+            else:
+                print(f"Failed to split Justification: {line}")
+
+        # Add the TTP dictionary to the result
+        result["MITRE TTPs"] = ttp_dict
+
+    else:
+        print("No MITRE TTPs section found in the text.")  # Debugging: Confirm absence
+
+
+    # Extract IoCs (if provided)
+    iocs_pattern = r"(?<=IoCs:)(.*?)(?=$)"
+    iocs_match = re.search(iocs_pattern, text, re.DOTALL)
+    if iocs_match:
+        iocs_text = iocs_match.group(1).strip()
+        if iocs_text.lower() != "no iocs found":
+            iocs_list = [ioc.strip() for ioc in iocs_text.split("\n") if ioc.strip()]
+            result["IoCs"] = iocs_list
+
+    return result
+
 
 def enrichment(original, related_docs):
+    debug_print(RED + "==> Starting Enrichment: " + RESET)
+    if len(related_docs) == 1:
+        original = parse_original_text_to_json(original)
+        return original
     for doc in related_docs[1:]:
+        '''
         analysis_prompt = """
-        You are a security researcher. I will give a threat report and a new found document. You goal is to see if we can add some new info to the report based on new found documents. Please merge the new info into original and mark for your changes in the enhanced report and and cite the new found doc with the following format *The changes* (link to new found document).
+        You are a top-notch expert in cybersecurity. I will give a threat report and a new found document. You goal is to see if we can add some new info to the report based on new found documents. Please merge the new info into original and mark for your changes in the enhanced report and and cite the new found doc with the following format: [*The new information*](link to new found document). Ensure that the enhanced report is concise, entity-dense, and grammatically correct. For every new piece of information added, ensure the sentence remains complete and flows naturally.
         
         You will generate increasingly entity-dense threat report based on the new found document. Repeat the following 2 steps 2 times.
         Step 1: Identify 1-4 informative Entities (";" delimited) from the new found document which are missing from the previously generated threat report.
@@ -376,21 +535,81 @@ def enrichment(original, related_docs):
         - Security-related: e.g., IoCs (MAKE SURE to add all IoCs("ip", "ip_port",  "domain", "url", "email", "hash_md5", "hash_sha256", "hash_sha1") you find in the new found document). Change the URL/IP/Domain format to a valid format with standard syntax, without the extra brackets or colons (e.g., change hxxp[:]//2[.]57[.]149[.]233[:]3366/ to http://2.57.149.233:3366/) 
         
         Guidelines:
-        - Merge the new Entities into the original report. Mark the new information with *Your changes* (link to new found document). Do not create a new key (e.g., 'Added info').
-        - re-write the previous summary to improve flow and make space for additional entities.
+        - Merge the new Entities into the original report naturally and seamlessly. Mark the new information with citation in the format: [*The new information*](link to new found document). Do not create a new key (e.g., 'Added info').
+        - Ensure each new addition results in a grammatically correct and self-contained sentence. Paraphrase the original sentence as needed to accommodate the new information while preserving clarity and flow.
+        - Citations must be placed in a way that complements the surrounding text, and in grammatically correct positions. 
+        - Check sentence correctness by imagining the citation is a direct part of the text. For example:
+            - **Incorrect**: "This allowed law enforcement to gain control of the server [*the server*](...)."
+            - **Reason**: After inserting the citation, the resulting sentence becomes: "This allowed law enforcement to gain control of the server the server," which is not grammatically correct due to redundancy.
+            - **Correct**: "The FBI's operation was facilitated by sinkholing the [*PlugX worm*](...), which [*cost $7*](...)."
+            - **Reason**: After inserting the citation, the sentence remains complete and grammatically correct: "The FBI's operation was facilitated by sinkholing the PlugX worm, which cost $7."
+        - Re-write the previous summary to improve flow and make space for additional entities, and must be grammatically correct.
         - Make space with fusion, compression, and removal of uninformative phrases like "the article discusses".
         - The summaries should become highly dense and concise yet self-contained, e.g., easily understood without the Article.
         - Missing entities can appear anywhere in the new summary.
         - Never drop entities from the previous summary. If space cannot be made, add fewer new entities.
+
+        In addition to merging entities, MITRE TTPs output should be in the following format:
+        {'T1078': 'Valid Accounts, Confidence: High. Justification: The threat actors used a stolen Remote Support SaaS API key to reset passwords for local application accounts, which aligns with the use of valid accounts to gain access.', 'T1190': 'Exploit Public-Facing Application, Confidence: High. Justification: ...', ...}
 
         Answer in JSON. it has two keys. One is "thoughts", which described you step-by step thinks. Another is 'final_report'.
         The final report should be in the following format:
         {
         "Incident": "XXXX",
         "Root cause": "XXXX",
+        "MITRE TTPs": {'T1078': 'Valid Accounts, Confidence: High. Justification: The threat actors...'}
         "XXX": "XXX",
         }
         """
+        '''
+        analysis_prompt = """
+        You are a top-notch expert in cybersecurity. I will give a threat report and a new found document. Your goal is to see if we can add some new info to the report based on the new found documents. Then, merge that new info into the original report and mark it in the enhanced report, citing the new found document with this format: [*The new information*](link to new found document). Ensure the enhanced report is concise, entity-dense, and grammatically correct. For every new piece of information added, ensure the sentence remains complete and flows naturally.
+
+        You will generate an increasingly entity-dense threat report based on the new found document by repeating the following two steps twice:
+        1. **Identify 1-4 informative Entities** (";" delimited) from the new found document that are missing from the previously generated threat report.
+        2. **Write a new, denser threat report** to merge every entity and detail from the previous summary plus the Missing Entities.
+
+        A "Missing Entity" is:
+        - **Relevant**: must pertain to the main story.
+        - **Specific**: descriptive yet concise (5 words or fewer).
+        - **Novel**: not in the previous summary.
+        - **Faithful**: must appear in the new found document.
+        - **Anywhere**: can appear anywhere in the new found document.
+
+        ### Guidelines:
+        - Merge the new Entities into the original report **naturally and seamlessly**. Mark each new piece of information in the format `[*The new information*](link to new found document)`. **Do not** create a new key such as "Added info."
+        - Ensure each new addition results in a grammatically correct and self-contained sentence. You may paraphrase the original sentence as needed to accommodate the new info while preserving clarity and flow.
+        - **Critical**: The resulting sentence must remain coherent even if we remove the bracketed part. For example:
+            - **Correct**: “The FBI's operation was facilitated by sinkholing the [*PlugX worm*](...), which [*cost $7*](...).”  
+            - If we strip out `[*PlugX worm*](...)` and `[*cost $7*](...)`, the sentence still reads:  
+                “The FBI's operation was facilitated by sinkholing the , which .”  
+                That might not be perfectly grammatical due to punctuation, so in practice you’d ensure it’s written so that removing the bracketed sections still forms a valid sentence. For instance:
+                “The FBI's operation was facilitated by sinkholing the PlugX worm, which cost $7.”
+                This sentence remains grammatically correct with or without the bracket references.
+            - **Incorrect**: “The FBI's operation was facilitated by sinkholing the [*the worm*](...).” → Removing the bracketed text yields a duplicate or incomplete phrase.
+        - Re-write the previous summary to improve flow and create space for additional entities while keeping everything grammatically correct.  
+        - Use fusion, compression, and removal of uninformative phrases like "the article discusses" to keep the text concise and self-contained.
+        - Missing entities can appear anywhere in the new summary.
+        - If new data doesn’t fit well, compress or paraphrase existing text to make room, but do not drop existing content.
+
+        ### MITRE TTPs Format:
+        - You **MUST** also output MITRE TTPs in this structure (as a Python-like dictionary):
+        {'T1078': 'Valid Accounts, Confidence: High. Justification: The threat actors used a stolen ...', 'T1190': 'Exploit Public-Facing Application, Confidence: High. Justification: ...', ... }
+        - Keep existing TTP entries from the previous summary intact.
+        - If more than 10 TTPs appear in the previous summary plus newly found doc, you should keep the top 10 TTPs with the highest confidence.
+
+        ### Final Output (JSON):
+        You will output a single JSON with two keys:
+        1. `"thoughts"`: A short step-by-step description of your reasoning.
+        2. `"final_report"`: The revised threat summary in JSON. For example:
+        { "Incident": "XXXX", "Root cause": "XXXX", "MITRE TTPs": { "T1078": "Valid Accounts, Confidence: High. Justification: ...", ... }, "Organization/industry/location": "...", ... }
+
+        Make sure `"final_report"` is valid JSON. Avoid quoting code fences or adding extra text beyond this JSON structure.
+        """
+
+        # If the previous summary already has entity, do not convert it to 'Not specified' or alter it otherwise. Only add to or paraphrase what's already there.
+
+
         # if contains threat actors / malware, ..
         # New item: Threat actors: description
 
@@ -433,7 +652,7 @@ def enrichment(original, related_docs):
 
         for i in range(3):
             try:
-                response_message = api_call(messages, [])
+                response_message = api_call(messages, [], model='gpt-4o', json_enabled=True)
                 debug_print(response_message.choices[0].message.content)
                 json_response = json.loads(response_message.choices[0].message.content)
                 original = json_response["final_report"]
@@ -491,8 +710,9 @@ def threat_research_core(url):
     #     fw.write(json.dumps(info) + "\n")
     #     fw.flush()
     #     continue
-
+    debug_print(RED + "==> INPUT URLS: " + RESET, url)
     related_docs = find_related_ones({"link": url, "blog": blog})
+    debug_print(RED + "==> Related doc numbers: " + RESET, len(related_docs))
     # for item in related_docs[2:]:
     #     new_doc = find_related_ones({"link": item["link"], "blog": item["blog"]}, enable_query=False)
     #     debug_print(RED + "==> Identified new Docs: " + RESET, new_doc)
@@ -515,35 +735,36 @@ def threat_research_core(url):
 
     # Enhance the documents
     debug_print(RED + f"=> Enhance the blog: {url}" + RESET)
+    #         **For IoCs, please also extract those (e,g., hash1, hash256, hash_md5) inside the Yara Rule into the IoCs. e.g., extract '"hash1/hash256/hash_md5": "65c6798eedd33aa36d77432b2ba7ef45dfe760092810b4db487210b19299bdcb"' from YARA rule and put it into IoCs **
+
     analysis_prompt = r"""
-        You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident.
-        **For IoCs, please also extract those (e,g., hash1, hash256, hash_md5) inside the Yara Rule into the IoCs. e.g., extract '"hash1/hash256/hash_md5": "65c6798eedd33aa36d77432b2ba7ef45dfe760092810b4db487210b19299bdcb"' from YARA rule and put it into IoCs **
+        You are a security expert. I will give a report/blog on the Internet. You need to analyze it to understand the root cause (including, vulnerable/misconfigured services), how to detect this problem, and the mitigation behind the incident. You **must not** include any Indicators of Compromise (IoCs), such as IP addresses, domains, emails, or file hashes, even if they appear in the source text. Do not mention any IoCs in any of the fields (Incident, Root cause, TTPs, Detection Signature, etc.). 
 
         You should provide a signature in the following format:    
-        Incident: Shanghai Police Datalake Leak
+        Incident: A brief and specific name of the incident (e.g., Shanghai Police Datalake Leak). 
         
-        Root cause: the detailed context of root cause behind the indicent including vulnerable/misconfigured services. e.g., Misconfigured Kibana instance 
+        Root cause: The summarized detailed context of the root cause behind the incident including vulnerable/misconfigured services (e.g., Misconfigured Kibana instance). Focus on the most critical vulnerabilities or misconfigurations that led to the incident. Group similar issues and avoiding just listing all vulnerabilities. If no blog provides the info, output "Not specified". If there are hints or general observations in the article, use them to supplement your answer.
         
-        Threat actor/group/campaign: Who carried out the attack? It could be an orgainzation, a malware family, etc (if known) 
+        Threat actor/group/campaign: The detailed context of Who carried out the attack? It could be an orgainzation, a malware family, etc (if known). If no actors are identified in the blog, output "Not specified". If the article provides partial information, include it, and summarize the answer. 
         
-        Organization/industry/location: Who was targeted/vicim? (if known)
+        Organization/industry/location: Who was targeted/victim? (if known) If no victim are specified in the blog, output "Not specified". If the article provides relevant information, include it, and summarize the answer briefly. 
         
-        Start date – End date: When did the attack happen? (if known)
+        Start date – End date: When did the attack happen? (if known) If the blog does not mention it, output "Not specified". If the article provides relevant information, include it. 
 
         MITRE TTPs: Provide details on how the attack was carried out. Include a confidence score ('High', 'Medium', 'Low') for each identified TTP based on related articles and your understanding. Additionally, include a justification for each TTP identified from the article. The output format is:
-        - T xx: Technique name, Confidence: xx
+        - T xx: Technique name, Confidence: xx.
         Justification: Provide a justification for why this TTP is identified based on the report/blog. For example, "This TTP was identified because the report mentions spearphishing emails with malicious links, which aligns with T1203: Phishing: Spearphishing Link."
-        - T xx: Technique name, Confidence: xx
+        - T xx: Technique name, Confidence: xx.
         Justification: ...
         - ...
 
-        Impact: 100,000 records leaked.  **how many devices people impacted or the financial losses**
-
+        Impact: If there's info on how many devices, records, organizations or other entities affected, summarize it. (e.g., 100,000 records leaked). If the article only provides approximate or partial info (e.g., “numerous systems were affected,” “several machines compromised,” “some data leaked”), summarize that phrasing concisely (e.g., “Several machines were compromised, but the exact number is unknown.”). If the impact is not provided in the context, output "Not specified". 
+ 
         Mitigation Steps: (How to protect myself?) e.g., Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation** The output format is:
         - Secure the Kibana instance with authentication credentials. and **Detailed Steps for mitigation** (e.g., based on the article, the Kibana instance was found to be exposed with default settings. To mitigate this, configure strong password policies, implement multi-factor authentication, and restrict access by IP address to only trusted sources. Additionally, ensure that any unnecessary services are disabled to reduce the attack surface.)
         - ...
         
-        Detection Signature: (How to detect? i.e., detection rules) The output should be in the following format
+        Detection Signature: (How to detect? i.e., detection rules) The output should be in the following format:
             Service: Redis, CouchDB, etc. (it is a concrete service name, not general words like "database")  
             Port: 6379 (make it concrete if possible)   
             Severity: Critical
@@ -576,6 +797,7 @@ def threat_research_core(url):
     original = response_message.choices[0].message.content
 
     debug_print(RED + "==> The first enhanced one: " + RESET, original)
+    debug_print(RED + "==> Related doc numbers: " + RESET, len(related_docs))
 
     # merge related doc together to ehnchace the density
     new_ti = enrichment(original, related_docs)
@@ -615,12 +837,24 @@ def format_iocs_excel(iocs):
 
 
 def extract_iocs_from_text(blog, url):
+
+    user = f"""
+    # Task
+
+    Parse the article below according to the task description above.
+
+    <article>
+    {blog}
+    </article>
+
+    Response:
+    """
     messages = [
         {"role": "system", "content": sys_prompt},
-        {"role": "user", "content": user_prompt}
+        {"role": "user", "content": user}
     ]
-    misconf_qeustion = f"Here is the blog: {blog}."
-    messages.append({"role": "user", "content": misconf_qeustion})
+    # misconf_qeustion = f"Here is the blog: {blog}."
+    # messages.append({"role": "user", "content": misconf_qeustion})
 
     
     try:
@@ -699,7 +933,8 @@ def check_ioc(ioc_value, ioc_type):
     except requests.exceptions.RequestException as e:
         print(f"Error checking IoC {ioc_value}: {e}")
         # return True
-        return "Error Information"
+        # return "Error Information"
+        return None
 
 
 def llm_judgment_for_ioc_in_blog(ioc_value, original_text): 
@@ -754,16 +989,70 @@ def llm_judgment_for_ioc_in_blog(ioc_value, original_text):
         return False
 
 
-def filter_url(url, url_list):
-    parsed_url = urlparse(url)
-    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+def filter_url(url, url_list, excluded_domains=None):
+    if excluded_domains == None:
+        excluded_domains = []
 
+    parsed_url = urlparse(url)
+    base_domain = parsed_url.netloc.replace('www.', '')
+    
+    if any(excluded_domain in base_domain for excluded_domain in excluded_domains):
+        return False
+        
     for u in url_list:
         parsed_u = urlparse(u)
-        base_u = f"{parsed_u.scheme}://{parsed_u.netloc}"
-        if base_u == base_url:
+        base_u = parsed_u.netloc.replace('www.', '')
+        if base_u == base_domain:
             return True
     
+    return False
+
+
+def filter_email(email, url_list, white_list=None):
+    # Extract the domain part from the email
+    email_domain = email.split('@')[1].lower()
+
+    def normalize_domain(domain):
+        """Normalize a domain by removing 'www.' and handling subdomains."""
+        return domain.replace('www.', '').strip().lower()
+
+    # Normalize email domain
+    email_domain_parts = email_domain.split('.')
+
+    # Compare email domain with each URL in the list
+    for url in url_list:
+        parsed_url = urlparse(url)
+        url_domain = normalize_domain(parsed_url.netloc)
+
+        # Check if email domain matches URL domain or subdomain
+        if email_domain == url_domain:
+            return True
+        
+        # Check if the root domain matches (ignoring TLD)
+        url_root_domain = '.'.join(url_domain.split('.')[:-1])  # Remove TLD
+        if email_domain.startswith(url_root_domain):
+            return True
+        
+        if len(email_domain_parts) > 1 and len(url_domain.split('.')) > 1 and email_domain_parts[-2:] == url_domain.split('.')[-2:]:
+            return True
+
+    # Check white list for additional matches
+    if white_list:
+        for allowed_domain in white_list:
+            allowed_domain_normalized = normalize_domain(allowed_domain)
+
+            # Check if email domain matches the white list domain
+            if email_domain == allowed_domain_normalized:
+                return True
+            
+            # Check if the root domain matches (ignoring TLD)
+            allowed_root_domain = '.'.join(allowed_domain_normalized.split('.')[:-1])  # Remove TLD
+            if email_domain.startswith(allowed_root_domain):
+                return True
+            
+            if len(email_domain_parts) > 1 and len(allowed_root_domain.split('.')) > 1 and email_domain_parts[-2:] == allowed_root_domain.split('.')[-2:]:
+                return True
+
     return False
 
 
@@ -792,80 +1081,658 @@ def get_white_list_urls(csv_file_path):
         return []
     
 
-def add_date(text):
-    patterns = [
-        r'\b(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}\b',  
-        r'\b\d{1,2}/\d{1,2}/\d{2,4}\b',                                                          
-        r'\b\d{4}-\d{2}-\d{2}\b'                                                                 
+def extract_meta_date(text):
+    meta_date_patterns = [
+        r'"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})T',
+        r'"datePublished"\s*:\s*"([^"]+)"',
+        r'<meta\s+property="article:published_time"\s+content="([^"]+)"',
+        r'<meta\s+name="date"\s+content="([^"]+)"',
+        r'<meta\s+name="publish_date"\s+content="([^"]+)"',
+        r'<time\s+datetime="([^"]+)"',
+        r'<time\s+class="[^"]*"\s+datetime="([^"]+)"'
     ]
     
-    dates = []
-    
-    for pattern in patterns:
-        matches = re.finditer(pattern, text)
+    for pattern in meta_date_patterns:
+        matches = re.finditer(pattern, text, re.IGNORECASE)
         for match in matches:
-            date_str = match.group()
             try:
-                if ',' in date_str:
-                    date_obj = datetime.strptime(date_str, '%B %d, %Y')
-                elif '/' in date_str:
-                    try:
-                        date_obj = datetime.strptime(date_str, '%m/%d/%Y')
-                    except ValueError:
-                        date_obj = datetime.strptime(date_str, '%m/%d/%y')
-                else:
-                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                date_str = match.group(1)
+
+                if 'T' in date_str:
+                    date_str = date_str.split('T')[0]
+
+                if ' ' in date_str:
+                    date_str = date_str.split(' ')[0]
                 
-                formatted_date = date_obj.strftime('%Y-%m-%d')
-                dates.append(formatted_date)
-            except ValueError:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                return date_obj.strftime('%Y-%m-%d')
+            except (ValueError, IndexError):
                 continue
     
-    return dates[0] if dates else None
+    return None
 
 
-def threat_research_playground(url):
-    for i in range(2):
+def add_date(text):
+    meta_date = extract_meta_date(text)
+    if meta_date:
+        return meta_date
+    try:
+        date = find_date(text)
+        return date
+    except Exception as e:
+        print(f"Error in fallback date extraction: {e}")
+        return None
+
+
+def mdti_recommendation_pipeline(actors, token):
+    recommendations = ""
+    recommendation_headers = [
+        "## Recommendations",
+        "### Recommendations",
+        "#### Recommendations",
+        "## Recommendation",
+        "### Recommendation",
+        "#### Recommendation",
+        "## RECOMMENDATIONS",
+        "## RECOMMENDATION",
+        "## Mitigations",
+        "## MITIGATIONS",
+        "## Mitigation",
+        "## MITIGATION",
+        "## Protection",
+        "## PROTECTION",
+        "## Defensive Guidance",
+        "## Defense Recommendations"
+    ]
+
+    def find_recommendation_section(text):
+        for header in recommendation_headers:
+            start = text.find(header)
+            if start != -1:
+                content_start = start + len(header)
+                
+                next_section_markers = ["## ", "### ", "#### "]
+                end = len(text)
+                for marker in next_section_markers:
+                    next_section = text.find(marker, content_start)
+                    if next_section != -1 and next_section < end:
+                        end = next_section
+                
+                recommendation_text = text[content_start:end].strip()
+                if recommendation_text:
+                    return recommendation_text
+        return None
+
+    links = []
+    names = []
+    for actor in actors:
+        profiles = get_profiles(token.token, actor)
+        articles = get_articles(token.token, actor)
+        
+        if profiles["data"]["totalPages"] > 0:
+            names.append(actor)
+            print("="*20 +" Using oneti profile " + "="*20 + '\n')
+            for i in range(min(profiles['data']['totalPages'], 5)):
+                text = profiles["data"]["content"][i]['description']
+                name = profiles['data']['content'][0]['name']
+                link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+                links.append(link)
+                rec_text = find_recommendation_section(text)
+                # intro = f"Recommendation from link: {link} \n"
+                intro = f"\n"
+                if rec_text:
+                    recommendations += intro + rec_text + "\n\n"
+
+        else:
+            continue
+            print("="*20 +" Using related articles " + "="*20 + '\n')
+            if articles["data"]["totalPages"] == 0:
+                continue
+            for i in range(min(articles['data']['totalPages'], 5)):
+                text = str(articles["data"]["content"][i]['content'])
+                rec_text = find_recommendation_section(text)
+                if rec_text:
+                    recommendations += rec_text + "\n\n"
+    
+    if recommendations:
+        return names, links, recommendations
+    else:
+        return names, links, "No recommendations found."
+
+
+def gen_dict_recommendation_from_report(report):
+    sys_prompt = """
+    You are a cybersecurity expert tasked with mapping a given threat report to the most relevant mitigation recommendation from a predefined list.
+
+    Given:
+    - A preliminary threat report describing a specific threat.
+    - A list of potential mitigation recommendations.
+
+    Your goal:
+    1. Analyze the provided threat report.
+    2. Determine which single recommendation from the list directly applies to the threat.
+    3. If a relevant recommendation is found, output exactly that recommendation.
+    4. If no recommendation matches, output "None".
+
+    Instructions:
+    - Base your decision solely on the content of the threat report and the provided list.
+    - Output exactly one recommendation from the list that is most relevant, or "None" if there is no match.
+    - Do not include additional commentary or return multiple items.
+
+    The list of mitigation recommendations:
+    ['Recommendations to protect against RaaS', 'Recommendations to identify and mitigate cryptojacking attacks', 'Recommendations to protect against Information Stealers', 'Recommendations to protect against Malvertising', 'Recommendations to protect against phishing attacks', 'Recommendations to protect against Mobile Malware', 'Recommendations to protect against CVE-2024-3400 - command injection vulnerability', 'Tips for preventing keylogging', 'Guidance for CobaltStrike', 'Guidance for Botnets', 'Mitigate zero-day vulnerabilities', 'Mitigating data security incidents', 'Recommendations to protect IoT specific devices', 'Recommendations for supply-chain attacks', 'Social Engineering']
+    """
+
+    user_prompt = f"""
+    Threat Report:
+    {report}
+
+    Based on the above threat report, output exactly one mitigation recommendation from the list that is most applicable, or "None" if none apply.
+    """
+
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+    response_message = api_call(messages, [], model='gpt-4o', json_enabled=False)
+
+    rec = response_message.choices[0].message.content
+    return rec
+
+def get_recommendation_by_title(data_frame, title):
+    try:
+        matched_rows = data_frame[data_frame["Title"].str.strip() == title.strip()]
+        if len(matched_rows) == 0:
+            print(f"No recommendation for '{title}'")
+            return None, None
+        
+        first_match = matched_rows.iloc[0]
+        return first_match["Id"], first_match["Description"]
+    except Exception as e:
+        print(f"Error in finding recommendation: {str(e)}")
+        return None, None
+
+
+def is_valid_ioc(ioc_value, ioc_type):
+    def is_valid_ip(ip):
+        pattern = re.compile(
+        r'^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.'
+        r'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.'
+        r'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.'
+        r'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$'
+                )
+        return pattern.match(ip) is not None
+    
+    def is_valid_email(email):
+        pattern = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+        return pattern.match(email) is not None
+    
+    def is_valid_hash(value, hash_type):
+        hash_lengths = {
+                    "hash_md5": 32,
+                    "hash_sha1": 40,
+                    "hash_sha256": 64
+                }
+        value = value.lower() 
+        return len(value) == hash_lengths.get(hash_type, 0) and all(c in '0123456789abcdef' for c in value)
+    
+    def is_valid_domain(domain):
+        pattern = re.compile(r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,6}$')
+        return pattern.match(domain) is not None
+    
+    def is_valid_url(url):
+        url = url.lower()
+        url = url.replace('hxxp', 'http')
+        pattern = re.compile(
+        r'^(https?|ftp):\/\/(?:[-\w.]|(?:%[\da-fA-F]{2}))+(:\d+)?(?:\/[\w._~:/?#[\]@!$&\'()*+,;=%]*)?$'
+                )
+        return pattern.match(url) is not None
+    
+    def is_valid_ip_port(ip_port):
+        pattern = re.compile(
+        r'^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.'
+        r'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.'
+        r'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.'
+        r'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?):'
+        r'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4})$'
+                )
+        return pattern.match(ip_port) is not None
+    
+    if ioc_type == "ip":
+        return is_valid_ip(ioc_value)
+    elif ioc_type == "email":
+        return is_valid_email(ioc_value)
+    elif ioc_type in ["hash_md5", "hash_sha1", "hash_sha256"]:
+        return is_valid_hash(ioc_value, ioc_type)
+    elif ioc_type == "domain":
+        return is_valid_domain(ioc_value)
+    elif ioc_type == "url":
+        return is_valid_url(ioc_value)
+    elif ioc_type == "ip_port":
+        return is_valid_ip_port(ioc_value)
+    else:
+        return False
+    
+
+def process_mitre_ttps_format(key, value):
+    """
+    Processes the MITRE TTPs field and formats the output.
+    """
+    text_output = ""
+    
+    if not value:
+        text_output += f"#### {key} \n - No TTPs provided.\n\n"
+        return text_output
+
+    formatted_ttps = []
+    
+    # Check and parse value
+    try:
+        if isinstance(value, str):
+            data = ast.literal_eval(value)  # Convert string to dict/list
+        else:
+            data = value  # Already a dict or list
+    except Exception as e:
+        text_output += f"#### {key} \n - Error parsing TTPs: {str(e)}\n\n"
+        return text_output
+
+    if isinstance(data, dict):  # If TTPs are a dictionary
+        for ttp_id, details in data.items():
+            try:
+                # Split details into description, confidence, and justification
+                parts = details.split(', Confidence: ')
+                description = parts[0].strip()
+                confidence_justification = parts[1].split('. Justification: ')
+                confidence = confidence_justification[0].strip()
+                justification = confidence_justification[1].strip()
+                
+                formatted_ttps.append(
+                    f"- {ttp_id}: {description};\n  Confidence: {confidence}.\n  Justification: {justification}"
+                )
+            except IndexError:
+                formatted_ttps.append(f"- {ttp_id}: {details};\n  Confidence: Not specified.\n  Justification: Not specified")
+    elif isinstance(data, list):  # If TTPs are a list of dictionaries
+        for ttp in data:
+            for ttp_id, details in ttp.items():
+                try:
+                    parts = details.split(', Confidence: ')
+                    description = parts[0].strip()
+                    confidence_justification = parts[1].split('. Justification: ')
+                    confidence = confidence_justification[0].strip()
+                    justification = confidence_justification[1].strip()
+                    
+                    formatted_ttps.append(
+                        f"- {ttp_id}: {description};\n  Confidence: {confidence}.\n  Justification: {justification}"
+                    )
+                except IndexError:
+                    formatted_ttps.append(f"- {ttp_id}: {details};\n  Confidence: Not specified.\n  Justification: Not specified")
+    else:  # Unsupported data type
+        text_output += f"#### {key} \n - Unsupported TTP format: {data}\n\n"
+        return text_output
+
+    # Add formatted TTPs to text output
+    text_output += f"#### {key} \n" + "\n".join(formatted_ttps) + "\n\n"
+    return text_output
+
+
+def augment_threat_actor_with_blog(threat_actor, actor_info):
+    sys_prompt = f"""
+    ### Task description:
+    You are an expert in cybersecurity. Based on the extracted information about the threat actor(s) from an IoC report, please generate a detailed context and summary about threat actor(s) based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor(s) in the report. Make sure the context provides enough details for a security professional to understand all the actors' profile(s) and their behaviors. No explanations or prefix texts are allowed in the output.
+
+    ### Example:
+    Threat Actor(s): BrazenBamboo
+    Context: BrazenBamboo is a Chinese state-affiliated APT group. It is responsible for various attacks targeting government entities, private companies, and critical infrastructure worldwide. The group utilizes sophisticated malware such as DEEPDATA and DEEPPOST to exploit vulnerabilities in both Windows and macOS systems. They are known to use advanced techniques like spear-phishing and zero-day vulnerabilities to achieve their objectives. In the past, they have targeted industries such as telecommunications, finance, and energy.
+
+    Threat Actor(s): Earth Estries
+    Context: Earth Estries, also known as Salt Typhoon, is a Chinese cyber espionage group primarily focused on targeting the technology sector and governmental entities in Western countries. They are known to overlap with other APT groups such as FamousSparrow and UNC4841. Their primary modus operandi includes spear-phishing emails with malicious attachments, web shell exploitation, and using remote access tools (RATs) to gain unauthorized access to target networks.
+    """
+
+    user_prompt = f"""
+    ### Task description:
+    Based on the extracted information about the threat actor(s) from an IoC report, please briefly generate a detailed context and summary about threat actor(s) based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor(s) in the report. No explanations or prefix texts are allowed in the output.
+
+    ### Result:
+    Threat Actor(s): {threat_actor}
+    Report Content: {actor_info}
+    Context:
+    """
+
+    new_messages = [{"role": "system", "content": sys_prompt}]
+    new_messages.append({"role": "user", "content": user_prompt})
+
+    response_message = api_call(new_messages, [], model='gpt-4o', json_enabled=False)
+    response = response_message.choices[0].message.content
+    return response
+
+def get_cassie_triage(work_item_id):
+    """
+    Extracts Cassandra.FileIndicatorSummary from an Azure DevOps work item,
+    formats it as Markdown, and saves it to a file.
+
+    :param work_item_id: The ID of the Azure DevOps work item.
+    :param output_file: The path to the Markdown file to save the output.
+    """
+    # Set up the Azure DevOps Personal Access Token (PAT)
+    # Azure DevOps API URL
+    authorization = str(base64.b64encode(bytes(':' + pat, 'ascii')), 'ascii')
+
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': 'Basic ' + authorization
+    }
+    project_url = f'https://dev.azure.com/threat-intel/Cassandra/_apis/wit/workitems/{work_item_id}?api-version=7.1'
+
+    # Make the request
+    response = requests.get(url=project_url, headers=headers)
+
+    # Parse the JSON response
+    try:
+        data = response.json()
+
+        # Access 'Cassandra.FileIndicatorSummary' if it exists
+        if 'fields' in data and 'Cassandra.FileIndicatorSummary' in data['fields'] or 'Cassandra.NetworkIndicatorSummary' in data['fields']:
+            file_indicator_summary = data['fields']['Cassandra.FileIndicatorSummary']
+            network_indicator_summary = data['fields']['Cassandra.NetworkIndicatorSummary']
+            markdown_output = "##### "
+
+            # Parse HTML content with BeautifulSoup
+            for summary in [file_indicator_summary, network_indicator_summary]:
+                soup = BeautifulSoup(summary, 'html.parser')
+                tables = soup.find_all('table')  # Find all <table> tags
+
+                if not tables:
+                    print("No <table> elements found in the summary.")
+                    continue
+
+                for table in tables:
+                    # Find context (e.g., preceding <p> or <h3> tags)
+                    context = []
+                    prev_element = table.find_previous_sibling()
+                    while prev_element and prev_element.name in ['p', 'h3', 'h2', 'h1']:
+                        context.append(prev_element.text.strip())
+                        prev_element = prev_element.find_previous_sibling()
+
+                    # Reverse context list to get correct order
+                    context.reverse()
+                    context_text = "\n".join(context)
+
+                    # Extract headers and rows
+                    headers = [th.text.strip() for th in table.find_all('th')]  # Extract headers
+                    rows = [
+                        [td.text.strip() for td in row.find_all(['td', 'th'])]
+                        for row in table.find_all('tr')
+                    ]
+
+                    # Format table as Markdown
+                    if headers:
+                        markdown_table = "| " + " | ".join(headers) + " |\n"
+                        markdown_table += "| " + " | ".join(["---"] * len(headers)) + " |\n"
+                        for row in rows[1:]:  # Skip the header row
+                            markdown_table += "| " + " | ".join(row) + " |\n"
+                    else:
+                        markdown_table = "\n"
+
+                    # Combine context and table
+                    markdown_section = f"{context_text}\n\n{markdown_table}"
+                    markdown_output += markdown_section + "\n\n"
+            if markdown_output != "##### ":
+                return markdown_output
+            else:
+                return ""
+
+        else:
+            return ""
+
+    except json.JSONDecodeError:
+        print("Failed to parse JSON. Response text:")
+        print(response.text)
+
+
+def threat_research_playground(url, work_item_id):
+    for _ in range(2):
         try:
             new_ti, related_docs = threat_research_core(url)
+            source_blog = click_into_page_with_browser(
+                url, is_text=True, headless_flag=False
+            )
+            if num_tokens_from_string(source_blog, 'gpt-4o') > 120000:
+                source_blog = source_blog[:120000]
             text_output = ""
 
             # Add the source URL
             text_output += f"Source: [{url}]({url})\n\n"
 
             # Process related articles
+            articles_text = "## Related articles (describing the same threat) \n"
             text_output += "## Related articles (describing the same threat) \n"
             unique_urls = set()
             for doc in related_docs:
                 normalized_url = standardize_url(doc["link"])
                 unique_urls.add(normalized_url)
             for unique_url in unique_urls:
-                text_output += f"- {unique_url}\n"
+                # text_output += f"- {unique_url}\n"
+                articles_text += f"- {unique_url}\n"
+            print(f"articles:\n {articles_text}")
+            output = filter_duplicate_pipeline(url, articles_text)
+            print(f"Related links: {output}")
+            
+            if output:
+                text_output += output
+                articles_text = output
+            else:
+                text_output += "No related articles found.\n"
+                articles_text = "No related articles found.\n"
             text_output += "\n"
 
             # Enriched Document Section
             text_output += "## Enriched Doc (enrichments marked with *content*(link)): \n"
             paste_ioc_section = "#### paste IoC\n"
+            ttps = ""
+            print(new_ti)
 
             for key, value in new_ti.items():
                 if key == 'Threat actor/group/campaign':
                     text_output += f"#### {key} \n {value} \n\n"
-                    threat_actors = eval(get_actor(value))
-                    context = pipeline(threat_actors, 'oneti', token)
-                    if '\n\n' in context:
-                        context = context.replace('\n\n', '')
-                    text_output += f"- Information from oneti: \n {context}\n\n"
+                    actors = get_actor(value)
+                    if actors and 'None' not in actors:
+                        # threat_actors = eval(get_actor(value))
+                        threat_actors = eval(actors)
+                        actor_name, links, context = pipeline(threat_actors, 'oneti', token)
+                        actor_info_name = ", ".join(f"{name}" for name in set(actor_name[:3]))
+                        # prof_links = "\n".join(f"- {link}" for link in set(links))
+                        valid_links = []
+    
+                        for link in links:
+                            # Fetch the page content
+                            try:
+                                blog_content = click_into_page_with_browser(link)  # Assuming this function returns blog content as a string
+                                num_tokens = num_tokens_from_string(blog_content, "gpt-4o")
+                                
+                                # Only include links with content exceeding 500 tokens
+                                if num_tokens > 500:
+                                    valid_links.append(link)
+                            except Exception as e:
+                                print(f"Error processing {link}: {e}")
+                        
+                        # Remove duplicates and format as a list
+                        prof_links = "\n".join(f"- {link}" for link in set(valid_links))    
+
+                        if context:
+                            context = context.replace('\n\n', '\n')
+                            if prof_links:
+                                text_output += f"- Based on MDTI profile for {actor_info_name} from the following links: \n\n{prof_links}\n\n The additional threat actor information is:\n\n {context}\n\n"
+                            else:
+                                text_output += f"- Based on profile for {actor_info_name} from the source and the related articles above: \n\n The additional threat actor information is:\n\n {context}\n\n"
+                        else:
+                            if num_tokens_from_string(value, 'gpt-4o') < 50:
+                                context = augment_threat_actor_with_blog(actors, source_blog)
+                                if context:
+                                    context = context.replace('\n\n', '')
+                                    text_output += f"- Based on profile from the source and the related articles above: \n\n The additional threat actor information is:\n\n {context}\n\n"
+                                else:
+                                    continue
+                            else:
+                                continue
+
+                    else:
+                        continue
+                    print(f"After threat actors, \n\n {text_output}\n\n")
 
                 elif key == 'Root cause':
                     text_output += f"#### {key} \n {value} \n\n"
                     actors = eval(get_root_cause_with_llm(value))
-                    context = root_cause_pipeline(actors, token)
+                    actor_name, links, context = root_cause_pipeline(actors, token)
+                    # prof_links = "\n".join(f"- {link}" for link in set(links))
+                    valid_links = []
+    
+                    for link in links:
+                        # Fetch the page content
+                        try:
+                            blog_content = click_into_page_with_browser(link)  # Assuming this function returns blog content as a string
+                            num_tokens = num_tokens_from_string(blog_content, "gpt-4o")
+                            
+                            # Only include links with content exceeding 500 tokens
+                            if num_tokens > 500:
+                                valid_links.append(link)
+                        except Exception as e:
+                            print(f"Error processing {link}: {e}")
+                    
+                    # Remove duplicates and format as a list
+                    prof_links = "\n".join(f"- {link}" for link in set(valid_links))
+                    cause = ", ".join(f"{name}" for name in set(actor_name[:3]))
                     if context:
-                        context = context.replace('\n\n', '')
-                        text_output += f"- Additional context: \n {context}\n\n"
+                        context = context.replace('\n\n', '\n')
+                        # text_output += f"- Based on MDTI profile for {cause} from the following links: \n\n{prof_links}\n\n The additional context for root cause is:\n\n {context}\n\n"
+                        if prof_links:
+                            text_output += f"- Based on MDTI profile for {cause}, the additional context for root cause is:\n\n {context}\n\n"
+                        else:
+                            text_output += f"- Based on profile for {cause} from the source and the related articles above, the additional context for root cause is:\n\n {context}\n\n"
+                    print(f"After root cause, \n\n {text_output}\n\n")
+                        
+
+                elif key == 'MITRE TTPs':
+                    ttp_text = process_mitre_ttps_format(key, value)
+                    text_output += ttp_text
+                    print(f"After TTPs, \n\n {text_output}\n\n")
 
                 elif key == 'IoCs':
                     continue
+
+                elif key == 'Mitigation Steps':
+                    text_output += f"#### {key} \n"
+                    actors = get_actor(value)
+                    has_mitigation = False
+
+                    if actors and 'None' not in actors:
+                        names, links, mdti_recommendation = mdti_recommendation_pipeline(actors, token)
+                        # prof_links = "\n".join(f"- {link}" for link in set(links))
+                        valid_links = []
+    
+                        for link in links:
+                            # Fetch the page content
+                            try:
+                                blog_content = click_into_page_with_browser(link)  # Assuming this function returns blog content as a string
+                                num_tokens = num_tokens_from_string(blog_content, "gpt-4o")
+                                
+                                # Only include links with content exceeding 500 tokens
+                                if num_tokens > 500:
+                                    valid_links.append(link)
+                            except Exception as e:
+                                print(f"Error processing {link}: {e}")
+                        
+                        # Remove duplicates and format as a list
+                        prof_links = "\n".join(f"- {link}" for link in set(valid_links))
+
+                        mitigation_name =  ", ".join(f"{name}" for name in set(actor_name[:3]))
+                        if mdti_recommendation != "No recommendations found.":
+                            cleaned_recommendation = re.sub(r'\n\s*\n', '\n', mdti_recommendation)
+                            if prof_links:
+                                text_output += f"- Based on MDTI profile for ({mitigation_name}) from the following links: \n\n{prof_links}\n\n The recommendations are:\n\n"
+                            else:
+                                text_output += f"- Based on profile for ({mitigation_name}) from the source and the related articles above, the recommendations are:\n\n"
+
+                            text_output += f"{cleaned_recommendation}\n"
+                            has_mitigation = True
+                    # elif mdti_recommendation == "No recommendations found.":
+                    # else:
+                    if not has_mitigation:
+                        # rec_dict_mitigation = process_rec_dict_ttps(ttps)
+                        rec_dict_mitigation = gen_dict_recommendation_from_report(text_output)
+                        if rec_dict_mitigation:
+                            text_output += f"- Based on OSINT recommendation dictionary ({rec_dict_mitigation}), the recommendations are:\n\n"
+                            tech = pd.read_csv('recommendations/RecDict.csv')
+                            res = get_recommendation_by_title(tech, rec_dict_mitigation)
+                            text_output += f"{rec_dict_mitigation}: {res[1]}\n"
+                            # for rec in rec_dict_mitigation:
+                                # text_output += f"- [{rec["ttp_id"]}] {rec['title']}: {rec['reason']}\n"
+                            has_mitigation = True
+
+                        mitigation = process_all_ttps(ttp_text)
+                        if not rec_dict_mitigation and mitigation:
+                            # recommendation = eval(mitigation)
+                            # for rec in recommendation:
+                            # text_output += f"- Based on recommendation table, the source recommends:\n"
+                            text_output += f"- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
+                            for rec in mitigation:
+                                text_output += f"- [{rec["ttp_id"]}] {rec['title']}: {rec['reason']}\n"
+                            has_mitigation = True
+                        # else:
+                    if not has_mitigation and value:
+                        text_output += f"#### {key} \n {value} \n"
+                    text_output += '\n'
+                    print(f"After mitigation, \n\n {text_output}\n\n")
+                
+                elif key == 'Detection Signature':
+                    text_output += f"#### Detections/Hunting Queries \n"
+                    has_detection = False
+                    has_cassie_detection = False
+
+                    if actors and 'None' not in actors:
+                        actor_names, links, mdti_detection = mdti_detection_pipeline(threat_actors, token)
+                        valid_links = []
+    
+                        for link in links:
+                            # Fetch the page content
+                            try:
+                                blog_content = click_into_page_with_browser(link)  
+                                num_tokens = num_tokens_from_string(blog_content, "gpt-4o")
+                                
+                                if num_tokens > 500:
+                                    valid_links.append(link)
+                            except Exception as e:
+                                print(f"Error processing {link}: {e}")
+                        
+                        # Remove duplicates and format as a list
+                        prof_links = "\n".join(f"- {link}" for link in set(valid_links))
+
+                        detection_name =  ", ".join(f"{name}" for name in set(actor_name[:3]))
+                        if mdti_detection != "No detections found.":
+                            cleaned_detection = re.sub(r'\n\s*\n', '\n', mdti_detection)
+                            if prof_links:
+                                text_output += f"- Based on MDTI profile for ({detection_name})\n\n The detections are:\n\n"
+                            else:
+                                continue
+
+                            text_output += f"{cleaned_detection}\n"
+                            has_detection = True
+                    # elif mdti_recommendation == "No recommendations found.":
+                    # else:
+                    if not has_detection:
+                        cassie_detection = get_cassie_triage(work_item_id)
+                        if cassie_detection:
+                            text_output += f"- Based on Cassie Triage profile for ID {work_item_id}\n\n The detections are:\n\n{cassie_detection}\n"
+                            has_cassie_detection = True
+                        else:
+                            text_output += f"- No detections found.\n\n"
+
+                    if not has_detection and not has_cassie_detection:
+                        continue
+                        # text_output += f"#### {key} \n {value} \n"
+                    text_output += '\n'
+                    print(f"After detection, \n\n {text_output}\n\n")
+
                 else:
                     formatted_output = ""
                     try:
@@ -881,6 +1748,7 @@ def threat_research_playground(url):
                             text_output += f"#### {key} \n {value} \n\n"
                     except Exception as e:
                         text_output += f"#### {key} \n {value} \n\n"
+                    print(text_output)
 
             text_output += "#### IoCs:\n"
 
@@ -890,10 +1758,14 @@ def threat_research_playground(url):
 
             iocs_dict = {}  # Use a dictionary to remove duplicates by value
             for link in unique_urls:
+                #blog = click_into_page_with_browser(
+                    #link, is_text=False, headless_flag=False
+                #)
                 blog = click_into_page_with_browser(
-                    link, is_text=False, headless_flag=False
+                    link, is_text=True, headless_flag=False
                 )
-                date = add_date(blog)
+                html = url_open_with_browser(link)
+                date = add_date(html)
                 if date:
                     pub_date = date
                 else:
@@ -915,18 +1787,22 @@ def threat_research_playground(url):
 
 
             unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2], "publish_date": ioc[3]} for ioc in iocs_dict.values()]
-            print(unique_iocs)
+            print(f"Unique IoCs: {unique_iocs}")
+            if not unique_iocs:
+                text_output += "- No IoCs found. \n"
+                return text_output
             white_list = get_white_list_urls('All Intelligence Feeds.csv')
             unique_urls.update(white_list)
 
             for ioc_data in unique_iocs:
-                ioc_value = ioc_data["value"]
-                # if ioc_value in unique_urls or filter_url(ioc_value, unique_urls):
-                if ioc_value in unique_urls or filter_url(ioc_value, unique_urls):
+                ioc_value = ioc_data["value"].replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https").replace("[", "").replace("]", "")
+                print(f"====== Processing IoC: {ioc_value} ======")
+                if ioc_value in unique_urls or filter_url(ioc_value, unique_urls, white_list):
                     continue
                 ioc_type = ioc_data["type"]
+
                 pub_date = ioc_data['publish_date']
-                ioc_source = ioc_data.get('source', 'No link provided')  # Ensure a default value
+                ioc_source = ioc_data.get('source', 'No link provided')
                 blogs_for_target_source = next((entry["blog"] for entry in blog_for_urls if entry["source"] == ioc_source), None)
 
                 try:
@@ -936,45 +1812,43 @@ def threat_research_playground(url):
                         ioc_type_for_check = ioc_type
 
                     is_malicious = check_ioc(ioc_value, ioc_type_for_check)
-                    if is_malicious == True:
-                        if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
-                            # ioc_source = ioc_data.get('source', 'No link provided')
-                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source}))  Publish date: {pub_date}\n\n"
-                            paste_ioc_section += f"{ioc_value}\n\n"
+                    in_article = ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source)
 
-                            print(f"The {ioc_type} {ioc_value} is malicious.")
-                        else:
-                            print(f"The {ioc_type} {ioc_value} not in urls.")
+                    if is_malicious == True and in_article and is_valid_ioc(ioc_value, ioc_type):
+                        # if ioc_type.lower() == 'email' and filter_email(ioc_value, unique_urls, white_list):
+                            # continue
+                        text_output += f"- {ioc_type}: {ioc_value}  Publish date: {pub_date} [In [this link]({ioc_source}), Verified via VT]\n"
+                        paste_ioc_section += f"{ioc_value}\n\n"
+                        print(f"The {ioc_type} {ioc_value} is malicious and in article link.")
+                    
+                    elif is_malicious == False and in_article and is_valid_ioc(ioc_value, ioc_type):
+                        # text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source}))  Publish date: {pub_date} [In Articles, identified as not malicious via VT]\n"
+                        print(f"The {ioc_type} {ioc_value} is not malicious but in article link.")
+                    
+                    elif is_malicious is None and in_article and is_valid_ioc(ioc_value, ioc_type):
+                        if ioc_type.lower() == 'email' and filter_email(ioc_value, unique_urls, white_list):
                             continue
-                            # text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n\n"
-                            # text_output += f"Not found for {ioc_type} {ioc_value} in url. \n\n"
-
-                    elif is_malicious == False:
-                        print(f"The {ioc_type} {ioc_value} is clean.")
+                        text_output += f"- {ioc_type}: {ioc_value}  Publish date: {pub_date} [In [this link]({ioc_source}), not included in VT database]\n"
+                        paste_ioc_section += f"{ioc_value}\n\n"
+                        print(f"The {ioc_type} {ioc_value} is not in VT database but in article link.")
+                    
                     else:
-                        if ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source):
-                            text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source}))   Publish date: {pub_date}\n"
-                            text_output += f"Found in URL, Not found for {ioc_type} {ioc_value} in VT. \n\n"
-                            print(f"The {ioc_type} {ioc_value} in urls but not in VT.")
-                        else:
-                            print(f"Not Found in URL and VT for {ioc_type} {ioc_value}.")
-                            continue
-                            # text_output += f"- {ioc_type}: {ioc_value} ([link]({ioc_source})) \n"
-                            # text_output += f"Not Found in URL and VT for {ioc_type} {ioc_value}. \n\n"
-                except Exception as e:
-                    print(e)
-            
-            # For more IoCs note
-            text_output += "- For more IoCs, please refer to the above links. \n\n"
+                        print(f"{ioc_type} {ioc_value} is not found in neither article link nor VT.")
+                        continue
 
-            # Append the paste IoC section
-            text_output += paste_ioc_section + "\n"
+                except Exception as e:
+                    print(f"Error processing {ioc_type} {ioc_value}: {e}")
+            
+            if paste_ioc_section == "#### paste IoC\n":
+                text_output += "- No IoCs found.\n\n"
+
+            text_output += "\n" + paste_ioc_section + "\n"
 
             return text_output
         except AttributeError as e:
-            print(f"Error in processing the blog: {e}")
+            print("Error in processing the blog.")
+            print(e)
             continue
-
 
 '''
 def threat_research_playground(url):
@@ -1209,5 +2083,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    white_list = get_white_list_urls('All Intelligence Feeds.csv')
+    print(white_list)
 

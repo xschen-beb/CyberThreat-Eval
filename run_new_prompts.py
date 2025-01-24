@@ -16,60 +16,69 @@ import time
 sys_prompt = f"""
 # Task Description
 
-1. You will adopt the viewpoint of a cyber security expert.
-2. The text between the <article> and </article> tags is scraped from a web page containing a threat intelligence report. You might see only a portion of the scraped content.
-3. Your task is to parse each line of the text between the <article> and </article> tags and extract a list of indicators of compromise (IOCs).
-4. You should attempt to extract IOCs which map to one of the following *special types*
-    - ip: An IPv4/IPv6 address - Example: 172.10.12.234, 2001:0:2851:fcb0:1871:170e:cedb:843f
-    - ip_port - A port number - Example: 80, 443
-    - domain - A domain name - Example: abc.com, file.abc.com
-    - url - A url to a website - Example: https://www.microsoft.com/
-    - email - An email address - Example: badguy@hotmail.com
-    - hash_md5 - A MD5 hash - Example: f21cb2d2f8e62e38453fab019fa8f79f
-    - hash_sha256 - A SHA256 hash - Example: e923636f1093c414aab39f846e9d7a372beefa7b628b28179197e539c56aa0f0
-    - hash_sha1 - A SHA1 hash - Example: 56ca7ef04cd70a596d5a4a8d5ba056ae8e160071
-5. Make sure that you only use the list in (4) i.e. *special types* as IOC Type. If you are unable to map the extracted IOC to one of the *special types* then do not include those in the response.
-6. Each IOC Type i.e. ip, ip_port, url, hash_md5, hash_sha1, hash_sha256, domain and email can have multiple values from the article.
-7. As the first part of your response, generate a bulleted list of IOC types mentioned in (4), together with the different values taken by that IOC type in the article. Add very brief comments about how all these values occuring in the article indicate the malicious activity like attack, campaign, breach, etc. make sure that you eliminate IOCs that are related to the article source, author, etc. and only keep IOCs that indicate the malicious activity.
-8. Place the bulleted list in (7) between the tags <reasons> and </reasons>
-9. When doing (7) remember that if a particular value from the article is grouped under one IOC type, then it cannot be grouped under another IOC type.
-10. Go over the list in (7) and ensure that each IOC type is one of the *special types* and is present in the article.
-11. When going over (7) ensure that values of the same IOC type are grouped under the same IOC type.
-12. When going over the list in (7), make sure that each value included in the list is present in the given article and is a valid indicator of compromise.
-13. For the second part of your response, generate a sequence of rows, one for each IOC type of the form:
+1. You are a cybersecurity expert tasked with extracting Indicators of Compromise (IOCs) from a given article.
+2. The article content is enclosed between <article> and </article> tags.
+3. Your task is to parse each line between the <article> tags and extract a list of Indicators of Compromise (IOCs). This includes any hashes (hash1, hash256, hash_md5) found inside Yara rules.
+4. Only extract IOCs that exactly match the following special types and formats:
+    - ip: IPv4 address (e.g., 172.10.12.234)
+    - ip_port: IPv4 address with port (e.g., 172.10.12.234:80)
+    - domain: A valid domain name (e.g., abc.com, sub.domain.co.uk). 
+      * Must have a valid TLD (e.g., .com, .org, .net, .co.uk, etc.).
+      * Exclude well-known benign domains if it’s clear they are not used maliciously (like certain vendor domains "microsoft.com," "github.com," etc.) unless the text states these domains are part of malicious activity.
+      * Excluding common or benign names like "Microsoft", "Sogou", "QQ", "360".
+    - url: Complete valid URL (e.g., http://example.com/file.exe), must be in **URL format**, excluding common or benign names like "Microsoft".
+    - email: Malicious email address (e.g., attacker@example.com)
+    - hash_md5: A strict 32-character MD5 hash, letter case insensitive (e.g., f21cb2d2f8e62e38453fab019fa8f79f)
+    - hash_sha256: A strict 64-character SHA256 hash, letter case insensitive
+    - hash_sha1: A strict 40-character SHA1 hash, letter case insensitive
+5. Explicitly exclude any content that does not match the above formats, such as CVE identifiers (e.g., CVE-2024-40762) or unrelated data.
+6. **Only treat an email address as an IoC if it is used maliciously** or is directly associated with suspicious activity in the article.  
+   - For example, an email address used by an attacker to exfiltrate data or impersonate a trusted entity can be considered an IoC.  
+   - Conversely, normal "contact us" or "support@company.com"-type addresses used for legitimate business or marketing **are not** to be extracted as IoCs unless the text explicitly indicates malicious context.
+7. For each IOC type, list all unique valid values found in the article. If none found, output "No IoCs found".
+8. First, generate a bulleted list of IOC types (from the special types above) with their corresponding valid values found, along with brief comments on how these values indicate malicious activity. Exclude IOCs not presented in the article.
+9. Enclose this list between <reasons> and </reasons> tags.
+10. Ensure each IOC type only lists values that are present in the article and valid.
+11. Then, generate rows for each IOC type in the format:
     - |IocType|Value 1, Value 2, ..., Value N|
-14. The values in (13) should be the values grouped under that IOC in (7).
-15. The list of rows in (13) should be enclosed between a row at the start with [START] and a row at the end with [END]
-16. Place the list from (14) and the [START] and [END] rows between the tags <IOCS> and </IOCS>
+12. Enclose these rows between [START] and [END] markers, and wrap the entire section with <IOCS> and </IOCS> tags.
 
 # Examples
-
-Below are some examples.
 
 ## Example 1
 <article>
 Check this out:
-  - Our website, example.com, has been accessed from IP address 192.16.32.47.
-  - Someone has attempted to login to our system using the email address admin@example.com with the wrong password from China.
-  - There is suspicious activity on the following URLs: example.com/login.php and example.com/reset_password.php
-  - Multiple hashes of the form MD5 and SHA-256 have been found: 254d91c3b82854956cefcc26f7ca91fa, 53d8b3ab93183aa54c9c0a1e0daed584, 65450d23d2f6ec8c73fd660835d8f1a2a6b95762c319dd4c8a63b3b741a7d576
+  - Our website has been accessed from IP address 192.16.32.47 through port 443.
+  - Someone has attempted to login to our system using the email address xxx@yyy.com with the wrong password from China.
+  - There is suspicious activity on the following URLs: healthcarb.com and bankjordan.com
   - A network scan has revealed that several machines in our network are running outdated versions of software, which could be vulnerable to known exploits.
+
+  IOCs(Indicators of Compromise):
+  MD5s:
+  254d91c3b82854956cefcc26f7ca91fa, 
+  53d8b3ab93183aa54c9c0a1e0daed584
+
+  SHA-256
+  65450d23d2f6ec8c73fd660835d8f1a2a6b95762c319dd4c8a63b3b741a7d576
+
 </article>
 
 Response:
 <reasons>
-  - ip - Values: 192.16.32.47 - This value is clearly an IP address and its format matches the standards defined in RFC 791.
-  - email - Values: admin@example.com - This value has a valid email format and is found being used for login.
-  - url - Values: example.com/login.php, example.com/reset_password.php - These values conform to the syntax of URLs and are particularly related to possible security issues such as brute-force attacks.
-  - hash_md5 - Values: 254d91c3b82854956cefcc26f7ca91fa, 53d8b3ab93183aa54c9c0a1e0daed584 - These values match the standard format for MD5 hashes and are often used to identify malware or files that have been tampered with
-  - hash_sha256 - Values: 65450d23d2f6ec8c73fd660835d8f1a2a6b95762c319dd4c8a63b3b741a7d576 - This value conforms to the standard format for SHA-256 hashes and is often used to verify data integrity or authenticity.
+  - ip - Values: 192.16.32.47 - This IP address is associated with unauthorized access attempts.
+  - ip_port - Values: 192.16.32.47:443 - This IP and port combination was used in the attack.
+  - email - Values: xxx@yyy.com - This email address was used in suspicious login attempts.
+  - url - Values: healthcarb.com, bankjordan.com - These URLs show targeted authentication endpoints.
+  - hash_md5 - Values: 254d91c3b82854956cefcc26f7ca91fa, 53d8b3ab93183aa54c9c0a1e0daed584 - MD5 hashes of suspicious files.
+  - hash_sha256 - Values: 65450d23d2f6ec8c73fd660835d8f1a2a6b95762c319dd4c8a63b3b741a7d576 - SHA256 hash of malicious content.
 </reasons>
 
 <IOCS>
 [START]
 |ip|192.16.32.47|
+|ip_port|192.16.32.47:443|
 |email|admin@example.com|
-|url|example.com/login.php, example.com/reset_password.php|
+|url|healthcarb.com, bankjordan.com|
 |hash_md5|254d91c3b82854956cefcc26f7ca91fa, 53d8b3ab93183aa54c9c0a1e0daed584|
 |hash_sha256|65450d23d2f6ec8c73fd660835d8f1a2a6b95762c319dd4c8a63b3b741a7d576|
 [END]
@@ -140,6 +149,51 @@ client = AzureOpenAI(
 )
 
 
+def validate_ioc(ioc_type, value):    
+    if ioc_type == "ip_port":
+        try:
+            port = int(value)
+            return 0 <= port <= 65535
+        except ValueError:
+            return False
+            
+    elif ioc_type == "ip":
+        try:
+            parts = value.split('.')
+            if len(parts) == 4:
+                return all(0 <= int(part) <= 255 for part in parts)
+            return False
+        except (ValueError, AttributeError):
+            return False
+            
+    elif ioc_type == "domain":
+        import re
+        domain_pattern = r'^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$'
+        return bool(re.match(domain_pattern, value))
+        
+    elif ioc_type == "url":
+        import re
+        url_pattern = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+        return bool(re.match(url_pattern, value))
+        
+    elif ioc_type == "email":
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(email_pattern, value))
+        
+    elif ioc_type in ["hash_md5", "hash_sha1", "hash_sha256"]:
+        import re
+        hash_lengths = {
+            "hash_md5": 32,
+            "hash_sha1": 40,
+            "hash_sha256": 64
+        }
+        hash_pattern = r'^[a-fA-F0-9]+$'
+        return len(value) == hash_lengths[ioc_type] and bool(re.match(hash_pattern, value))
+        
+    return False
+
+
 def extract_iocs(iocs_text, url):
     iocs_content = re.search(r"<IOCS>\s*\[START\](.*?)\[END\]\s*</IOCS>", iocs_text, re.DOTALL)
     if not iocs_content:
@@ -163,8 +217,12 @@ def extract_iocs(iocs_text, url):
                     clean_value = re.sub(r'https\[\]', 'https://', clean_value)  
                     clean_value = re.sub(r'http\[\]', 'http://', clean_value)  
                     clean_value = clean_value.strip('|')
+                    
+                    if validate_ioc(ioc_type, clean_value):
+                        iocs_list.append({"type": ioc_type, "value": clean_value, "source": url})
+                    else:
+                        print(f"Invalid IOC format: {ioc_type} - {clean_value}")  
 
-                    iocs_list.append({"type": ioc_type, "value": clean_value, "source": url})
 
     return iocs_list
 
@@ -219,25 +277,31 @@ def analysis_response(string):
 
 def main():
     urls = [
-        'https://www.bleepingcomputer.com/news/security/fake-ai-video-generators-infect-windows-macos-with-infostealers/',
-        'https://app.any.run/tasks/896d628c-59ae-409e-b0b2-7fd6719b7c2a',
-        'https://www.cyfirma.com/research/lumma-stealer-tactics-impact-and-defense-strategies/'
+        'https://blog.sekoia.io/sneaky-2fa-exposing-a-new-aitm-phishing-as-a-service/'
+        # 'https://www.picussecurity.com/resource/blog/salt-typhoon-telecommunications-threat',
+        # 'https://www.bleepingcomputer.com/news/security/chinese-hackers-breached-t-mobiles-routers-to-scope-out-network',
+        # 'https://www.bleepingcomputer.com/news/security/atandt-and-verizon-say-networks-secure-after-salt-typhoon-breach',
+        # 'https://www.bloomberg.com/news/articles/2024-12-28/at-t-says-its-network-is-now-clear-after-salt-typhoon-hack',
+        # 'https://www.bleepingcomputer.com/news/security/white-house-links-ninth-telecom-breach-to-chinese-hackers',
+        # 'https://www.bleepingcomputer.com/news/security/atandt-verizon-reportedly-hacked-to-target-us-govt-wiretapping-platform'
     ]
     iocs_set = set()
     for link in urls:
         blog = click_into_page_with_browser(
-            link, is_text=False, headless_flag=_HEADLESS_FLAG
+            link, is_text=True, headless_flag=_HEADLESS_FLAG
         )
         length = num_tokens_from_string(blog, "gpt-4o")
         if length > 120000:
             blog = blog[:120000]
+        blog = blog.replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https")
+        print(blog)
         iocs = json.loads(original_response(blog, link))
         print(type(iocs))
         # original = analysis_response(blog)
         for ioc in iocs:
             ioc_tuple = (ioc['type'], ioc['value'], ioc['source'])
             iocs_set.add(ioc_tuple)
-        time.sleep(180)
+        # time.sleep(180)
 
     unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2]} for ioc in iocs_set]
 

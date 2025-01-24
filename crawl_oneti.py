@@ -100,35 +100,162 @@ def get_user_object(token):
     except ValueError as json_err:
         print(f"JSON deserialization error: {json_err}")
 
-
+"""
 def oneti_pipeline(actors, token):
     actors_info = ""
+    names = []
+    links = []
 
     for actor in actors:
+        print(f"Processing {actor}: ... \n")
         profiles = get_profiles(token.token, actor)
         articles = get_articles(token.token, actor)
-        if profiles["data"]["totalPages"] > 0:
+        if profiles["data"]["totalPages"] > 0 and profiles:
             print("="*20 +" Using oneti profile " + "="*20 + '\n')
             content = profiles["data"]["content"]
             print(profiles["data"]["totalPages"])
+            names.append(actor)
             for i in range(min(profiles['data']['totalPages'], 5)):
-                actors_info += str(profiles["data"]["content"][i]['content'])
-        else:
+                actors_info += str(profiles["data"]["content"][i]['description'])
+                name = profiles['data']['content'][0]['name']
+                link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+                links.append(link)
+        elif articles['data']['totalPages'] > 0 and articles:
             print("="*20 +" Using related articles " + "="*20 + '\n')
             content = articles["data"]["content"]
+            names.append(actor)
             for i in range(min(articles['data']['totalPages'], 5)):
                 actors_info += str(articles["data"]["content"][i]['content'])
-
+                link_name = content[0]['guid']
+                link = f"https://sip.security.microsoft.com/intel-profiles/{link_name}"
+                links.append(link)
+        else:
+            continue
+    
     context = augment_threat_actor_context(actors, actors_info)
     print(context)
-    return context
+    return names, links, context
+
+"""
+
+"""
+def oneti_pipeline(actors, token):
+    actors_info = ""
+    names = []
+    links = []
+
+    for actor in actors:
+        print(f"Processing {actor}: ... \n")
+        profiles = get_profiles(token.token, actor)
+        articles = get_articles(token.token, actor)
+
+        if profiles["data"]["totalPages"] > 0 and profiles:
+            print("="*20 + " Using oneti profile " + "="*20 + '\n')
+            content = profiles["data"]["content"]
+            print(profiles["data"]["totalPages"])
+            
+            # Check if actor's profile link is unique before adding
+            name = profiles['data']['content'][0]['name']
+            link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+            if link not in links:
+                names.append(actor)
+                links.append(link)
+            
+            for i in range(min(profiles['data']['totalPages'], 5)):
+                actors_info += str(profiles["data"]["content"][i]['description'])
+        
+        elif articles['data']['totalPages'] > 0 and articles:
+            print("="*20 + " Using related articles " + "="*20 + '\n')
+            content = articles["data"]["content"]
+            
+            # Check if article link is unique before adding
+            # link_name = content[0]['guid']
+            # link = f"https://sip.security.microsoft.com/intel-profiles/{link_name}"
+            # if link not in links:
+                # names.append(actor)
+                # links.append(link)
+            
+            for i in range(min(articles['data']['totalPages'], 5)):
+                actors_info += str(articles["data"]["content"][i]['content'])
+        else:
+            continue
+
+    # Only call augment_threat_actor_context if names is not empty
+    if names:
+        context = augment_threat_actor_context(names, actors_info)
+        print(context)
+    else:
+        context = ""
+
+    return names, links, context
+"""
+
+def oneti_pipeline(actors, token):
+    names = []
+    links = []
+    count = 0
+    context = ""  # Use a single string to accumulate contexts
+
+    for actor in actors:
+        print(f"Processing {actor}: ... \n")
+        profiles = get_profiles(token.token, actor)
+        articles = get_articles(token.token, actor)
+
+        actors_info = ""
+
+        if profiles["data"]["totalPages"] > 0 and profiles:
+            print("=" * 20 + " Using oneti profile " + "=" * 20 + '\n')
+            content = profiles["data"]["content"]
+            print(profiles["data"]["totalPages"])
+
+            # Generate unique link for the actor's profile
+            name = profiles['data']['content'][0]['name']
+            link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+            if link not in links:
+                names.append(actor)
+                links.append(link)
+                count += 1
+                for i in range(min(profiles['data']['totalPages'], 1)):
+                    actors_info += str(profiles["data"]["content"][i]['description'])
+
+        elif articles['data']['totalPages'] > 0 and articles:
+            print("=" * 20 + " Using related articles " + "=" * 20 + '\n')
+            content = articles["data"]["content"]
+
+            for i in range(min(articles['data']['totalPages'], 5)):
+                actors_info += str(articles["data"]["content"][i]['content'])
+                count += 1
+
+        else:
+            print(f"No profiles or articles found for {actor}")
+            continue
+
+        # Generate context for the actor using `augment_threat_actor_context`
+        if actors_info.strip():
+            actor_context = augment_threat_actor_context(actor, actors_info)
+            context += f"- {actor_context}\n"
+            print(f"Context for {actor}:\n{actor_context}\n")
+        else:
+            print(f"No information found for {actor} to augment context.")
+
+
+        if count == 3:
+            break
+        
+    return names, links, context
 
 
 if __name__ == '__main__':
     client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
     scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
     token = get_access_token(client_id, scopes)
-    oneti_pipeline('Earth Estries', token)
+    actors = ['Lazarus Group', 'Citrine Sleet', 'APT38', 'BlueNoroff', 'Stardust Chollima', 'Jade Sleet', 'UNC4899', 'Slow Pisces']
+    # n, l, c = oneti_pipeline(actors, token)
+    # print(n)
+    # print(l)
+    query = "Inside the LockBit Arsenal - The StealBit Exfiltration Tool"
+    articles = get_articles(token.token, query)
+    print(articles['data'])
 
 
 

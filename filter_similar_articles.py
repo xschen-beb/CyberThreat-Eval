@@ -70,6 +70,12 @@ def normalize_url(url):
     query = urlencode(sorted(parse_qsl(parsed.query)))
     return urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', query, ''))
 
+def normalize_url_for_comparison(url):
+    parsed = urlparse(url)
+    path = re.sub(r'/(rss|feed|amp)/?', '/', parsed.path)
+    path = path.rstrip('/')
+    return urlunparse((parsed.scheme, parsed.netloc, path, '', '', ''))
+
 def are_urls_same_except_protocol(url1, url2):
     parsed_url1 = urlparse(url1)
     parsed_url2 = urlparse(url2)
@@ -264,60 +270,134 @@ def extract_urls_from_text(text, section_header):
 def filter_duplicate_pipeline(source_url, text):
     text_output = ""
     section_header = 'Related articles (describing the same threat)'
+
+    normalized_source_url = normalize_url(source_url)
+    print(normalized_source_url)
     urls = extract_urls_from_text(text, section_header)
-    urls = [normalize_url(url) for url in urls]
+    urls = [normalize_url(url) for url in urls if normalize_url_for_comparison(source_url) != normalize_url_for_comparison(url)]
+    urls.extend([normalized_source_url])
+    
     url_links, references = extract_links_from_content(urls)
-    print(references)
-    references = [(normalize_url(source), normalize_url(target)) for source, target in references]
-    print(references)
+    print(f"Original references:{references}")
+    
+    original_source = False
+    # print(references)
+    # references = [(normalize_url(source), normalize_url(target)) for source, target in references]
+
+    # filter self-reference
+    filtered_references = []
+    for source, target in references:
+        # source_parsed = urlparse(source)
+        # target_parsed = urlparse(target)    
+        if normalize_url(source) == normalize_url(target) or normalize_url_for_comparison(source) == normalize_url_for_comparison(target):
+            continue
+        
+        filtered_references.append((normalize_url(source), normalize_url(target)))
+    
+    references = filtered_references
+    print(f"Ref: {references}")
+    print(f"urls:\n {urls}")
+
     if not references:
+        text_output = []
         for url in urls:
-            result = {"gt_url": "No links", "url": url, "result": 'Yes'}
-        return "No reference relationships found"
+            if normalize_url(url) != normalized_source_url:
+                text_output.append(f"- {url}\n")
+        return "".join(text_output) if text_output else "No related links found"
+
+    ref_links = []
+    for ref in references:
+        # start, ref = ref[0]
+        # link = ref[0]
+        # ref_links.append(link)
+        start, ref_link = ref[0], ref[1]
+        ref_links.append(start)
+        ref_links.append(ref_link)
+
+    print(ref_links)
 
     # Add reference relationships to output
-    text_output += "### Reference Relationships:\n"
-    for source, target in references:
-        text_output += f"Source link: {source}, reference: {target}\n"
+    # text_output += "### Reference Relationships:\n"
+    # for source, target in references:
+        # text_output += f"Source link: {source}, reference: {target}\n"
 
     pagerank_scores, graph, url_to_id = calculate_pagerank(references, urls)
-    text_output += "\n### PageRank Scores:\n"
+    # text_output += "\n### PageRank Scores:\n"
     for url, score in pagerank_scores.items():
-        text_output += f"{url}: {score:.4f}\n"
+        print(f"{url}: {score:.4f}\n")
 
     highest_pagerank_url = max(pagerank_scores, key=pagerank_scores.get)
-    normalized_source_url = normalize_url(source_url)
     
     if normalized_source_url in pagerank_scores:
         if pagerank_scores[normalized_source_url] == pagerank_scores[highest_pagerank_url]:
             highest_pagerank_url = normalized_source_url
+            original_source = True
+            # original_source_text += f"- {source_url}, [Original link with source]\n"
 
-    text_output += f"\nHighest PageRank URL: {highest_pagerank_url}\n"
+    # text_output += f"\nHighest PageRank URL: {highest_pagerank_url}\n"
 
     reference_blog_content = click_into_page_with_browser(highest_pagerank_url)
-    text_output += f"\n### Related urls \n"
+    # text_output += f"\n### Related urls \n"
+    original_marked = []
+    source_link_marked = []
+    unmarked = []
 
     for url in urls:
-        if url == highest_pagerank_url:
-            text_output += f"- {url}, [Original link with source]\n"
+        if url == highest_pagerank_url and not original_source:
+            original_marked.append(f"- [Original URL of the source] {url}\n")
             continue
-        
-        try:
-            comparison_blog_content = click_into_page_with_browser(url)
-        except Exception as e:
-            # text_output += f"\nError while fetching blog content for URL {url}: {e}\n"
-            continue        
-        
-        response = check_circular_reporting_with_llm(reference_blog_content, comparison_blog_content)
-        
-        if 'Yes' in response:
-            text_output += f"- {url}, result: With additional information\n"
-            text_output += f"Judgment result for {url}:\n{response}\n\n"
+        elif url == highest_pagerank_url and original_source:
+            continue
         else:
-            continue
+            try:
+                comparison_blog_content = click_into_page_with_browser(url)
+            except Exception as e:
+                continue        
+            
+            response = check_circular_reporting_with_llm(reference_blog_content, comparison_blog_content)
+            
+            if 'Yes' in response:
+                if normalize_url(url) == normalized_source_url:
+                    continue
+                elif url in ref_links:
+                    source_link_marked.append(f"- [Link to source url] {url}\n")
+                else:
+                    unmarked.append(f"- {url}\n")
+            else:
+                continue
+
+    # Combine outputs in the desired order
+    text_output = "".join(original_marked + source_link_marked + unmarked)
+
+    return text_output
+
+    # for url in urls:
+        # if url == highest_pagerank_url and not original_source:
+            # text_output += f"- {url}, [Original URL of the source]\n"
+            # continue
+        # elif url == highest_pagerank_url and original_source:
+            # continue
+        # else:
+            # try:
+                # comparison_blog_content = click_into_page_with_browser(url)
+            # except Exception as e:
+                # text_output += f"\nError while fetching blog content for URL {url}: {e}\n"
+                # continue        
+            
+            # response = check_circular_reporting_with_llm(reference_blog_content, comparison_blog_content)
+            
+            # if 'Yes' in response:
+                # if normalize_url(url) == normalized_source_url:
+                    # continue
+                # elif url in ref_links:
+                    # text_output += f"- {url} [link to source url]\n"
+                # else:
+                    # text_output += f"- {url}\n"
+            # else:
+                # continue
             # text_output += f"- {url}, result: No additional information\n"
             # text_output += f"Judgment result for {url}:\n{response}\n\n"
-    return text_output
+    # return text_output
             
 
 if __name__ == '__main__':
@@ -329,13 +409,11 @@ if __name__ == '__main__':
     
     # file_path = 'mdti_description/AgentGenReport/1209/crypto-stealing-malware-posing-as-a-meeting-app-targets-web3-pros.md'
     # text = open(file_path, 'r', encoding='utf-8').read()
-    text = """## Related articles (describing the same threat) \n 
-- https://thehackernews.com/2023/10/qubitstrike-targets-jupyter-notebooks.html
-- https://hackread.com/qubitstrike-malware-jupyter-notebook-cryptojacking-cloud-data
-- https://www.cadosecurity.com/qubitstrike-an-emerging-malware-campaign-targeting-jupyter-notebooks
-- https://www.bleepingcomputer.com/news/security/qubitstrike-attacks-rootkit-jupyter-linux-servers-to-steal-credentials/
-"""
-    url = 'https://www.bleepingcomputer.com/news/security/qubitstrike-attacks-rootkit-jupyter-linux-servers-to-steal-credentials/'
+    text = """## Related articles (describing the same threat)
+
+- https://www.elastic.co/security-labs/beyond-the-wail
+- https://github.com/Evi1Grey5/MacOS-S """
+    url = 'https://research.checkpoint.com/2025/banshee-macos-stealer-that-stole-code-from-macos-xprotect'
     output = filter_duplicate_pipeline(url, text)
     print(output)
     # section_header = 'Related articles (describing the same threat)'

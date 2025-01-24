@@ -93,7 +93,7 @@ def get_user_object(token):
 def get_root_cause_with_llm(root_cause):
     sys_prompt = f"""
     ### Task description:
-    You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat malwares (if it has other names, extract them.) in the list format from the "root cause" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no specific threat actor is specified, the output should be ['None'].
+    You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat malwares (if it has other names, extract them.) in the **list format** from the "root cause" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no specific threat actor is specified, the output should be ['None'].
 
     ### Example:
     Report Content: The incident was caused by a North Korean IT worker cluster (CL-STA-0237) exploiting a U.S.-based IT services company's credentials and infrastructure to carry out phishing attacks using malware-infected video conference apps, including InvisibleFerret malware *Your changes* (https://unit42.paloaltonetworks.com/fake-north-korean-it-worker-activity-cluster/) and BeaverTail stealer *Your changes* (https://objective-see.org/blog/blog_0x7A.html). *The attackers also posed as prospective employers to lure developers into fake interviews, delivering updated BeaverTail and InvisibleFerret malware* (https://thehackernews.com/2024/10/n-korean-hackers-use-fake-interviews-to.html). *The malware targets job seekers via platforms like LinkedIn and X, distributing through files disguised as legitimate applications such as MiroTalk and FreeConference* (https://www.infosecurity-magazine.com/news/beavertail-malware-job-seekers/). 
@@ -119,27 +119,118 @@ def get_root_cause_with_llm(root_cause):
     return response
 
 
+def augment_root_cause_context(root_cause, root_cause_info):
+    sys_prompt = f"""
+    ### Task description:
+    You are an expert in cybersecurity. Based on the extracted information about the root cause from a blog, please generate a detailed context and summary about the root cause of the incident based on the report content and your knowledge. Ensure the context includes details about vulnerable or misconfigured services, exploited weaknesses, and contributing factors. Your output must be concise, professional, and factually accurate. No hallucination is allowed. Ensure the output provides sufficient information for a security professional to understand the root cause. No explanations or prefix texts like "Context:" are allowed in the output.
+
+    ### Example:
+    Root Cause: Misconfigured Kibana instance
+    Context: The root cause of the incident was a misconfigured Kibana instance exposed to the Internet without authentication. This allowed attackers to inject malicious scripts and access sensitive data, resulting in data exfiltration.
+
+    Root Cause: Exploitation of zero-day vulnerability
+    Context: The incident was caused by attackers exploiting a zero-day vulnerability in a widely used web application framework, enabling unauthorized access and the deployment of ransomware on affected systems.
+
+    Root Cause: Insufficient email filtering
+    Context: The root cause was insufficient email filtering, allowing phishing emails with malicious attachments to bypass security controls and deliver malware to target devices.
+    """
+
+    user_prompt = f"""
+    ### Task description:
+    Based on the extracted information about the root cause from a blog, please briefly generate a detailed context and summary about the root cause of the incident based on the report content and your knowledge. No hallucination is allowed. Ensure the output is concise and provides sufficient information for a security professional to understand the root cause. No explanations or prefix texts like "Context:" are allowed in the output.
+
+    ### Result:
+    Root Cause: {root_cause}
+    Report Content: {root_cause_info}
+    Context:
+    """
+
+    new_messages = [{"role": "system", "content": sys_prompt}]
+    new_messages.append({"role": "user", "content": user_prompt})
+
+    response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
+    response = response_message.choices[0].message.content
+    return response
+
+"""
 def root_cause_pipeline(actors, token):
     actors_info = ""
+    names = []
+    links = []
 
     for actor in actors:
         articles = get_articles(token.token, actor)
-        # print("="*20 +" Using related articles " + "="*20 + '\n')
-        if articles:
+        if articles and articles["data"]["totalPages"] > 0:
             content = articles["data"]["content"]
+            
+            # Check and add unique links
             for i in range(min(articles['data']['totalPages'], 5)):
                 actors_info += str(content[i]['content'])
+                
+                # Extract link and ensure it is unique
+                name = content[i]['guid']
+                link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+                if link not in links:
+                    links.append(link)
+                    names.append(actor)
         else:
             continue
 
-    print(f"Actor info: {actors_info}")
-    if actors_info:
-        context = augment_threat_actor_context(actors, actors_info)
-        print(context)
-        return context
+    # Call augment_threat_actor_context if actors_info is not empty
+    if names:
+        context = augment_root_cause_context(names, actors_info)
+        return names, links, context
     else:
-        print(None)
-        return ""
+        print("No relevant actors or unique links found.")
+        return names, links, ""
+
+"""
+
+def root_cause_pipeline(actors, token):
+    names = []
+    links = []
+    context = ""  # Use a single string to accumulate contexts
+
+    for actor in actors:
+        print(f"Processing actor: {actor}\n")
+        articles = get_articles(token.token, actor)
+
+        actors_info = ""
+
+        if articles and articles["data"]["totalPages"] > 0:
+            print(f"Found {articles['data']['totalPages']} pages of articles for {actor}.\n")
+            content = articles["data"]["content"]
+
+            # Process each article up to a limit of 5
+            for i in range(min(articles['data']['totalPages'], 5)):
+                # Generate unique link for the article
+                name = content[i]['guid']
+                link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+                if link not in links:
+                    links.append(link)
+                    names.append(actor)
+                    actors_info += str(content[i]['content'])
+
+        else:
+            print(f"No articles found for actor: {actor}\n")
+            continue
+
+        # Generate context for the actor using `augment_root_cause_context`
+        if actors_info.strip():
+            actor_context = augment_root_cause_context(actor, actors_info)
+            context += f"- {actor_context}\n"
+            print(f"Context for {actor} generated.\n")
+        else:
+            print(f"No sufficient information for {actor} to augment context.\n")
+
+        if len(names) == 3:
+            break
+
+    if not names:
+        print("No relevant actors or unique links found.")
+
+    return names, links, context
+
 
 
 def save_results(results, output_file):
@@ -319,15 +410,19 @@ def oneti_eval():
 
 
 if __name__ == '__main__':
-    oneti_eval()
+    # oneti_eval()
     # raw_eval()
-    # client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
-    # scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
-    # token = get_access_token(client_id, scopes)
+    client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
+    scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
+    token = get_access_token(client_id, scopes)
 
     # malware = ['QBot']
-    # res = root_cause_pipeline(malware, token)
+    malware = ['TraderTraitor', 'AppleJeus', 'InletDrift']
+    names, link, res = root_cause_pipeline(malware, token)
     # print(res)
+    print(names)
+    print(link)
+    print(res)
 
 '''    
     directory = 'AgentGenReport'

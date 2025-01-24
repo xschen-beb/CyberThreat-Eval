@@ -343,7 +343,7 @@ def click_into_page_original(url):
     res = re.sub(r"\s+", " ", res)
     return res
 
-
+"""
 def url_open_with_browser(link, headless_flag=False):
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -351,14 +351,45 @@ def url_open_with_browser(link, headless_flag=False):
         )  # or p.firefox.launch() or p.webkit.launch()
         page = browser.new_page()
         try:
+            page.mouse.move(100, 200)
+            page.evaluate("window.scrollBy(0, document.body.scrollHeight)")
             page.goto(link, wait_until="domcontentloaded")
-        except playwright._impl._errors.TimeoutError:
+            page.wait_for_load_state("networkidle")
+        except playwright._impl._errors.TimeoutError as e:
+            print(e)
             browser.close()
             return ""
         html = page.content()
         browser.close()
         return html
 
+"""
+def url_open_with_browser(link, headless_flag=False, retries=3):
+    for attempt in range(retries):
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=headless_flag)
+                page = browser.new_page()
+                page.mouse.move(100, 200)
+                page.evaluate("window.scrollBy(0, document.body.scrollHeight)")
+                try:
+                    page.goto(link, wait_until="domcontentloaded", timeout=60000)
+                except Exception as load_error:
+                    print(f"Error with 'domcontentloaded' on attempt {attempt + 1}: {load_error}")
+                    print("Retrying with 'networkidle' method...")
+                    # Retry using the 'networkidle' method
+                    page.goto(link, wait_until="networkidle", timeout=60000)
+                # page.goto(link, wait_until="domcontentloaded", timeout=60000)
+                # page.wait_for_load_state("networkidle", timeout=60000)
+                html = page.content()
+                browser.close()
+                return html
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            # if attempt == retries - 1:
+                # raise
+    print("All attempts failed, returning empty string.")
+    return ""
 
 def click_into_page_with_browser(url, is_text=True, headless_flag=False):
     res_html = url_open_with_browser(url, headless_flag=headless_flag)
@@ -370,5 +401,31 @@ def click_into_page_with_browser(url, is_text=True, headless_flag=False):
 
 
 if __name__ == "__main__":
-    a = click_into_page_with_browser("https://github.com/DesktopECHO/T95-H616-Malware")
-    bing_search("get nccl version")
+    # a = click_into_page_with_browser("https://github.com/DesktopECHO/T95-H616-Malware")
+    # bing_search("get nccl version")
+    fw = open('output.txt', 'w', encoding='utf-8')
+    url = 'https://www.fortinet.com/blog/threat-research/botnets-continue-to-target-aging-d-link-vulnerabilities#new_tab'
+    url = "https://research.checkpoint.com/2024/hamas-affiliated-threat-actor-expands-to-disruptive-activity"
+    url = "https://www.darkreading.com/endpoint-security/trend-micro-and-intel-innovate-to-weed-out-covert-threats"
+    url = "https://www.bleepingcomputer.com/news/security/ivanti-warns-of-new-connect-secure-flaw-used-in-zero-day-attacks/"
+    url = "https://blog.checkpoint.com/customer-stories/fast-pace-health-zero-phishing-incidents-since-harmony-email-collaboration-implementation"
+    url = "https://research.checkpoint.com/2025/banshee-macos-stealer-that-stole-code-from-macos-xprotect"
+    url = "https://gbhackers.com/ot-products-security-guide/"
+    url = "https://sip.security.microsoft.com/intel-profiles/301eec92-fda9-d2a4-4529-f32cef7e37ff"
+    page = click_into_page_with_browser(url, is_text=True, headless_flag=False)
+    # page = url_open_with_browser(url)
+    # page = click_into_page_with_browser(url)
+    import tiktoken
+    
+    def num_tokens_from_string(string: str, model_name: str) -> int:
+        """Returns the number of tokens in a text string."""
+        encoding = tiktoken.encoding_for_model(model_name)
+        num_tokens = len(encoding.encode(string))
+        return num_tokens
+    length = num_tokens_from_string(page, "gpt-4o")
+    print(length)
+    fw.write("Results from click_into_page_with_browser:" + '\n' + page + '='*50)
+    # html = url_open_with_browser(url)
+    # fw.write("Results from url_open_with_browser:" + '\n' + html + '='*50)
+
+

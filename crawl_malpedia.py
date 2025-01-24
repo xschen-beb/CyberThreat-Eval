@@ -217,7 +217,7 @@ def pipeline(file):
     fo = open('wirte_not_selected_context.txt', 'w')
     fo.write(context)
 
-
+"""
 def malpedia_pipeline(actors):
     actors_info = ""
 
@@ -247,13 +247,13 @@ def malpedia_pipeline(actors):
 
     return context
 
-
+"""
 if __name__ == '__main__':
     # file = os.path.join(os.path.dirname(__file__), '..', '241112_AgentReport', 'hamas-linked-threat-group-expands-espionage-and-destructive-operations.md')
     # threat_actor_info = extract_threat_actor_info(file)
     # print(threat_actor_info)
     # threat_actors = eval(get_actor(threat_actor_info))
     threat_actors = ['UAC-0194']
-    context = malpedia_pipeline(threat_actors)
-    print(context)
+    # context = malpedia_pipeline(threat_actors)
+    # print(context)
     # pipeline(file)
