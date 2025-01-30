@@ -203,7 +203,7 @@ def oneti_pipeline(actors, token):
 
         actors_info = ""
 
-        if profiles["data"]["totalPages"] > 0 and profiles:
+        if profiles and profiles["data"]["totalPages"] > 0 :
             print("=" * 20 + " Using oneti profile " + "=" * 20 + '\n')
             content = profiles["data"]["content"]
             print(profiles["data"]["totalPages"])
@@ -218,7 +218,7 @@ def oneti_pipeline(actors, token):
                 for i in range(min(profiles['data']['totalPages'], 1)):
                     actors_info += str(profiles["data"]["content"][i]['description'])
 
-        elif articles['data']['totalPages'] > 0 and articles:
+        elif articles and articles['data']['totalPages'] > 0:
             print("=" * 20 + " Using related articles " + "=" * 20 + '\n')
             content = articles["data"]["content"]
 

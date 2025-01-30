@@ -7,6 +7,7 @@ import json
 # pat = CASSIE
 # os.environ['ADO_PERSONAL_ACCESS_TOKEN'] = CASSIE
 # pat = os.environ['ADO_PERSONAL_ACCESS_TOKEN']
+pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
 authorization = str(base64.b64encode(bytes(':' + pat, 'ascii')), 'ascii')
 project_name = "Cassandra"
 organization = "threat-intel"

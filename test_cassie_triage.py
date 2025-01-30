@@ -5,13 +5,7 @@ from bs4 import BeautifulSoup
 import json
 from datetime import datetime, timedelta
 
-LLM_OSINT = ""
-CASSIE = ""
-# os.environ['ADO_PERSONAL_ACCESS_TOKEN'] = CASSIE
-# pat = os.environ['ADO_PERSONAL_ACCESS_TOKEN']
-
-### LLM-osint
-"https://dev.azure.com/xuafeng9/LLM-OSINT"
+pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
 
 
 def get_cassie_triage(work_item_id):
@@ -164,11 +158,16 @@ def get_recent_urls():
                 date_published = fields.get('Cassandra.SourceDatePublished')
                 state = fields.get('System.State', '')
                 url = fields.get('Cassandra.SourceUrl')
-
+                asssigned_to = fields.get('System.AssignedTo')
+                print(asssigned_to)
+                # if not asssigned_to:
+                #     continue
+                if not url:
+                    continue
                 # Parse the date and filter based on conditions
                 if date_published and state != 'Rejected':
                     published_date = datetime.strptime(date_published.split("T")[0], "%Y-%m-%d").date()
-                    if two_days_ago <= published_date <= today:
+                    if two_days_ago <= published_date:
                         print(work_item_id)
                         filtered_data.append({
                             "ID": work_item_id,

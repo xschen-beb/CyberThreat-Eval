@@ -1,12 +1,11 @@
 import vt
 import requests
 
-API_KEY = "3ffc901469fd1c77c4cccc82873ccbbb8d5ce0b1de9e4e659e0fe4111b84daf3"
 
 URL = 'https://www.virustotal.com/api/v3/'
-
+VT_API_KEY = os.getenv('VT_API_KEY')
 HEADERS = {
-    'x-apikey': API_KEY
+    'x-apikey': VT_API_KEY
 }
 
 def check_ioc(ioc_value, ioc_type):
