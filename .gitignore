@@ -1,3 +1,5 @@
 __pycache__/*
 .pdm-python
 .env
+mdti_description/__pycache__/*
+recommendations/__pycache__/*
