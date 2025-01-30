@@ -1,5 +1,6 @@
 from threat_research import threat_research_playground
 import os
+import time
 from test_cassie_triage import get_recent_urls
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from add_work_item_comments import add_comment_to_workitem
@@ -84,6 +85,8 @@ links_dict = {
 url = {'12i909': 'https://socradar.io/black-basta-deploying-zbot-darkgate-bespoke-malware'}
 
 def pipeline_ver0(output_dir):
+    start_time = time.time()
+
     links_dict = get_recent_urls()
     # print(links_dict)
     # links_dict = {'2312we3': 'https://www.wiz.io/blog/wiz-research-identifies-exploitation-in-the-wild-of-aviatrix-cve-2024-50603'}
@@ -93,15 +96,18 @@ def pipeline_ver0(output_dir):
         # '323wd': 'https://www.bleepingcomputer.com/news/security/mikrotik-botnet-uses-misconfigured-spf-dns-records-to-spread-malware'
         # '323wd': 'https://www.bleepingcomputer.com/news/security/ivanti-warns-of-new-connect-secure-flaw-used-in-zero-day-attacks'
     # }
-
+    
     output_location = output_dir
     failed_links = []
+    processed_count = 0
     saved_paths = {}  # Dictionary to store {work_id: file_path}
 
     if not os.path.exists(output_location):
         os.makedirs(output_location)
 
     for work_id, link in list(links_dict.items())[:10]:
+        print("Processing link: ", link, " with work_id: ", work_id)
+
         # Normalize the link to remove trailing slashes
         if link.endswith("/"):
             link = link[:-1]
@@ -114,24 +120,31 @@ def pipeline_ver0(output_dir):
             print(f"File already exists for link: {link}. Skipping...")
             saved_paths[work_id] = file_name  # Add existing file to dictionary
             continue
+        
+        processed_count += 1
+        # try:
 
-        try:
-            # Generate content for the link
-            text_output = threat_research_playground(link, work_id)
-            print(f"Output for link {link}: \n{text_output}")
+        # Generate content for the link
+        text_output = threat_research_playground(link, work_id)
+        print(f"Output for link {link}: \n{text_output}")
 
-            # Write the content to the file
-            with open(file_name, "w", encoding="utf-8") as fw:
-                fw.write(text_output)
-                print(f"Successfully wrote to {file_name}")
+        # Enable to add comment to Cassia work item
+        write_res = add_comment_to_workitem(work_id, text_output)
+        print("==>Write response: ", write_res)
 
-            # Add the successfully processed file to the dictionary
-            saved_paths[work_id] = file_name
+        # Write the content to the file
+        with open(file_name, "w", encoding="utf-8") as fw:
+            fw.write(text_output)
+            print(f"Successfully wrote to {file_name}")
 
-        except Exception as e:
-            # Log the failed link and continue with the next one
-            print(f"Error processing {link}: {e}")
-            failed_links.append({"work_id": work_id, "link": link, "error": str(e)})
+        # Add the successfully processed file to the dictionary
+        saved_paths[work_id] = file_name
+
+        # except Exception as e:
+        #     # Log the failed link and continue with the next one
+        #     print(f"Error processing {link}: {e}")]
+        #     break
+        #     failed_links.append({"work_id": work_id, "link": link, "error": str(e)})
 
     # Print all failed links at the end
     if failed_links:
@@ -141,6 +154,10 @@ def pipeline_ver0(output_dir):
 
     # Return the dictionary containing {work_id: file_path}
     print(f"Saved paths: {saved_paths}")
+    end_time = time.time()
+    print(f"Total Time taken: {(end_time - start_time)/processed_count} seconds")
+    print(f"Total processed links: {processed_count}")
+
     return saved_paths
 
 def process_link(work_id, link, output_location):
@@ -202,15 +219,16 @@ def main():
         logging.info("All links processed successfully.")
 
 if __name__ == '__main__':
-    output_dir = "250124"
-    # save_links = pipeline_ver0(output_dir)
-    # item_id = '18456546'
-    # file_id = '250124\\31600.md'
+    output_dir = "ATR_20250130"
+    save_links = pipeline_ver0(output_dir)
 
-    item_id = '18456152'
-    file_id = '250124\\fbi-north-korean-it-workers-steal-source-code-to-extort-employers.md'
-    fo = open(file_id, 'r', encoding='utf-8')
-    markdown = fo.read()
-    print(markdown)
-    response = add_comment_to_workitem(item_id, markdown)
-    print(response)
+
+    # item_id = '18456546'
+    # file_id = '250124\\31600.md' 
+    # item_id = '18456152'
+    # file_id = '250124\\fbi-north-korean-it-workers-steal-source-code-to-extort-employers.md'
+    # fo = open(file_id, 'r', encoding='utf-8')
+    # markdown = fo.read()
+    # print(markdown)
+    # response = add_comment_to_workitem(item_id, markdown)
+    # print(response)

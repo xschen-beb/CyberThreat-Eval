@@ -45,14 +45,15 @@ from search_engine import (
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-LOCAL_ENDPOINT = ""
-PROXY_KEY = ""
-CASSIE = ""
+# LOCAL_ENDPOINT = ""
+# PROXY_KEY = ""
+# CASSIE = ""
+pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
 
-API_KEY = ""
+VT_API_KEY = os.getenv("VT_API_KEY")
 URL = 'https://www.virustotal.com/api/v3/'
 HEADERS = {
-    'x-apikey': API_KEY
+    'x-apikey': VT_API_KEY
 }
 
 # ANSI escape codes
@@ -73,8 +74,11 @@ _LOG_ENABLED = True
 _SEARCH_ENGINE = "google"
 _HEADLESS_FLAG = False
 
-os.environ["LOCAL_ENDPOINT"] = LOCAL_ENDPOINT
-os.environ["PROXY_KEY"] = PROXY_KEY
+total_llm_call = 0
+total_tokens = 0
+
+# os.environ["LOCAL_ENDPOINT"] = LOCAL_ENDPOINT
+# os.environ["PROXY_KEY"] = PROXY_KEY
 # os.environ['ADO_PERSONAL_ACCESS_TOKEN'] = CASSIE
 # pat = os.environ['ADO_PERSONAL_ACCESS_TOKEN']
 
@@ -108,6 +112,13 @@ def debug_print(*args, **kwargs):
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
+    global total_llm_call
+    global total_tokens
+    total_llm_call += 1
+    total_tokens += num_tokens_from_string(str(messages), model)
+    debug_print(RED + "==> Total LLM Calls: " + RESET, total_llm_call)
+    debug_print(RED + "==> Total Tokens: " + RESET, total_tokens)
+
     if model == 'gpt-4-32k':
         return client.chat.completions.create(
             # model="gpt-4-32k",
@@ -226,7 +237,7 @@ def find_related_ones(blog, enable_query=True):
         blog["blog"] = blog["blog"][:80000]
     misconf_qeustion = f"Here is the blog: {blog['blog']}."
     debug_print(RED + "==> Orginal html: " + RESET)
-    debug_print(blog["blog"])
+    debug_print(blog["blog"][0:2000])
     
     messages.append({"role": "user", "content": misconf_qeustion})
     response_message = api_call(messages, [])
@@ -310,6 +321,7 @@ def find_related_ones(blog, enable_query=True):
         if _SEARCH_ENGINE == "google":
             # google_search_results = google_web_search(query + ' "details"')
             google_search_results = google_web_search(query)
+            debug_print(RED + "Google Search Results: " + RESET, google_search_results)
         # google_search_results = google_web_search(query + ' "What we know about"')
 
         results_filtering_prompt = f"""
@@ -371,7 +383,7 @@ def find_related_ones(blog, enable_query=True):
 def num_tokens_from_string(string: str, model_name: str) -> int:
     """Returns the number of tokens in a text string."""
     encoding = tiktoken.encoding_for_model(model_name)
-    num_tokens = len(encoding.encode(string))
+    num_tokens = len(encoding.encode(string, disallowed_special=()))
     return num_tokens
 
 def parse_original_text_to_json(text):
@@ -1676,7 +1688,7 @@ def threat_research_playground(url, work_item_id):
                             # text_output += f"- Based on recommendation table, the source recommends:\n"
                             text_output += f"- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
                             for rec in mitigation:
-                                text_output += f"- [{rec["ttp_id"]}] {rec['title']}: {rec['reason']}\n"
+                                text_output += f"- [{rec['ttp_id']}] {rec['title']}: {rec['reason']}\n"
                             has_mitigation = True
                         # else:
                     if not has_mitigation and value:
@@ -1846,7 +1858,7 @@ def threat_research_playground(url, work_item_id):
 
             return text_output
         except AttributeError as e:
-            print("Error in processing the blog.")
+            print(RED + "==> Error in processing the blog." + RESET) 
             print(e)
             continue
 
