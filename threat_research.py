@@ -110,7 +110,7 @@ def debug_print(*args, **kwargs):
         pass
 
 
-@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+@retry(wait=wait_random_exponential(min=1, max=120), stop=stop_after_attempt(10))
 def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
     global total_llm_call
     global total_tokens
@@ -1181,7 +1181,7 @@ def mdti_recommendation_pipeline(actors, token):
         profiles = get_profiles(token.token, actor)
         articles = get_articles(token.token, actor)
         
-        if profiles["data"]["totalPages"] > 0:
+        if profiles and profiles["data"]["totalPages"] > 0:
             names.append(actor)
             print("="*20 +" Using oneti profile " + "="*20 + '\n')
             for i in range(min(profiles['data']['totalPages'], 5)):
@@ -1594,7 +1594,14 @@ def threat_research_playground(url, work_item_id):
 
                 elif key == 'Root cause':
                     text_output += f"#### {key} \n {value} \n\n"
-                    actors = eval(get_root_cause_with_llm(value))
+                    try:
+                        actors = eval(get_root_cause_with_llm(value))
+                    except TypeError:
+                        try:
+                            actors = eval(get_root_cause_with_llm(value))
+                        except TypeError:
+                            actors = ['None']
+
                     actor_name, links, context = root_cause_pipeline(actors, token)
                     # prof_links = "\n".join(f"- {link}" for link in set(links))
                     valid_links = []
@@ -1856,6 +1863,8 @@ def threat_research_playground(url, work_item_id):
 
             text_output += "\n" + paste_ioc_section + "\n"
 
+            print("Total LLM calls: ", total_llm_call)
+            print("Total LLM time: ", total_tokens)
             return text_output
         except AttributeError as e:
             print(RED + "==> Error in processing the blog." + RESET) 

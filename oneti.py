@@ -1,11 +1,12 @@
-from azure.identity import InteractiveBrowserCredential
+from azure.identity import InteractiveBrowserCredential, TokenCachePersistenceOptions
 import requests
 from crawl_malpedia import *
 
 def get_access_token(client_id, scopes):
     """Get access token using InteractiveBrowserCredential"""
     options = {"client_id": client_id}
-    browser_cred = InteractiveBrowserCredential(**options)
+    # browser_cred = InteractiveBrowserCredential(**options)
+    browser_cred = InteractiveBrowserCredential(**options, cache_persistence_options=TokenCachePersistenceOptions(allow_unencrypted_storage=True))
     token = browser_cred.get_token(*scopes)
     return token
 

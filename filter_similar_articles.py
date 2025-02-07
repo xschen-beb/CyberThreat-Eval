@@ -4,7 +4,9 @@ import re
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 import os
 from openai import AzureOpenAI
+import openai
 from tenacity import retry, stop_after_attempt, wait_random_exponential
+import tenacity
 import json
 from bs4 import BeautifulSoup
 from deprecated import deprecated
@@ -197,9 +199,15 @@ def check_circular_reporting_with_llm(reference_blog, blog):
 
     new_messages = [{"role": "system", "content": sys_prompt}]
     new_messages.append({"role": "user", "content": user_prompt})
-
-    response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
-    response = response_message.choices[0].message.content
+    try:
+        response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
+        response = response_message.choices[0].message.content
+    except openai.BadRequestError:
+        print("Error: Bad Request - The response was filtered due to the prompt triggering Azure OpenAI's content management policy")
+        response = "No response from the model" 
+    except tenacity.RetryError:
+        print("Error: RetryError - The model failed to respond within the time limit")
+        response = "No response from the model"   
     return response
 
 @deprecated(reason="Use the new extract_urls_from_text function")

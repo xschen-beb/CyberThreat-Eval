@@ -159,7 +159,6 @@ def get_recent_urls():
                 state = fields.get('System.State', '')
                 url = fields.get('Cassandra.SourceUrl')
                 asssigned_to = fields.get('System.AssignedTo')
-                print(asssigned_to)
                 # if not asssigned_to:
                 #     continue
                 if not url:
@@ -174,15 +173,17 @@ def get_recent_urls():
                             "Title": fields.get('System.Title', 'No Title'),
                             "State": state,
                             "URL": url,
-                            "PublishedDate": date_published
+                            "PublishedDate": date_published,
+                            "AssignedTo": asssigned_to
                         })
                         data_dict.update({str(work_item_id): url})
 
         # Save filtered data to a file
-        with open('filtered_data.json', 'w', encoding='utf-8') as f:
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        with open(f'scheduled_logs/filtered_data_{current_time}.json', 'w', encoding='utf-8') as f:
             json.dump(filtered_data, f, indent=4, ensure_ascii=False)
 
-        print("Filtered data saved to 'filtered_data.json'")
+        print("Filtered data saved to 'scheduled_logs/filtered_data.json'")
         return data_dict
     else:
         print(f"Error: {response.status_code} - {response.text}")

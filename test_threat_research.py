@@ -1,6 +1,7 @@
 from threat_research import threat_research_playground
 import os
 import time
+from datetime import datetime, timedelta
 from test_cassie_triage import get_recent_urls
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from add_work_item_comments import add_comment_to_workitem
@@ -121,12 +122,18 @@ def pipeline_ver0(output_dir):
             saved_paths[work_id] = file_name  # Add existing file to dictionary
             continue
         
-        processed_count += 1
+        
         # try:
 
         # Generate content for the link
         text_output = threat_research_playground(link, work_id)
+        processed_count += 1
         print(f"Output for link {link}: \n{text_output}")
+
+        if not text_output:
+            print(f"Empty content for link: {link}. Skipping...")
+            failed_links.append({"work_id": work_id, "link": link, "error": "Empty content"})
+            continue
 
         # Enable to add comment to Cassia work item
         write_res = add_comment_to_workitem(work_id, text_output)
@@ -155,7 +162,8 @@ def pipeline_ver0(output_dir):
     # Return the dictionary containing {work_id: file_path}
     print(f"Saved paths: {saved_paths}")
     end_time = time.time()
-    print(f"Total Time taken: {(end_time - start_time)/processed_count} seconds")
+    if processed_count != 0:    
+        print(f"Total Time taken: {(end_time - start_time)/processed_count} seconds")
     print(f"Total processed links: {processed_count}")
 
     return saved_paths
@@ -220,7 +228,11 @@ def main():
 
 if __name__ == '__main__':
     output_dir = "ATR_20250130"
-    save_links = pipeline_ver0(output_dir)
+    while True:
+        print("==> Start Query Cassie and Processing...", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        save_links = pipeline_ver0(output_dir)
+        print("==> Finish Query Cassie and Processing...", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        time.sleep(3600)
 
 
     # item_id = '18456546'
