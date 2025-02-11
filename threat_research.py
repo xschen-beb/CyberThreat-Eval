@@ -755,7 +755,7 @@ def threat_research_core(url):
         You should provide a signature in the following format:    
         Incident: A brief and specific name of the incident (e.g., Shanghai Police Datalake Leak). 
         
-        Root cause: The summarized detailed context of the root cause behind the incident including vulnerable/misconfigured services (e.g., Misconfigured Kibana instance). Focus on the most critical vulnerabilities or misconfigurations that led to the incident. Group similar issues and avoiding just listing all vulnerabilities. If no blog provides the info, output "Not specified". If there are hints or general observations in the article, use them to supplement your answer.
+        Root cause: The summarized detailed context of the root cause behind the incident including vulnerable/misconfigured services, exploitations, and malware name (e.g., Misconfigured Kibana instance, SmokeLoader). Focus on the most critical vulnerabilities/misconfigurations/malware that led to the incident. Group similar issues and avoiding just listing all vulnerabilities. If no blog provides the info, output "Not specified". If there are hints or general observations in the article, use them to supplement your answer.
         
         Threat actor/group/campaign: The detailed context of Who carried out the attack? It could be an orgainzation, a malware family, etc (if known). If no actors are identified in the blog, output "Not specified". If the article provides partial information, include it, and summarize the answer. 
         
@@ -952,18 +952,19 @@ def check_ioc(ioc_value, ioc_type):
 def llm_judgment_for_ioc_in_blog(ioc_value, original_text): 
     sys_prompt = f"""
     ### Role Description
-    You are an expert in cybersecurity. Given the original text below, determine whether the IoC '{ioc_value}' appears in full form in the text, without any modifications or obfuscations. The IoC might be written with markers or characters like '[.]', 'hXXp', 'hXXps', etc., which are commonly used to obfuscate the actual value. No hallucination is allowed.
+    You are an expert in cybersecurity. Given the original text below, determine whether the item '{ioc_value}' appears in full form in the text, without any modifications or obfuscations. The IoC might be written with markers or characters like '[.]', 'hXXp', 'hXXps', etc., which are commonly used to obfuscate the actual value. No hallucination is allowed.
 
     ### Task description
     1. Search for any occurrence of '{ioc_value}' in the original text.
-    2. If you find the IoC, check if it is surrounded by any obfuscations (such as '[.]', 'hXXp', etc.).
+    2. If you find the item, check if it is surrounded by any obfuscations (such as '[.]', 'hXXp', etc.).
     3. If there are obfuscations, remove them to restore the original IoC.
-    4. If the restored IoC matches the original IoC '{ioc_value}' in the text, return True. Otherwise, return False.
-    5. If the IoC does not appear at all or cannot be fully restored, return False.
+    4. If the restored item matches the original IoC '{ioc_value}' in the text, return True. Otherwise, return False.
+    5. If the item does not appear at all or cannot be fully restored, return False.
+    6. If the item is not an IoC (for example, malicious IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc), return False. For example, if the item is commit ID, rendom hashs, etc., return False.
     6. Answer with either 'True' or 'False' directly without any prefixes or explanations.
 
     ### Example
-    IoC_value given: 147.45.44.83
+    Item given: 147.45.44.83
     original text: 
     Indicators of Compromise
     260f06f0c6c1544afcdd9a380a114489ebdd041b846b68703158e207b7c983d6
@@ -981,7 +982,7 @@ def llm_judgment_for_ioc_in_blog(ioc_value, original_text):
     ### Task description
     Given ioc values, parse the original text below according to the task description above.
 
-    IoC_value given: {ioc_value}
+    Item given: {ioc_value}
     original text:
     {original_text}
     """
@@ -1222,16 +1223,17 @@ def gen_dict_recommendation_from_report(report):
 
     Your goal:
     1. Analyze the provided threat report.
-    2. Determine which single recommendation from the list directly applies to the threat.
+    2. Determine a single recommendation category from the category list directly applies to the threat.
     3. If a relevant recommendation is found, output exactly that recommendation.
     4. If no recommendation matches, output "None".
 
     Instructions:
-    - Base your decision solely on the content of the threat report and the provided list.
+    - Base your decision solely on the content of the threat report and the provided category list.
     - Output exactly one recommendation from the list that is most relevant, or "None" if there is no match.
     - Do not include additional commentary or return multiple items.
+    - 'Recommendations to protect against CVE-2024-3400' is only for CVE-2024-3400 - command injection vulnerability. It does not apply to other CVEs.
 
-    The list of mitigation recommendations:
+    The category list of mitigation recommendations:
     ['Recommendations to protect against RaaS', 'Recommendations to identify and mitigate cryptojacking attacks', 'Recommendations to protect against Information Stealers', 'Recommendations to protect against Malvertising', 'Recommendations to protect against phishing attacks', 'Recommendations to protect against Mobile Malware', 'Recommendations to protect against CVE-2024-3400 - command injection vulnerability', 'Tips for preventing keylogging', 'Guidance for CobaltStrike', 'Guidance for Botnets', 'Mitigate zero-day vulnerabilities', 'Mitigating data security incidents', 'Recommendations to protect IoT specific devices', 'Recommendations for supply-chain attacks', 'Social Engineering']
     """
 
@@ -1502,6 +1504,37 @@ def get_cassie_triage(work_item_id):
         print(response.text)
 
 
+def get_cassie_ttp(work_item_id):
+    """
+    Extracts Cassandra.FileIndicatorSummary from an Azure DevOps work item,
+    formats it as Markdown, and saves it to a file.
+
+    :param work_item_id: The ID of the Azure DevOps work item.
+    :param output_file: The path to the Markdown file to save the output.
+    """
+    # Set up the Azure DevOps Personal Access Token (PAT)
+    # Azure DevOps API URL
+    authorization = str(base64.b64encode(bytes(':' + pat, 'ascii')), 'ascii')
+
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': 'Basic ' + authorization
+    }
+    project_url = f'https://dev.azure.com/threat-intel/Cassandra/_apis/wit/workitems/{work_item_id}?api-version=7.1'
+
+    # Make the request
+    response = requests.get(url=project_url, headers=headers)
+
+    # Parse the JSON response
+    try:
+        data = response.json()
+        print(data)
+
+    except json.JSONDecodeError:
+        print("Failed to parse JSON. Response text:")
+        print(response.text)
+
+
 def threat_research_playground(url, work_item_id):
     for _ in range(2):
         try:
@@ -1642,6 +1675,7 @@ def threat_research_playground(url, work_item_id):
                 elif key == 'Mitigation Steps':
                     text_output += f"#### {key} \n"
                     actors = get_actor(value)
+                    print("==> Extracted threat actors from the report: ", actors)
                     has_mitigation = False
 
                     if actors and 'None' not in actors:
@@ -1679,6 +1713,7 @@ def threat_research_playground(url, work_item_id):
                     if not has_mitigation:
                         # rec_dict_mitigation = process_rec_dict_ttps(ttps)
                         rec_dict_mitigation = gen_dict_recommendation_from_report(text_output)
+                        print("==> Extracted mitigation category from the report: ", rec_dict_mitigation)
                         if rec_dict_mitigation:
                             text_output += f"- Based on OSINT recommendation dictionary ({rec_dict_mitigation}), the recommendations are:\n\n"
                             tech = pd.read_csv('recommendations/RecDict.csv')

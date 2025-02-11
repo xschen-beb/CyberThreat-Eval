@@ -77,7 +77,7 @@ def get_actor(threat_actor):
     # threat_actor = extract_threat_actor_info(file)
     sys_prompt = f"""
     ### Task description:
-    You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat actors (if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no content is provided, output is None.
+    You are an expert in cybersecurity. I will provide you with a threat intelligence report. Please extract the relevant and potential threat actors (if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no content is provided, output is None.
 
     ### Example:
     Report Content: BrazenBamboo, a Chinese state-affiliated threat actor, developer of DEEPDATA, DEEPPOST, and LIGHTSPY malware families. *BrazenBamboo's cross-platform reach extends to Windows, macOS, and iOS* (https://cyberinsider.com/chinese-hackers-exploit-fortinet-zero-day-to-steal-vpn-credentials/). *APT41 and Space Pirates, suspected to be involved* (https://thehackernews.com/2024/11/warning-deepdata-malware-exploiting.html). *Volexity�s analysis reveals that BrazenBamboo maintains a sophisticated infrastructure for command and control (C2) operations* (https://cybersecuritynews.com/brazenbamboo-apt-forticlient-zero-day/). *DEEPDATA malware uses a modular architecture with 12 unique plugins* (https://securityonline.info/zero-day-vulnerability-in-forticlient-exploited-by-brazenbamboo-apt/). 
@@ -92,7 +92,7 @@ def get_actor(threat_actor):
 
     user_prompt = f"""
     ### Task description:
-    I will provide you with an IoC report. Please extract the relevant and potential threat actors(if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each item of the list, it should be a phrase or a single word without any prefixes.
+    I will provide you with a threat intelligence report. Please extract the relevant and potential threat actors(if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each item of the list, it should be a phrase or a single word without any prefixes.
 
     ### Result:
     Report Content: {threat_actor}
