@@ -960,7 +960,6 @@ def llm_judgment_for_ioc_in_blog(ioc_value, original_text):
     3. If there are obfuscations, remove them to restore the original IoC.
     4. If the restored item matches the original IoC '{ioc_value}' in the text, return True. Otherwise, return False.
     5. If the item does not appear at all or cannot be fully restored, return False.
-    6. If the item is not an IoC (for example, malicious IP, domain, email, sha1, sha256, hash1, hash256, hash_md5, url, etc), return False. For example, if the item is commit ID, rendom hashs, etc., return False.
     6. Answer with either 'True' or 'False' directly without any prefixes or explanations.
 
     ### Example
@@ -998,6 +997,128 @@ def llm_judgment_for_ioc_in_blog(ioc_value, original_text):
         response = api_call(messages, [], json_enabled=False)
         original = response.choices[0].message.content
         return original
+    except Exception as e:
+        return False
+
+
+def check_ioc_llms_for_non_vt(ioc_value, original_text):
+    sys_prompt = f"""
+    ### Role Description
+    You are a cybersecurity expert. Your task is to determine whether the given item is a valid Indicator of Compromise (IoC) and appears in the provided original text.
+
+    ### Definitions
+    - **Indicators of Compromise (IoCs):** Artifacts indicating potential malicious activity, including:
+        - **IP Addresses:** Malicious or suspicious IPs involved in attacks.
+        - **Domain Names:** Malicious or suspicious domains used in phishing or command-and-control servers.
+        - **URLs:** Malicious or suspicious web addresses linked to malware distribution or phishing.
+        - **Email Addresses:** Addresses used to send phishing emails or spam.
+        - **File Hashes:** Cryptographic hashes (e.g., MD5, SHA1, SHA256) of malicious files.
+
+    - **Non-IoCs:** Items not typically used as indicators of malicious activity, such as:
+        - **Commit IDs:** Identifiers for specific commits in version control systems like Git (e.g., '96ad4e759ff4aaa24eb185500c0c28466ae5452a').
+        - **GUIDs:** Globally Unique Identifiers used in software applications.
+        - **Random Hash Strings:** Hashes not associated with malicious files or activities.
+
+    ### Task Description
+    Follow these steps strictly:
+    1. **Determine if the item is an IoC:**
+        - IoCs include IP addresses, domains, URLs, email addresses, and file hashes associated with malicious activity.
+        - Non-IoCs include commit IDs, random hash strings unrelated to malware, and benign GUIDs.
+    2. **Check for its presence in the original text:**
+        - Look for exact matches or minor obfuscations (e.g., '[.]', 'hXXp', 'hXXps', extra spaces, or special characters).
+    3. **If the item is both an IoC and present in the text:**
+        - Return 'True'.
+    4. **If the item is not an IoC, or if it cannot be found in the text, return 'False'.
+    5. **Your output must be strictly 'True' or 'False' without any explanation or extra text.**
+
+    ### Example
+    **Item given:** 'eef3d33656ce2f2dcde74e2abb19c0d50de198e2'
+
+    **Original Text:**
+    '96ad4e759ff4aaa24eb185500c0c28466ae5452a - kernel/common - Git at Google
+    Sign in
+    android
+    /
+    kernel
+    /
+    common
+    /
+    96ad4e759ff4aaa24eb185500c0c28466ae5452a
+    commit
+    96ad4e759ff4aaa24eb185500c0c28466ae5452a
+    [
+    log
+    ]
+    [
+    tgz
+    ]
+    author
+    Benoit Sevens <bsevens@google.com>
+    Thu Nov 07 14:22:02 2024 +0000
+    committer
+    Greg Kroah-Hartman <gregkh@google.com>
+    Mon Nov 11 13:34:33 2024 +0000
+    tree
+    fee579589ac919ee6145ffd56f4ea022cfd77afe
+    parent
+    eef3d33656ce2f2dcde74e2abb19c0d50de198e2
+    [
+    diff
+    ]
+    UPSTREAM: USB: media: uvcvideo: Skip parsing frames of type UVC_VS_UNDEFINED in uvc_parse_format
+
+    This can lead to out of bounds writes since frames of this type were not
+    taken into account when calculating the size of the frames buffer in
+    uvc_parse_streaming.
+
+    Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+    Signed-off-by: Benoit Sevens <bsevens@google.com>
+    Cc: stable@vger.kernel.org
+    Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+    Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Bug: 378455392
+    (cherry picked from commit ecf2b43018da9579842c774b7f35dbe11b5c38dd)
+    Signed-off-by: Greg Kroah-Hartman <gregkh@google.com>
+    Change-Id:
+    I959a6374ba7adf021fc19da755f5c7611fef9b8c
+    drivers/media/usb/uvc/uvc_driver.c
+    [
+    diff
+    ]
+    1 file changed
+    tree: fee579589ac919ee6145ffd56f4ea022cfd77afe
+    android/
+    arch/
+    ....'
+
+    **Result:** 'False'
+    """
+
+    user_prompt = f"""
+    ### Task Description
+    Given the item '{ioc_value}', determine if it meets the IoC criteria and check for its presence in the following text.
+
+    **Item given:** '{ioc_value}'
+
+    **Original Text:**
+    '{original_text}'
+
+    **Result:**
+    """
+
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+    try:
+        response = api_call(messages, [], json_enabled=False)
+        result = response.choices[0].message.content.strip()
+        debug_print(RED + "===> The IoC is: " + RESET, ioc_value)
+        debug_print(RED + "===> The LLM check result is: " + RESET, result)
+        return result  # Ensure only 'True' or 'False' is returned
     except Exception as e:
         return False
 
@@ -1328,6 +1449,44 @@ def is_valid_ioc(ioc_value, ioc_type):
     else:
         return False
     
+def load_ttp_mapping(csv_file='TTP_Mapping.csv'):
+    ttp_mapping = {}
+    with open(csv_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            if ',' in line:
+                fields = line.strip().split(',')
+                if len(fields) >= 3:
+                    ttp_id = fields[1]
+                    ttp_name = fields[2]
+                    ttp_mapping[ttp_id] = ttp_name
+    return ttp_mapping
+
+def validate_ttps(ttp_dict_str):
+    ttp_mapping = load_ttp_mapping()
+    if isinstance(ttp_dict_str, str):
+        ttp_data = json.loads(ttp_dict_str)
+    else:
+        ttp_data = ttp_dict_str
+    validated_ttps = {}
+    
+    if isinstance(ttp_data, list):
+        ttp_dict = ttp_data[0] if ttp_data else {}
+    else:
+        ttp_dict = ttp_data
+    
+    for ttp_id, details in ttp_dict.items():
+        description = details.split(',')[0].strip()
+        if ttp_id in ttp_mapping:
+            if description.lower() == ttp_mapping[ttp_id].lower():
+                validated_ttps[ttp_id] = details
+            else:
+                print(f"Warning: Description mismatch for {ttp_id}")
+                print(f"Expected: {ttp_mapping[ttp_id]}")
+                print(f"Found: {description}")
+        else:
+            print(f"Warning: TTP ID {ttp_id} not found in mapping")
+    
+    return validated_ttps
 
 def process_mitre_ttps_format(key, value):
     """
@@ -1665,7 +1824,14 @@ def threat_research_playground(url, work_item_id):
                         
 
                 elif key == 'MITRE TTPs':
-                    ttp_text = process_mitre_ttps_format(key, value)
+                    validated_ttps = validate_ttps(value)
+    
+                    print("\nValidated TTPs:")
+                    print(validated_ttps)
+                    print(type(validated_ttps))
+
+                    ttp_text = process_mitre_ttps_format(key, validated_ttps)
+                    # ttp_text = process_mitre_ttps_format(key, value)
                     text_output += ttp_text
                     print(f"After TTPs, \n\n {text_output}\n\n")
 
@@ -1882,9 +2048,13 @@ def threat_research_playground(url, work_item_id):
                     elif is_malicious is None and in_article and is_valid_ioc(ioc_value, ioc_type):
                         if ioc_type.lower() == 'email' and filter_email(ioc_value, unique_urls, white_list):
                             continue
-                        text_output += f"- {ioc_type}: {ioc_value}  Publish date: {pub_date} [In [this link]({ioc_source}), not included in VT database]\n"
-                        paste_ioc_section += f"{ioc_value}\n\n"
-                        print(f"The {ioc_type} {ioc_value} is not in VT database but in article link.")
+                        if "True" in check_ioc_llms_for_non_vt(ioc_value, blogs_for_target_source):
+                            text_output += f"- {ioc_type}: {ioc_value}  Publish date: {pub_date} [In [this link]({ioc_source}), not included in VT database]\n"
+                            paste_ioc_section += f"{ioc_value}\n\n"
+                            print(f"[Valid checked by LLM] The {ioc_type} {ioc_value} is not in VT database but in article link.")
+                        else:
+                            print(f"[Invalid checked by LLM] The {ioc_type} {ioc_value} is not in VT database but in article link.")
+                            continue
                     
                     else:
                         print(f"{ioc_type} {ioc_value} is not found in neither article link nor VT.")
