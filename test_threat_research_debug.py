@@ -253,7 +253,7 @@ if __name__ == '__main__':
         # ("https://www.bleepingcomputer.com/news/security/cisa-orders-agencies-to-patch-linux-kernel-bug-exploited-in-attacks/", "18472287"),
         ("https://gbhackers.com/hackers-exploiting-simplehelp-vulnerabilities/", "18474995"),
         ("https://www.bleepingcomputer.com/news/security/hackers-exploit-cityworks-rce-bug-to-breach-microsoft-iis-servers/", "18475059"),
-        # ("https://gbhackers.com/asyncrat-abusing-python-and-trycloudflare/", "18470602"),
+        ("https://gbhackers.com/asyncrat-abusing-python-and-trycloudflare/", "18470602"),
         # ("https://www.bleepingcomputer.com/news/security/hackers-spoof-microsoft-adfs-login-pages-to-steal-credentials/", "18472278"),
         # ("https://www.bleepingcomputer.com/news/security/hackers-exploit-cityworks-rce-bug-to-breach-microsoft-iis-servers/", "18475059")
     ]

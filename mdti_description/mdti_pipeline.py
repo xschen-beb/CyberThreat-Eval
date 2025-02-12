@@ -118,7 +118,7 @@ def get_actor_v1(threat_actor):
     ['Earth Estries', 'Salt Typhoon']
 
     Report Content: Cybercriminals are actively exploiting vulnerabilities in SimpleHelp Remote Monitoring and Management (RMM) software to infiltrate networks, create unauthorized administrator accounts, and deploy malware, including the Sliver backdoor. These accounts facilitated the installation of malicious payloads like the Sliver post-exploitation framework. Sliver, an open-source tool originally designed for penetration testing, has been repurposed by threat actors for command-and-control (C2) operations.
-    ['Sliver backdoor'， 'Remote Monitoring and Management']
+    ['Sliver', 'RMM', 'Remote Monitoring and Management']
 
     Report Content: BrazenBamboo, a Chinese state-affiliated threat actor, developer of DEEPDATA, DEEPPOST, and LIGHTSPY malware families. *BrazenBamboo's cross-platform reach extends to Windows, macOS, and iOS* (https://cyberinsider.com/chinese-hackers-exploit-fortinet-zero-day-to-steal-vpn-credentials/). *APT41 and Space Pirates, suspected to be involved* (https://thehackernews.com/2024/11/warning-deepdata-malware-exploiting.html). *Volexity�s analysis reveals that BrazenBamboo maintains a sophisticated infrastructure for command and control (C2) operations* (https://cybersecuritynews.com/brazenbamboo-apt-forticlient-zero-day/). *DEEPDATA malware uses a modular architecture with 12 unique plugins* (https://securityonline.info/zero-day-vulnerability-in-forticlient-exploited-by-brazenbamboo-apt/). 
     ['BrazenBamboo']

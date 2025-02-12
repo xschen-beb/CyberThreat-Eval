@@ -16,7 +16,7 @@ from rich.align import Align
 import playwright
 from urllib.parse import urlparse
 from datetime import datetime
-# from run_new_prompts import sys_prompt, user_prompt
+from run_new_prompts import sys_prompt
 from mdti_description.crawl_oneti import get_access_token
 from mdti_description.mdti_pipeline import pipeline, get_actor, get_actor_v1
 from mdti_description.mdti_pipeline import get_articles, get_profiles
@@ -1305,37 +1305,59 @@ def mdti_recommendation_pipeline(actors, token):
         articles = get_articles(token.token, actor)
         # print("==> Extracted profiles/articles from OneTI: ", profiles, articles)
         if profiles and profiles["data"]["totalPages"] > 0:
-            names.append(actor)
+            # names.append(actor)
             print("="*20 +" Using oneti profile " + "="*20 + '\n')
             for i in range(min(profiles['data']['totalPages'], 2)):
                 print("Text: ", profiles["data"]["content"][i]['description'])
                 print("Name: ", profiles['data']['content'][0]['name'])
                 text = profiles["data"]["content"][i]['description']
-                name = profiles['data']['content'][0]['name']
+                name = profiles['data']['content'][i]['name']
                 link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
-                links.append(link)
+                
                 rec_text = find_recommendation_section(text)
                 # intro = f"Recommendation from link: {link} \n"
                 intro = f"\n"
                 if rec_text:
+                    names.append(actor)
+                    links.append(link)
                     recommendations.append(rec_text)
                     # recommendations += intro + rec_text + "\n\n"
+                    break
 
         else:
-            continue
+            # continue
             print("="*20 +" Using related articles " + "="*20 + '\n')
-            if articles["data"]["totalPages"] == 0:
-                continue
-            for i in range(min(articles['data']['totalPages'], 5)):
-                text = str(articles["data"]["content"][i]['content'])
-                rec_text = find_recommendation_section(text)
-                if rec_text:
-                    recommendations += rec_text + "\n\n"
+            print(articles)
+            print("="*100)
+            if articles and articles["data"]["totalPages"] > 0:
+                # names.append(actor)
+                print("="*20 +" Using oneti article " + "="*20 + '\n')
+                for i in range(articles['data']['totalPages']):
+                # for i in :
+                    # print("="*100 + "article 0" + "="*100)
+                    # print(articles["data"]["content"][0]['content'])
+                    text = str(articles["data"]["content"][i]['content'])
+                    name = articles['data']['content'][i]['shortGuid']
+                    link = f"https://sip.security.microsoft.com/intel-explorer/articles/{name}"
+                    
+                    print("="*100)
+                    print("Text: \n", text)
+                    print("="*100)
+
+                    rec_text = find_recommendation_section(text)
+                    # intro = f"Recommendation from link: {link} \n"
+                    intro = f"\n"
+                    if rec_text:
+                        names.append(actor)
+                        links.append(link)
+                        recommendations.append(rec_text)
+                        break
     
     if recommendations:
         return names, links, recommendations
     else:
-        return names, links, "No recommendations found."
+        # return names, links, "No recommendations found."
+        return names, links, []
 
 
 def gen_dict_recommendation_from_report(report):
@@ -1764,7 +1786,7 @@ def threat_research_playground(url, work_item_id):
                                 print(f"Error processing {link}: {e}")
                         
                         # Remove duplicates and format as a list
-                        prof_links = "\n".join(f"- {link}" for link in set(valid_links))    
+                        prof_links = "\n".join(f"- {link}" for link in set(links))    
 
                         if context:
                             context = context.replace('\n\n', '\n')
@@ -1814,7 +1836,7 @@ def threat_research_playground(url, work_item_id):
                             print(f"Error processing {link}: {e}")
                     
                     # Remove duplicates and format as a list
-                    prof_links = "\n".join(f"- {link}" for link in set(valid_links))
+                    prof_links = "\n".join(f"- {link}" for link in set(links))
                     cause = ", ".join(f"{name}" for name in set(actor_name[:3]))
                     if context:
                         context = context.replace('\n\n', '\n')
@@ -1867,24 +1889,26 @@ def threat_research_playground(url, work_item_id):
                                 print(f"Error processing {link}: {e}")
                         
                         # Remove duplicates and format as a list
-                        prof_links = "\n".join(f"- {link}" for link in set(valid_links))
+                        prof_links = "\n".join(f"- {link}" for link in set(links))
+                        print(f"==> Extracted links from MDTI: \n{prof_links}")
 
                         mitigation_name =  ", ".join(f"{name}" for name in set(actor_name[:3]))
                         cleaned_recommendation = []
-                        if mdti_recommendation != "No recommendations found.":
+                        # if mdti_recommendation != "No recommendations found.":
+                        if mdti_recommendation != None:
                             for item in mdti_recommendation:
                                 cleaned_recommendation.append(re.sub(r'\n\s*\n', '\n', item))
                             
-                            if prof_links:
+                            if links:
                                 num = 0
-                                for prof_link in prof_links:
-                                    text_output += f"- Based on MDTI profile for ({mitigation_name[num]}) from the following links: \n\n{prof_links[num]}\n\n The recommendations are:\n\n"
+                                for prof_link in links:
+                                    text_output += f"- Based on MDTI profile for ({names[num]}) from the following links: \n\n{links[num]}\n\n The recommendations are:\n\n"
                                     text_output += f"{cleaned_recommendation[num]}\n"
                                     num += 1
                             else:
                                 num = 0
-                                for prof_link in prof_links:
-                                    text_output += f"- Based on MDTI profile for ({mitigation_name[num]}) from the following links: []\n\n\n\n The recommendations are:\n\n"
+                                for prof_link in links:
+                                    text_output += f"- Based on MDTI profile for ({names[num]}) from the following links: []\n\n\n\n The recommendations are:\n\n"
                                     text_output += f"{cleaned_recommendation[num]}\n"
                                     num += 1
 
@@ -1924,6 +1948,7 @@ def threat_research_playground(url, work_item_id):
                     text_output += f"#### Detections/Hunting Queries \n"
                     has_detection = False
                     has_cassie_detection = False
+                    actors = eval(actors)
 
                     if actors and 'None' not in actors:
                         actor_names, links, mdti_detection = mdti_detection_pipeline(actors, token)
@@ -1943,13 +1968,14 @@ def threat_research_playground(url, work_item_id):
                         # Remove duplicates and format as a list
                         prof_links = "\n".join(f"- {link}" for link in set(valid_links))
 
-                        detection_name =  ", ".join(f"{name}" for name in set(actor_name[:3]))
+                        detection_name =  ", ".join(f"{name}" for name in set(actor_names[:3]))
                         if mdti_detection != "No detections found.":
                             cleaned_detection = re.sub(r'\n\s*\n', '\n', mdti_detection)
-                            if prof_links:
-                                text_output += f"- Based on MDTI profile for ({detection_name})\n\n The detections are:\n\n"
-                            else:
-                                continue
+                            text_output += f"- Based on MDTI profile for ({detection_name})\n\n The detections are:\n\n"
+                            # if prof_links:
+                                # text_output += f"- Based on MDTI profile for ({detection_name})\n\n The detections are:\n\n"
+                            # else:
+                                # continue
 
                             text_output += f"{cleaned_detection}\n"
                             has_detection = True
@@ -2328,7 +2354,9 @@ if __name__ == "__main__":
     # main()
     # white_list = get_white_list_urls('All Intelligence Feeds.csv')
     # print(white_list)
-    actors = ['Sliver', 'Salt Typhoon', 'BrazenBamboo']
+    # actors = ['Sliver', 'Salt Typhoon', 'BrazenBamboo']
+    # actors = ['Remote Monitoring and Management', 'Sliver', 'Cloudflare tunnel']
+    actors = ['RMM']
     names, links, mdti_recommendation = mdti_recommendation_pipeline(actors, token)
     print(names, links, mdti_recommendation)
 
