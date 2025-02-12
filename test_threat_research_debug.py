@@ -248,13 +248,14 @@ if __name__ == '__main__':
     # work_id = "18470529"
 
     tests = [
-        ("https://www.trendmicro.com/en_us/research/25/a/cve-2025-0411-ukrainian-organizations-targeted.html", "18470529"),
-        ("https://www.bleepingcomputer.com/news/security/cisa-orders-agencies-to-patch-linux-kernel-bug-exploited-in-attacks/", "18472287"),
+        # ("https://www.trendmicro.com/en_us/research/25/a/cve-2025-0411-ukrainian-organizations-targeted.html", "18470529"),
+        # ("https://www.trendmicro.com/en_us/research/25/a/cve-2025-0411-ukrainian-organizations-targeted.html", "18470529"),
+        # ("https://www.bleepingcomputer.com/news/security/cisa-orders-agencies-to-patch-linux-kernel-bug-exploited-in-attacks/", "18472287"),
         ("https://gbhackers.com/hackers-exploiting-simplehelp-vulnerabilities/", "18474995"),
         ("https://www.bleepingcomputer.com/news/security/hackers-exploit-cityworks-rce-bug-to-breach-microsoft-iis-servers/", "18475059"),
-        ("https://gbhackers.com/asyncrat-abusing-python-and-trycloudflare/", "18470602"),
-        ("https://www.bleepingcomputer.com/news/security/hackers-spoof-microsoft-adfs-login-pages-to-steal-credentials/", "18472278"),
-        ("https://www.bleepingcomputer.com/news/security/hackers-exploit-cityworks-rce-bug-to-breach-microsoft-iis-servers/", "18475059")
+        # ("https://gbhackers.com/asyncrat-abusing-python-and-trycloudflare/", "18470602"),
+        # ("https://www.bleepingcomputer.com/news/security/hackers-spoof-microsoft-adfs-login-pages-to-steal-credentials/", "18472278"),
+        # ("https://www.bleepingcomputer.com/news/security/hackers-exploit-cityworks-rce-bug-to-breach-microsoft-iis-servers/", "18475059")
     ]
     for link, work_id in tests:
         print(f"==> Processing link: {link} with work_id: {work_id}")

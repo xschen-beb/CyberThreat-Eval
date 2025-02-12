@@ -171,7 +171,7 @@ def pipeline_ver0(output_dir):
 
 def debug_pipeline(link, work_id):
     text_output = threat_research_playground(link, work_id)
-    print(f"Output for link {link}: \n{text_output}")
+    print(f"==> Output for link {link}: \n{text_output}")
 
 
 def process_link(work_id, link, output_location):

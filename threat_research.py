@@ -16,9 +16,9 @@ from rich.align import Align
 import playwright
 from urllib.parse import urlparse
 from datetime import datetime
-from run_new_prompts import sys_prompt, user_prompt
+# from run_new_prompts import sys_prompt, user_prompt
 from mdti_description.crawl_oneti import get_access_token
-from mdti_description.mdti_pipeline import pipeline, get_actor
+from mdti_description.mdti_pipeline import pipeline, get_actor, get_actor_v1
 from mdti_description.mdti_pipeline import get_articles, get_profiles
 from get_root_cause import root_cause_pipeline, get_root_cause_with_llm
 from get_detection import mdti_detection_pipeline
@@ -1299,14 +1299,17 @@ def mdti_recommendation_pipeline(actors, token):
 
     links = []
     names = []
+    recommendations = []
     for actor in actors:
         profiles = get_profiles(token.token, actor)
         articles = get_articles(token.token, actor)
-        
+        # print("==> Extracted profiles/articles from OneTI: ", profiles, articles)
         if profiles and profiles["data"]["totalPages"] > 0:
             names.append(actor)
             print("="*20 +" Using oneti profile " + "="*20 + '\n')
-            for i in range(min(profiles['data']['totalPages'], 5)):
+            for i in range(min(profiles['data']['totalPages'], 2)):
+                print("Text: ", profiles["data"]["content"][i]['description'])
+                print("Name: ", profiles['data']['content'][0]['name'])
                 text = profiles["data"]["content"][i]['description']
                 name = profiles['data']['content'][0]['name']
                 link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
@@ -1315,7 +1318,8 @@ def mdti_recommendation_pipeline(actors, token):
                 # intro = f"Recommendation from link: {link} \n"
                 intro = f"\n"
                 if rec_text:
-                    recommendations += intro + rec_text + "\n\n"
+                    recommendations.append(rec_text)
+                    # recommendations += intro + rec_text + "\n\n"
 
         else:
             continue
@@ -1352,10 +1356,9 @@ def gen_dict_recommendation_from_report(report):
     - Base your decision solely on the content of the threat report and the provided category list.
     - Output exactly one recommendation from the list that is most relevant, or "None" if there is no match.
     - Do not include additional commentary or return multiple items.
-    - 'Recommendations to protect against CVE-2024-3400' is only for CVE-2024-3400 - command injection vulnerability. It does not apply to other CVEs.
 
     The category list of mitigation recommendations:
-    ['Recommendations to protect against RaaS', 'Recommendations to identify and mitigate cryptojacking attacks', 'Recommendations to protect against Information Stealers', 'Recommendations to protect against Malvertising', 'Recommendations to protect against phishing attacks', 'Recommendations to protect against Mobile Malware', 'Recommendations to protect against CVE-2024-3400 - command injection vulnerability', 'Tips for preventing keylogging', 'Guidance for CobaltStrike', 'Guidance for Botnets', 'Mitigate zero-day vulnerabilities', 'Mitigating data security incidents', 'Recommendations to protect IoT specific devices', 'Recommendations for supply-chain attacks', 'Social Engineering']
+    ['Recommendations to protect against RaaS', 'Recommendations to identify and mitigate cryptojacking attacks', 'Recommendations to protect against Information Stealers', 'Recommendations to protect against Malvertising', 'Recommendations to protect against phishing attacks', 'Recommendations to protect against Mobile Malware', 'Tips for preventing keylogging', 'Guidance for CobaltStrike', 'Guidance for Botnets', 'Mitigate zero-day vulnerabilities', 'Mitigating data security incidents', 'Recommendations to protect IoT specific devices', 'Recommendations for supply-chain attacks', 'Social Engineering']
     """
 
     user_prompt = f"""
@@ -1840,12 +1843,14 @@ def threat_research_playground(url, work_item_id):
 
                 elif key == 'Mitigation Steps':
                     text_output += f"#### {key} \n"
-                    actors = get_actor(value)
+                    actors = get_actor_v1(source_blog)
+                    threat_actors = eval(actors)
                     print("==> Extracted threat actors from the report: ", actors)
                     has_mitigation = False
 
                     if actors and 'None' not in actors:
-                        names, links, mdti_recommendation = mdti_recommendation_pipeline(actors, token)
+                        names, links, mdti_recommendation = mdti_recommendation_pipeline(threat_actors, token)
+                        print("==> Extracted mitigation from MDTI: ", names, links, mdti_recommendation)
                         # prof_links = "\n".join(f"- {link}" for link in set(links))
                         valid_links = []
     
@@ -1865,20 +1870,31 @@ def threat_research_playground(url, work_item_id):
                         prof_links = "\n".join(f"- {link}" for link in set(valid_links))
 
                         mitigation_name =  ", ".join(f"{name}" for name in set(actor_name[:3]))
+                        cleaned_recommendation = []
                         if mdti_recommendation != "No recommendations found.":
-                            cleaned_recommendation = re.sub(r'\n\s*\n', '\n', mdti_recommendation)
+                            for item in mdti_recommendation:
+                                cleaned_recommendation.append(re.sub(r'\n\s*\n', '\n', item))
+                            
                             if prof_links:
-                                text_output += f"- Based on MDTI profile for ({mitigation_name}) from the following links: \n\n{prof_links}\n\n The recommendations are:\n\n"
+                                num = 0
+                                for prof_link in prof_links:
+                                    text_output += f"- Based on MDTI profile for ({mitigation_name[num]}) from the following links: \n\n{prof_links[num]}\n\n The recommendations are:\n\n"
+                                    text_output += f"{cleaned_recommendation[num]}\n"
+                                    num += 1
                             else:
-                                text_output += f"- Based on profile for ({mitigation_name}) from the source and the related articles above, the recommendations are:\n\n"
+                                num = 0
+                                for prof_link in prof_links:
+                                    text_output += f"- Based on MDTI profile for ({mitigation_name[num]}) from the following links: []\n\n\n\n The recommendations are:\n\n"
+                                    text_output += f"{cleaned_recommendation[num]}\n"
+                                    num += 1
 
-                            text_output += f"{cleaned_recommendation}\n"
+                            
                             has_mitigation = True
                     # elif mdti_recommendation == "No recommendations found.":
                     # else:
                     if not has_mitigation:
                         # rec_dict_mitigation = process_rec_dict_ttps(ttps)
-                        rec_dict_mitigation = gen_dict_recommendation_from_report(text_output)
+                        rec_dict_mitigation = gen_dict_recommendation_from_report(source_blog)
                         print("==> Extracted mitigation category from the report: ", rec_dict_mitigation)
                         if rec_dict_mitigation:
                             text_output += f"- Based on OSINT recommendation dictionary ({rec_dict_mitigation}), the recommendations are:\n\n"
@@ -1910,7 +1926,7 @@ def threat_research_playground(url, work_item_id):
                     has_cassie_detection = False
 
                     if actors and 'None' not in actors:
-                        actor_names, links, mdti_detection = mdti_detection_pipeline(threat_actors, token)
+                        actor_names, links, mdti_detection = mdti_detection_pipeline(actors, token)
                         valid_links = []
     
                         for link in links:
@@ -2310,6 +2326,9 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    white_list = get_white_list_urls('All Intelligence Feeds.csv')
-    print(white_list)
+    # white_list = get_white_list_urls('All Intelligence Feeds.csv')
+    # print(white_list)
+    actors = ['Sliver', 'Salt Typhoon', 'BrazenBamboo']
+    names, links, mdti_recommendation = mdti_recommendation_pipeline(actors, token)
+    print(names, links, mdti_recommendation)
 

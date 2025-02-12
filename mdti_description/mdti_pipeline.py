@@ -106,6 +106,43 @@ def get_actor(threat_actor):
     return response
 
 
+def get_actor_v1(threat_actor):
+    # threat_actor = extract_threat_actor_info(file)
+    sys_prompt = f"""
+    ### Task description:
+    You are an expert in cybersecurity. I will provide you with a threat intelligence report. Please extract the relevant and potential threat actors, vulnerable softwares, and malicious tools/framework (if it has other names, extract them.) from the report. Output in the list format and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no content is provided, output is None.
+
+    ### Example:
+
+    Report Content: Earth Estries (also known as Salt Typhoon); overlaps with FamousSparrow and UNC4841 (https://thehackernews.com/2023/08/earth-estries-espionage-campaign.html). Similarities with FamousSparrow APT observed in operation and TTPs (https://duo.com/decipher/new-espionage-threat-group-targets-tech-government-entities). 
+    ['Earth Estries', 'Salt Typhoon']
+
+    Report Content: Cybercriminals are actively exploiting vulnerabilities in SimpleHelp Remote Monitoring and Management (RMM) software to infiltrate networks, create unauthorized administrator accounts, and deploy malware, including the Sliver backdoor. These accounts facilitated the installation of malicious payloads like the Sliver post-exploitation framework. Sliver, an open-source tool originally designed for penetration testing, has been repurposed by threat actors for command-and-control (C2) operations.
+    ['Sliver backdoor'， 'Remote Monitoring and Management']
+
+    Report Content: BrazenBamboo, a Chinese state-affiliated threat actor, developer of DEEPDATA, DEEPPOST, and LIGHTSPY malware families. *BrazenBamboo's cross-platform reach extends to Windows, macOS, and iOS* (https://cyberinsider.com/chinese-hackers-exploit-fortinet-zero-day-to-steal-vpn-credentials/). *APT41 and Space Pirates, suspected to be involved* (https://thehackernews.com/2024/11/warning-deepdata-malware-exploiting.html). *Volexity�s analysis reveals that BrazenBamboo maintains a sophisticated infrastructure for command and control (C2) operations* (https://cybersecuritynews.com/brazenbamboo-apt-forticlient-zero-day/). *DEEPDATA malware uses a modular architecture with 12 unique plugins* (https://securityonline.info/zero-day-vulnerability-in-forticlient-exploited-by-brazenbamboo-apt/). 
+    ['BrazenBamboo']
+
+    """
+
+    user_prompt = f"""
+    ### Task description:
+    I will provide you with a threat intelligence report. Please extract the Top 3 relevant and potential threat actors, vulnerable softwares, and malicious tools/framework (if it has other names, extract them.) from the report. Output in the list format and ensure that the extracted term is suitable for use in a search query. For each item of the list, it should be a phrase or a single word without any prefixes.
+
+    ### Result:
+    Report Content: {threat_actor}
+    """
+
+    print("==> The input to Thrat Actor Extraction is: ", threat_actor)
+
+    new_messages = [{"role": "system", "content": sys_prompt}]
+    new_messages.append({"role": "user", "content": user_prompt})
+
+    response_message = api_call(new_messages, temperature=0.01, model='gpt-4o', json_enabled=False)
+    response = response_message.choices[0].message.content
+    return response
+
+
 def pipeline(threat_actors, source_name, oneti_token):
     if not threat_actors:
         return None
