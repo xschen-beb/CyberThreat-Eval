@@ -19,6 +19,9 @@ pip install -r requirements.txt
 
 ## Usage
 ```bash
-# run the script
+# run the script with pdm
 pdm run python run.py
+
+# run the script
+python run.py
 ```

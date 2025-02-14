@@ -1,5 +1,5 @@
 import networkx as nx
-from search_engine import url_open_with_browser, click_into_page_with_browser
+from src.search_engine import url_open_with_browser, click_into_page_with_browser
 import re
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 import os

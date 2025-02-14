@@ -16,13 +16,13 @@ from rich.align import Align
 import playwright
 from urllib.parse import urlparse
 from datetime import datetime
-from run_new_prompts import sys_prompt
+from src.run_new_prompts import sys_prompt
 from mdti_description.crawl_oneti import get_access_token
 from mdti_description.mdti_pipeline import pipeline, get_actor, get_actor_v1
 from mdti_description.mdti_pipeline import get_articles, get_profiles
-from get_root_cause import root_cause_pipeline, get_root_cause_with_llm
-from get_detection import mdti_detection_pipeline
-from filter_similar_articles import *
+from src.get_root_cause import root_cause_pipeline, get_root_cause_with_llm
+from src.get_detection import mdti_detection_pipeline
+from src.filter_similar_articles import *
 from recommendations.utils import *
 from htmldate import find_date
 import csv
@@ -35,7 +35,7 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 # for exponential backoff
 from tenacity import retry, stop_after_attempt, wait_random_exponential
-from search_engine import (
+from src.search_engine import (
     google_web_search,
     click_into_page,
     click_into_page_original,
@@ -1475,7 +1475,7 @@ def is_valid_ioc(ioc_value, ioc_type):
     else:
         return False
     
-def load_ttp_mapping(csv_file='TTP_Mapping.csv'):
+def load_ttp_mapping(csv_file='src/TTP_Mapping.csv'):
     ttp_mapping = {}
     with open(csv_file, 'r', encoding='utf-8') as f:
         for line in f:
@@ -2054,7 +2054,7 @@ def threat_research_playground(url, work_item_id):
             if not unique_iocs:
                 text_output += "- No IoCs found. \n"
                 return text_output
-            white_list = get_white_list_urls('All Intelligence Feeds.csv')
+            white_list = get_white_list_urls('src/All Intelligence Feeds.csv')
             unique_urls.update(white_list)
 
             for ioc_data in unique_iocs:

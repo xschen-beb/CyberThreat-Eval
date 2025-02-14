@@ -5,7 +5,7 @@ parent_directory = os.path.abspath(os.path.join(os.getcwd(), '..'))
 sys.path.append(parent_directory)
 
 from playwright.sync_api import sync_playwright
-from src.search_engine import click_into_page_with_browser
+from search_engine import click_into_page_with_browser
 import os
 from openai import AzureOpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -158,7 +158,7 @@ def save_actor_info(actor, actor_info, keyword):
 def augment_threat_actor_context(threat_actor, actor_info):
     sys_prompt = f"""
     ### Task description:
-    You are an expert in cybersecurity. Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors. No explanations or prefix texts are allowed in the output.
+    You are an expert in cybersecurity. Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors.
 
     ### Example:
     Threat Actor: BrazenBamboo
@@ -170,7 +170,7 @@ def augment_threat_actor_context(threat_actor, actor_info):
 
     user_prompt = f"""
     ### Task description:
-    Based on the extracted information about the threat actor from an IoC report, please briefly generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report. No explanations or prefix texts are allowed in the output.
+    Based on the extracted information about the threat actor from an IoC report, please briefly generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. This will be used to enhance the description of the threat actor in the report.
 
     ### Result:
     Threat Actor: {threat_actor}
@@ -216,44 +216,12 @@ def pipeline(file):
     fo.write(context)
 
 
-def malpedia_pipeline(actors):
-    actors_info = ""
-    names = []
-
-    for actor in actors:
-        if 'None' not in actor:
-            print(f"Extracted Threat Actor: {actor}")
-            actor_url = f"https://malpedia.caad.fkie.fraunhofer.de/actor/{actor.replace(' ', '-').lower()}"
-            if check_page_not_found(actor_url):
-                print(f"Actor {actor} not found, skipping.")
-                continue
-            else:
-                actor_info = click_into_page_with_browser(actor_url)
-                actors_info += actor_info
-                print(f"Actor Information: {actor_info}")
-                names.append(actor)
-        else:
-            print("Failed to extract Threat Actor.")
-            actor_info = ""
-
-    if actors_info:
-        relevent_section = save_actor_info(actor, actors_info, actor)
-        context = augment_threat_actor_context(actors, relevent_section)
-    else:
-        print("No external actor information available to process.")
-        relevent_section = ""
-        # context = augment_threat_actor_context(actors, relevent_section)
-        context = ""
-
-    return names, context
-
-
 if __name__ == '__main__':
     # file = os.path.join(os.path.dirname(__file__), '..', '241112_AgentReport', 'hamas-linked-threat-group-expands-espionage-and-destructive-operations.md')
     # threat_actor_info = extract_threat_actor_info(file)
     # print(threat_actor_info)
     # threat_actors = eval(get_actor(threat_actor_info))
     threat_actors = ['UAC-0194']
-    context = malpedia_pipeline(threat_actors)
-    print(context)
+    # context = malpedia_pipeline(threat_actors)
+    # print(context)
     # pipeline(file)

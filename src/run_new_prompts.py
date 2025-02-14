@@ -1,14 +1,14 @@
 import os
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-from search_engine import (
+from src.search_engine import (
     google_web_search,
     click_into_page,
     click_into_page_original,
     click_into_page_with_browser,
     bing_search,
 )
-from threat_research import *
+from src.threat_research import *
 import re
 import json
 import time

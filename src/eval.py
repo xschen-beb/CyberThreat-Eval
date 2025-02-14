@@ -43,11 +43,6 @@ def process_raw():
     known_files = 0
     unknown_files = 0
 
-
-    # client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
-    # scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
-    # token = get_access_token(client_id, scopes)
-
     unknown = 0
     for file in tqdm(files, desc="Processing Files", unit="file"):
         print(f"File name: {file}")
@@ -90,27 +85,6 @@ def process_raw():
         
         total_files += 1
 
-    '''
-        output = ""
-        sources = ['malpedia', 'oneti']
-        for source in sources:
-            output += f"======================== {source} ========================\n"
-            context = pipeline(threat_actors, source, oneti_token=token)
-            if not context:
-                continue
-            output += str(context)
-            output += f"\n======================== {source} ========================\n"
-            evaluation_scores = evaluate_actor_context(threat_actors, context)
-
-            file_results[source] = evaluation_scores
-            print(f"Evaluation for {source}: {evaluation_scores}")
-
-            # Sum up the new scores for averaging later
-            for key in total_scores:
-                total_scores[key] += evaluation_scores.get(key, 0)
-
-        print(f"\n\n\n{output}")
-    '''
     # Calculate average scores for all files
     avg_scores = {key: total / total_files if total_files > 0 else 0 for key, total in total_scores.items()}
 

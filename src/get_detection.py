@@ -1,4 +1,4 @@
-from crawl_oneti import get_profiles
+from mdti_description.crawl_oneti import get_profiles
 import markdown
 from bs4 import BeautifulSoup
 

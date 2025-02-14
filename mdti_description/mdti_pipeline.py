@@ -3,10 +3,9 @@ import os
 
 parent_directory = os.path.abspath(os.path.join(os.getcwd(), '..'))
 sys.path.append(parent_directory)
-sys.path.append(r'C:/Users/v-xiangschen/Desktop/LLM-OSINT/mdti_description')
 
 from playwright.sync_api import sync_playwright
-from search_engine import click_into_page_with_browser
+from src.search_engine import click_into_page_with_browser
 import os
 from openai import AzureOpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -14,13 +13,11 @@ import markdown
 from markdown.treeprocessors import Treeprocessor
 from markdown.extensions import Extension
 from bs4 import BeautifulSoup
-from crawl_malpedia import *
-from crawl_oneti import *
+from mdti_description.crawl_malpedia import *
+from mdti_description.crawl_oneti import *
 import re
 import json
 
-os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
-os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
 
 client = AzureOpenAI(
     azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
