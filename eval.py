@@ -8,9 +8,6 @@ from mdti_pipeline import pipeline
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from tqdm import tqdm
 
-os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
-os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
-
 
 def find_files_with_threat_actor(directory):
     files_with_threat_actors = []

@@ -1,7 +1,6 @@
 from crawl_oneti import get_profiles
 import markdown
 from bs4 import BeautifulSoup
-from mdti_description.crawl_oneti import get_access_token
 
 import re
 import json

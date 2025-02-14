@@ -51,6 +51,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
 
 VT_API_KEY = os.getenv("VT_API_KEY")
+
 URL = 'https://www.virustotal.com/api/v3/'
 HEADERS = {
     'x-apikey': VT_API_KEY
@@ -2118,56 +2119,6 @@ def threat_research_playground(url, work_item_id):
             print(e)
             continue
 
-'''
-def threat_research_playground(url):
-    for i in range(2):
-        try:
-            new_ti, related_docs = threat_research_core(url)
-            text_output = ""
-
-            text_output += f"Source: [{url}]({url})\n\n"
-            text_output += "## Related articles (describing the same threat) \n"
-            # for i in related_docs:
-            #    text_output += ("- " + str(i["link"]) + "\n")
-            # text_output += "\n"
-            # Use a set to store unique URLs
-            unique_urls = set()
-            for doc in related_docs:
-                normalized_url = standardize_url(doc["link"])
-                unique_urls.add(normalized_url)
-
-            # Add unique URLs to the output
-            for unique_url in unique_urls:
-                text_output += f"- {unique_url}\n"
-            text_output += "\n"
-
-            text_output += "## Enriched Doc (enrichments marked with *content*(link)): \n"
-            # mdf.write(json.dump(new_ti))
-            # IoC copy/pasting format
-            for key, value in new_ti.items():
-                if key == 'Incident':
-                    text_output += f"#### {key}: {value} \n\n"
-                elif key == 'IoCs':
-                    text_output += "#### IoCs:\n"
-                    for ioc in value:
-                        try:
-                            text_output += f"- {ioc['type']}: {ioc['value']} ([link]({ioc['source']})) \n\n"
-                        except KeyError:
-                            text_output += f"- {ioc} \n\n"
-                        except Exception as e:
-                            text_output += f"- {ioc} \n\n"
-                    text_output += "- For more IoCs, please refer to the above links. \n\n"
-                else:
-                    text_output += f"#### {key} \n {value} \n\n"
-            text_output += "\n"
-            
-
-            return text_output
-        except AttributeError:
-            print("Error in processing the blog.")
-            continue
-
-'''
 
 # TODO: using code to evaluate IoCs
 def eval_threat_research(info, new_ti, related_docs):
@@ -2242,8 +2193,6 @@ def eval_threat_research(info, new_ti, related_docs):
             continue
     
     return eval_info
-
-f_eval = open("eval_results_articles_2024_after181.txt", "w")
 
 def main():
 
@@ -2348,7 +2297,6 @@ def main():
             fw.write(json.dumps(info) + "\n")
             fw.flush()
             # break
-
 
 if __name__ == "__main__":
     # main()

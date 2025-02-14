@@ -16,8 +16,6 @@ from bs4 import BeautifulSoup
 import re
 import json
 
-os.environ["LOCAL_ENDPOINT"] = "http://10.150.142.182:9999"
-os.environ["PROXY_KEY"] = "59ddb6820482b719e33661ccbfa98042"
 
 client = AzureOpenAI(
     azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
@@ -217,37 +215,7 @@ def pipeline(file):
     fo = open('wirte_not_selected_context.txt', 'w')
     fo.write(context)
 
-"""
-def malpedia_pipeline(actors):
-    actors_info = ""
 
-    for actor in actors:
-        if 'None' not in actor:
-            print(f"Extracted Threat Actor: {actor}")
-            actor_url = f"https://malpedia.caad.fkie.fraunhofer.de/actor/{actor.replace(' ', '-').lower()}"
-            if check_page_not_found(actor_url):
-                print(f"Actor {actor} not found, skipping.")
-                continue
-            else:
-                actor_info = click_into_page_with_browser(actor_url)
-                actors_info += actor_info
-                print(f"Actor Information: {actor_info}")
-        else:
-            print("Failed to extract Threat Actor.")
-            actor_info = ""
-
-    if actors_info:
-        relevent_section = save_actor_info(actor, actors_info, actor)
-        context = augment_threat_actor_context(actors, relevent_section)
-    else:
-        print("No external actor information available to process.")
-        relevent_section = ""
-        # context = augment_threat_actor_context(actors, relevent_section)
-        context = ""
-
-    return context
-
-"""
 if __name__ == '__main__':
     # file = os.path.join(os.path.dirname(__file__), '..', '241112_AgentReport', 'hamas-linked-threat-group-expands-espionage-and-destructive-operations.md')
     # threat_actor_info = extract_threat_actor_info(file)

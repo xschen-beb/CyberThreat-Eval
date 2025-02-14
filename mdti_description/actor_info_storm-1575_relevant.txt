@@ -1,1 +1,0 @@
-Storm-1575 is a threat actor identified by Microsoft as being involved in phishing campaigns using the Dadsec platform. They utilize hundreds of Domain Generated Algorithm domains to host credential harvesting pages and target global organizations to steal Microsoft 365 credentials.

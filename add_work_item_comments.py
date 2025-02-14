@@ -8,6 +8,7 @@ import json
 # os.environ['ADO_PERSONAL_ACCESS_TOKEN'] = CASSIE
 # pat = os.environ['ADO_PERSONAL_ACCESS_TOKEN']
 pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
+
 authorization = str(base64.b64encode(bytes(':' + pat, 'ascii')), 'ascii')
 project_name = "Cassandra"
 organization = "threat-intel"
@@ -37,8 +38,8 @@ def add_comment_to_workitem(work_item_id, markdown):
         print("Comment added successfully!")
         print(f"{response.status_code} - {response.text}")
         return response.json()
-    except:
-        print(f"Error: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Error: {response.status_code} - {response.text}: {e}")
         return {"error": response.text, "status_code": response.status_code}
 
 

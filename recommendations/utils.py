@@ -6,13 +6,12 @@ import sys
 #    sys.path.append(module_path)
 parent_directory = os.path.abspath(os.path.join(os.getcwd(), '..'))
 sys.path.append(parent_directory)
-sys.path.append(r'/mnt/c/Users/xuafeng/Desktop/LLM-OSINT/recommendations')
 import json
 import pandas as pd
 from tenacity import (retry, stop_after_attempt, wait_random_exponential)
 from openai import AzureOpenAI
-import step1_prompt
-import step2_prompt
+import recommendations.step1_prompt as step1_prompt
+import recommendations.step2_prompt as step2_prompt
 import re
 import tiktoken
 

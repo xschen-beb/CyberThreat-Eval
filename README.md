@@ -5,16 +5,20 @@ This project aims to build a threat research agent that can leverage the interne
 
 ## Install
 
-Pre-requisites: `pdm` is required to install the dependencies. You can follow https://pdm-project.org/en/latest/#recommended-installation-method to install pdm.
+Pre-requisites: `pdm` is required to install the dependencies. You can follow [the official PDM documentation](https://pdm-project.org/en/latest/#recommended-installation-method) for installation instructions.
 
+Alternatively, if you are using Python >= 3.13, you can directly install dependencies from `requirements.txt`:
 
 ```bash
-# install dependencies
+# install dependencies using pdm
 pdm install
+
+# or using pip (requires Python >= 3.13)
+pip install -r requirements.txt
 ```
 
 ## Usage
 ```bash
 # run the script
-pdm run python threat_research.py
+pdm run python run.py
 ```
