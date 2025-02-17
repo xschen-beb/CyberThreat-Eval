@@ -102,31 +102,58 @@ def get_user_object(token):
 
 
 def oneti_pipeline(actors, token):
-    actors_info = ""
     names = []
+    links = []
+    count = 0
+    context = ""  # Use a single string to accumulate contexts
 
     for actor in actors:
+        print(f"Processing {actor}: ... \n")
         profiles = get_profiles(token.token, actor)
         articles = get_articles(token.token, actor)
-        if profiles and profiles["data"]["totalPages"] > 0:
-            print("="*20 +" Using oneti profile " + "="*20 + '\n')
+
+        actors_info = ""
+
+        if profiles and profiles["data"]["totalPages"] > 0 :
+            print("=" * 20 + " Using oneti profile " + "=" * 20 + '\n')
             content = profiles["data"]["content"]
             print(profiles["data"]["totalPages"])
-            names.append(actor)
-            for i in range(min(profiles['data']['totalPages'], 5)):
-                actors_info += str(profiles["data"]["content"][i]['description'])
+
+            # Generate unique link for the actor's profile
+            name = profiles['data']['content'][0]['name']
+            link = f"https://sip.security.microsoft.com/intel-profiles/{name}"
+            if link not in links:
+                names.append(actor)
+                links.append(link)
+                count += 1
+                for i in range(min(profiles['data']['totalPages'], 1)):
+                    actors_info += str(profiles["data"]["content"][i]['description'])
+
         elif articles and articles['data']['totalPages'] > 0:
-            print("="*20 +" Using related articles " + "="*20 + '\n')
+            print("=" * 20 + " Using related articles " + "=" * 20 + '\n')
             content = articles["data"]["content"]
-            names.append(actor)
+
             for i in range(min(articles['data']['totalPages'], 5)):
                 actors_info += str(articles["data"]["content"][i]['content'])
+                count += 1
+
         else:
+            print(f"No profiles or articles found for {actor}")
             continue
 
-    context = augment_threat_actor_context(actors, actors_info)
-    print(context)
-    return names, context
+        # Generate context for the actor using augment_threat_actor_context
+        if actors_info.strip():
+            actor_context = augment_threat_actor_context(actor, actors_info)
+            context += f"- {actor_context}\n"
+            print(f"Context for {actor}:\n{actor_context}\n")
+        else:
+            print(f"No information found for {actor} to augment context.")
+
+
+        if count == 3:
+            break
+        
+    return names, links, context
 
 
 if __name__ == '__main__':

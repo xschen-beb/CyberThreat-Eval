@@ -29,8 +29,8 @@ def save_results(results, output_file):
     print(f"Results saved to {output_file}")
 
 
-def process_raw():
-    directory = 'AgentGenReport'
+def process_raw(directory):
+    # directory = 'AgentGenReport'
     files = find_files_with_threat_actor(directory)
 
     # Prepare for storing the evaluation results
@@ -141,7 +141,9 @@ def process_source_scores(threat_actors, source, oneti_token, total_scores, tota
 
 
 if __name__ == '__main__':
-    directory = 'AgentGenReport'
+    # directory = 'AgentGenReport'
+    directory = '../GeneratedReports'
+    # process_raw(directory)
     files = find_files_with_threat_actor(directory)
 
     # Prepare for storing the evaluation results

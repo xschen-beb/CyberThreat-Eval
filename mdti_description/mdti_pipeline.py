@@ -152,25 +152,29 @@ def pipeline(threat_actors, source_name, oneti_token):
             return names, links, context
     
 if __name__ == '__main__':
-    text = """
-'Not specified    """
+    url = 'https://www.bleepingcomputer.com/news/security/apple-fixes-this-years-first-actively-exploited-zero-day-bug'
+    blog = click_into_page_with_browser(url)
+    actors = get_actor_v1(blog)
+    print(actors)
+
+    # text = """'Not specified    """
     # url = "https://gbhackers.com/eagerbee-malware"
     # text = click_into_page_with_browser(url, is_text=True)
     # print(text)
-    actors = get_actor(text)            
-    print(actors)
-    client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
-    scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
-    token = get_access_token(client_id, scopes)
+    # actors = get_actor(text)            
+    # print(actors)
+    # client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
+    # scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
+    # token = get_access_token(client_id, scopes)
 
-    actors = eval(actors)
-    if actors and 'None' not in actors:
-        actors = actors[:5]
-        name, context = pipeline(actors, 'oneti', token)
-        print(context)
-        print(name)
-    else:
-        print(000)
+    # actors = eval(actors)
+    # if actors and 'None' not in actors:
+        # actors = actors[:5]
+        # name, context = pipeline(actors, 'oneti', token)
+        # print(context)
+        # print(name)
+    # else:
+        # print(000)
 
     # client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
     # scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
