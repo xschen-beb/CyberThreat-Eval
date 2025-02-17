@@ -8,6 +8,8 @@ import os
 import requests
 import base64
 
+pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
+
 def extract_markdown_section(md_text, section_header):
     def remove_code_fences(md_text):
         cleaned = re.sub(r'```+.*?\n', '', md_text)

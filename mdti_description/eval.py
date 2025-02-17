@@ -1,7 +1,7 @@
 import os
 import re
 import json
-from crawl_malpedia import extract_threat_actor_info
+from crawl_malpedia import get_actor, extract_threat_actor_info
 from crawl_oneti import *
 from utils import evaluate_actor_context
 from mdti_pipeline import pipeline

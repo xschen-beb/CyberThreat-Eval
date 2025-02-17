@@ -1,4 +1,4 @@
-from search_engine import url_open_with_browser, click_into_page_with_browser
+from src.search_engine import url_open_with_browser, click_into_page_with_browser
 from datetime import datetime
 import re
 from openai import AzureOpenAI

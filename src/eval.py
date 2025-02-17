@@ -4,7 +4,7 @@ import json
 from crawl_malpedia import extract_threat_actor_info
 from crawl_oneti import *
 from utils import evaluate_actor_context
-from mdti_pipeline import pipeline
+from mdti_description.mdti_pipeline import pipeline
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from tqdm import tqdm
 

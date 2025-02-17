@@ -5,7 +5,7 @@ sys.path.append(parent_directory)
 
 from azure.identity import InteractiveBrowserCredential, TokenCachePersistenceOptions
 import requests
-from mdti_description.crawl_malpedia import *
+from mdti_description.crawl_malpedia import augment_threat_actor_context
 
 def get_access_token(client_id, scopes):
     """Get access token using InteractiveBrowserCredential"""

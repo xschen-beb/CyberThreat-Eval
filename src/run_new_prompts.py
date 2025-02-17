@@ -13,7 +13,7 @@ import re
 import json
 import time
 
-sys_prompt = f"""
+sys_prompt = """
 # Task Description
 
 1. You are a cybersecurity expert tasked with extracting Indicators of Compromise (IOCs) from a given article.
@@ -85,13 +85,13 @@ Response:
 </IOCS>
 """
 
-user_prompt = f"""
+user_prompt = """
 # Task
 
 Parse the article below according to the task description above.
 
 <article>
-{{ARTICLE}}
+{ARTICLE}
 </article>
 
 Response:

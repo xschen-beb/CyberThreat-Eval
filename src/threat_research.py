@@ -34,11 +34,8 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 # load_dotenv()
 
 # for exponential backoff
-from tenacity import retry, stop_after_attempt, wait_random_exponential
 from src.search_engine import (
     google_web_search,
-    click_into_page,
-    click_into_page_original,
     click_into_page_with_browser,
     bing_search,
 )
@@ -163,7 +160,7 @@ def categorize(blog):
         + "==> Categorizing the blog (identify if it is news or technical report)."
         + RESET
     )
-    category_prompt = f"""
+    category_prompt = """
         I will give you a blog. Please analyze this report to identify if this blog has enough info to help people understand the root cause (including, vulnerable/misconfigured services, how to mitigate) behind the incident.
         Your output should be json format with 'is_enough' and 'explanation' as the keys. DO NOT add ```json at the beginning and ``` and the end.
         """
@@ -998,12 +995,12 @@ def llm_judgment_for_ioc_in_blog(ioc_value, original_text):
         response = api_call(messages, [], json_enabled=False)
         original = response.choices[0].message.content
         return original
-    except Exception as e:
+    except Exception:
         return False
 
 
 def check_ioc_llms_for_non_vt(ioc_value, original_text):
-    sys_prompt = f"""
+    sys_prompt = """
     ### Role Description
     You are a cybersecurity expert. Your task is to determine whether the given item is a valid Indicator of Compromise (IoC) and appears in the provided original text.
 
@@ -1120,7 +1117,7 @@ def check_ioc_llms_for_non_vt(ioc_value, original_text):
         debug_print(RED + "===> The IoC is: " + RESET, ioc_value)
         debug_print(RED + "===> The LLM check result is: " + RESET, result)
         return result  # Ensure only 'True' or 'False' is returned
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -1317,7 +1314,7 @@ def mdti_recommendation_pipeline(actors, token):
                 
                 rec_text = find_recommendation_section(text)
                 # intro = f"Recommendation from link: {link} \n"
-                intro = f"\n"
+                intro = "\n"
                 if rec_text:
                     names.append(actor)
                     links.append(link)
@@ -1347,7 +1344,7 @@ def mdti_recommendation_pipeline(actors, token):
 
                     rec_text = find_recommendation_section(text)
                     # intro = f"Recommendation from link: {link} \n"
-                    intro = f"\n"
+                    intro = "\n"
                     if rec_text:
                         names.append(actor)
                         links.append(link)
@@ -1576,7 +1573,7 @@ def process_mitre_ttps_format(key, value):
 
 
 def augment_threat_actor_with_blog(threat_actor, actor_info):
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. Based on the extracted information about the threat actor(s) from an IoC report, please generate a detailed context and summary about threat actor(s) based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor(s) in the report. Make sure the context provides enough details for a security professional to understand all the actors' profile(s) and their behaviors. No explanations or prefix texts are allowed in the output.
 
@@ -1935,7 +1932,7 @@ def threat_research_playground(url, work_item_id):
                             # recommendation = eval(mitigation)
                             # for rec in recommendation:
                             # text_output += f"- Based on recommendation table, the source recommends:\n"
-                            text_output += f"- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
+                            text_output += "- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
                             for rec in mitigation:
                                 text_output += f"- [{rec['ttp_id']}] {rec['title']}: {rec['reason']}\n"
                             has_mitigation = True
@@ -1946,7 +1943,7 @@ def threat_research_playground(url, work_item_id):
                     print(f"After mitigation, \n\n {text_output}\n\n")
                 
                 elif key == 'Detection Signature':
-                    text_output += f"#### Detections/Hunting Queries \n"
+                    text_output += "#### Detections/Hunting Queries \n"
                     has_detection = False
                     has_cassie_detection = False
                     actors = eval(actors)
@@ -1988,7 +1985,7 @@ def threat_research_playground(url, work_item_id):
                             text_output += f"- Based on Cassie Triage profile for ID {work_item_id}\n\n The detections are:\n\n{cassie_detection}\n"
                             has_cassie_detection = True
                         else:
-                            text_output += f"- No detections found.\n\n"
+                            text_output += "- No detections found.\n\n"
 
                     if not has_detection and not has_cassie_detection:
                         continue
@@ -2009,7 +2006,7 @@ def threat_research_playground(url, work_item_id):
                                     formatted_output += f"- {k}: {v}\n"
                         else:
                             text_output += f"#### {key} \n {value} \n\n"
-                    except Exception as e:
+                    except Exception:
                         text_output += f"#### {key} \n {value} \n\n"
                     print(text_output)
 
@@ -2230,7 +2227,7 @@ def main():
                     new_iocs.append(ioc)
             info["indicators"] = new_iocs
 
-            debug_print(RED + f"==> The input is: " + RESET)
+            debug_print(RED + "==> The input is: " + RESET)
             debug_print(info)
 
             if info["title"] in titles_processed:
@@ -2239,7 +2236,7 @@ def main():
                 )
                 continue
 
-            debug_print(RED + f"==> Start to process the blog: " + RESET)
+            debug_print(RED + "==> Start to process the blog: " + RESET)
             debug_print("link: ", info["url"])
             if not info["url"]:
                 debug_print("The URL is empty. Skip this one.")

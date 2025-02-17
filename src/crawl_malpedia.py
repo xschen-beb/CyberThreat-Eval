@@ -71,7 +71,7 @@ def api_call(messages, temperature, model="gpt-4o", json_enabled=True):
 # output: list of threat actors
 def get_actor(threat_actor):
     # threat_actor = extract_threat_actor_info(file)
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat actors (if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no threat actor is specified, the output should be ['None'].
 
@@ -156,7 +156,7 @@ def save_actor_info(actor, actor_info, keyword):
 
 
 def augment_threat_actor_context(threat_actor, actor_info):
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. Based on the extracted information about the threat actor from an IoC report, please generate a detailed context and summary about this threat actor based on report context given and your knowledge. No hallucination is allowed. Your context should be brief. This will be used to enhance the description of the threat actor in the report. Make sure the context provides enough details for a security professional to understand the actor's profile and their behaviors.
 

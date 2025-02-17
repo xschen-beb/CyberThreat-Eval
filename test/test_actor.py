@@ -1,4 +1,4 @@
-from threat_research import *
+from src.threat_research import *
 
 
 

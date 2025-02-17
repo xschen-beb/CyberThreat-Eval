@@ -1,7 +1,7 @@
 import re
 from bs4 import BeautifulSoup
 import markdown
-from filter_similar_articles import *
+from src.filter_similar_articles import *
 
 def extract_urls_from_text(file_path, section_header):
     urls = []

@@ -1,4 +1,4 @@
-from threat_research import *
+from src.threat_research import *
 
 def tpg(new_ti, related_docs, url, work_item_id):
     for _ in range(2):
@@ -184,7 +184,7 @@ def tpg(new_ti, related_docs, url, work_item_id):
                             # recommendation = eval(mitigation)
                             # for rec in recommendation:
                             # text_output += f"- Based on recommendation table, the source recommends:\n"
-                            text_output += f"- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
+                            text_output += "- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
                             for rec in mitigation:
                                 text_output += f"- [{rec["ttp_id"]}] {rec['title']}: {rec['reason']}\n"
                             has_mitigation = True
@@ -195,7 +195,7 @@ def tpg(new_ti, related_docs, url, work_item_id):
                     print(f"After mitigation, \n\n {text_output}\n\n")
                 
                 elif key == 'Detection Signature':
-                    text_output += f"#### Detections/Hunting Queries \n"
+                    text_output += "#### Detections/Hunting Queries \n"
                     has_detection = False
                     has_cassie_detection = False
 
@@ -235,7 +235,7 @@ def tpg(new_ti, related_docs, url, work_item_id):
                             text_output += f"- Based on Cassie Triage profile for ID {work_item_id}\n\n The detections are:\n\n{cassie_detection}\n"
                             has_cassie_detection = True
                         else:
-                            text_output += f"- No detections found.\n\n"
+                            text_output += "- No detections found.\n\n"
 
                     if not has_detection and not has_cassie_detection:
                         continue
@@ -365,7 +365,7 @@ if __name__ == '__main__':
     url = 'https://www.sentinelone.com/blog/hellcat-and-morpheus-two-brands-one-payload-as-ransomware-affiliates-drop-identical-code'
     work_item_id = '18456085'
     res = tpg(new_ti, related_docs, url, work_item_id)
-    print(f"TPG res\n")
+    print("TPG res\n")
     print(res)
     file_name = 'test.md'
     with open(file_name, "w", encoding="utf-8") as fw:

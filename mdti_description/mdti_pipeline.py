@@ -72,7 +72,7 @@ def extract_threat_actor_info(file_path):
 # output: list of threat actors
 def get_actor(threat_actor):
     # threat_actor = extract_threat_actor_info(file)
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. I will provide you with a threat intelligence report. Please extract the relevant and potential threat actors (if it has other names, extract them.) in the list format from the "threat actor" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no content is provided, output is None.
 
@@ -105,7 +105,7 @@ def get_actor(threat_actor):
 
 def get_actor_v1(threat_actor):
     # threat_actor = extract_threat_actor_info(file)
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. I will provide you with a threat intelligence report. Please extract the relevant and potential threat actors, vulnerable softwares, and malicious tools/framework (if it has other names, extract them.) from the report. Output in the list format and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no content is provided, output is None.
 

@@ -1,6 +1,6 @@
 import vt
 import requests
-
+import os
 
 URL = 'https://www.virustotal.com/api/v3/'
 VT_API_KEY = os.getenv('VT_API_KEY')

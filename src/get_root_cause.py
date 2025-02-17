@@ -92,7 +92,7 @@ def get_user_object(token):
 
 
 def get_root_cause_with_llm(root_cause):
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. I will provide you with an IoC report. Please extract the relevant and potential threat malwares (if it has other names, extract them.) in the **list format** from the "root cause" section of the report and ensure that the extracted term is suitable for use in a search query. For each output, it should be a phrase or a single word without any prefixes. If no specific threat actor is specified, the output should be ['None'].
 
@@ -121,7 +121,7 @@ def get_root_cause_with_llm(root_cause):
 
 
 def augment_root_cause_context(root_cause, root_cause_info):
-    sys_prompt = f"""
+    sys_prompt = """
     ### Task description:
     You are an expert in cybersecurity. Based on the extracted information about the root cause from a blog, please generate a detailed context and summary about the root cause of the incident based on the report content and your knowledge. Ensure the context includes details about vulnerable or misconfigured services, exploited weaknesses, and contributing factors. Your output must be concise, professional, and factually accurate. No hallucination is allowed. Ensure the output provides sufficient information for a security professional to understand the root cause. No explanations or prefix texts like "Context:" are allowed in the output.
 

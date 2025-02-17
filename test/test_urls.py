@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from threat_research import get_white_list_urls
+from src.threat_research import get_white_list_urls
 
 def standardize_url(url):
     """Normalize URLs by removing trailing slashes and ensuring consistent formatting."""

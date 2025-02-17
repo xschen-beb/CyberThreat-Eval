@@ -1,4 +1,4 @@
-from crawl_oneti import get_profiles, get_articles
+from src.crawl_oneti import get_profiles, get_articles
 from mdti_description.crawl_oneti import get_access_token
 import mistune
 from markdown_it import MarkdownIt

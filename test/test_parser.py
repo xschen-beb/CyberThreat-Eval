@@ -1,6 +1,6 @@
 import re
 import json
-from threat_research import *
+from src.threat_research import *
 import ast
 
 def parse_text_to_json(text):
@@ -242,7 +242,7 @@ def test_tpg(original):
                         if not rec_dict_mitigation and mitigation:
                             # recommendation = eval(mitigation)
                             # for rec in recommendation:
-                            text_output += f"- Based on recommendation table, the source recommends:\n"
+                            text_output += "- Based on recommendation table, the source recommends:\n"
                             for rec in mitigation:
                                 text_output += f"[{rec["ttp_id"]}] {rec['title']}: {rec['reason']}\n"
                             has_mitigation = True
