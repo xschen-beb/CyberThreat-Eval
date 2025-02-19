@@ -6,6 +6,7 @@ sys.path.append(parent_directory)
 
 from playwright.sync_api import sync_playwright
 from src.search_engine import click_into_page_with_browser
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import os
 from openai import AzureOpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -16,11 +17,12 @@ from bs4 import BeautifulSoup
 import re
 import json
 
-
+_AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
+_CREDENTIAL = DefaultAzureCredential()
 client = AzureOpenAI(
-    azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
-    api_key=os.getenv("PROXY_KEY"),
-    api_version="2024-05-01-preview",
+    azure_endpoint="https://onetiai-swec.openai.azure.com/",
+    azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
+    api_version="2024-12-01-preview",
 )
 
 def extract_threat_actor_info(file_path):

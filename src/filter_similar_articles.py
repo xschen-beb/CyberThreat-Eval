@@ -11,12 +11,14 @@ import json
 from bs4 import BeautifulSoup
 from deprecated import deprecated
 import markdown
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-
+_AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
+_CREDENTIAL = DefaultAzureCredential()
 client = AzureOpenAI(
-    azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
-    api_key=os.getenv("PROXY_KEY"),
-    api_version="2024-05-01-preview",
+    azure_endpoint="https://onetiai-swec.openai.azure.com/",
+    azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
+    api_version="2024-12-01-preview",
 )
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))

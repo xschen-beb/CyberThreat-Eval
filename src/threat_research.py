@@ -69,7 +69,9 @@ RESET = "\033[0m"
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
 
-_DEPLOYMENT_ENV = "local"
+# _DEPLOYMENT_ENV = "local"
+_DEPLOYMENT_ENV = "playground"
+
 _LOG_ENABLED = True
 _SEARCH_ENGINE = "google"
 _HEADLESS_FLAG = False
@@ -95,11 +97,13 @@ if _DEPLOYMENT_ENV == "local":
 
 if _DEPLOYMENT_ENV == "playground":
     client = AzureOpenAI(
-        azure_endpoint="https://riqds-openai-test.openai.azure.com",
+        azure_endpoint="https://onetiai-swec.openai.azure.com/",
         azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
-        api_version="2024-05-01-preview",
+        api_version="2024-12-01-preview",
     )
-
+    client_id = "a92e7da0-0dec-4653-bae0-8b61258fd045"
+    scopes = ["api://a92e7da0-0dec-4653-bae0-8b61258fd045/oneti.api"]
+    token = get_access_token(client_id, scopes)
 
 def debug_print(*args, **kwargs):
     if _LOG_ENABLED:
@@ -118,6 +122,22 @@ def api_call(messages, func_list, model= "gpt-4o", json_enabled=True):
     total_tokens += num_tokens_from_string(str(messages), model)
     debug_print(RED + "==> Total LLM Calls: " + RESET, total_llm_call)
     debug_print(RED + "==> Total Tokens: " + RESET, total_tokens)
+
+    # If models in ['o1 series', 'o3 series']
+    if model == 'o3-mini':
+        new_messages = []
+        for message in messages:
+            if message["role"] == "system":
+                new_messages.append({"role": "developer", "content": [{"type": "text", "text": message["content"]}]})
+            else:
+                new_messages.append({"role": message["role"], "content": [{"type": "text", "text": message["content"]}]})
+        
+        return client.chat.completions.create(
+            model=model,
+            messages=new_messages,
+            response_format={"type": "json_object"} if json_enabled else None,
+            max_completion_tokens=100000,
+        )
 
     if model == 'gpt-4-32k':
         return client.chat.completions.create(
@@ -850,7 +870,7 @@ def format_iocs_excel(iocs):
     return "\n".join(formatted_iocs)
 
 
-def extract_iocs_from_text(blog, url):
+def extract_iocs_from_text(blog, url, model_name):
     """
     Extracts Indicators of Compromise (IoCs) from a given blog article.
 
@@ -881,7 +901,7 @@ def extract_iocs_from_text(blog, url):
 
     
     try:
-        response = api_call(messages, [], json_enabled=False)
+        response = api_call(messages, [], model=model_name, json_enabled=False)
         original = response.choices[0].message.content
         return extract_iocs(original, url)
     except Exception as e:
@@ -985,7 +1005,7 @@ def check_ioc(ioc_value, ioc_type):
         return None
 
 
-def llm_judgment_for_ioc_in_blog(ioc_value, original_text): 
+def llm_judgment_for_ioc_in_blog(ioc_value, original_text, model_name): 
     """
     Uses LLM to determine if a given IoC (Indicator of Compromise) value appears 
     in the provided original text.
@@ -1041,14 +1061,14 @@ def llm_judgment_for_ioc_in_blog(ioc_value, original_text):
     messages.append({"role": "user", "content": misconf_qeustion})
 
     try:
-        response = api_call(messages, [], json_enabled=False)
+        response = api_call(messages, [], model_name, json_enabled=False)
         original = response.choices[0].message.content
         return original
     except Exception:
         return False
 
 
-def check_ioc_llms_for_non_vt(ioc_value, original_text):
+def check_ioc_llms_for_non_vt(ioc_value, original_text, model_name):
     """
     For an item that is not in the VT database, determine whether a given item is a valid Indicator of Compromise (IoC) and
     if it appears in the provided text.
@@ -1172,7 +1192,7 @@ def check_ioc_llms_for_non_vt(ioc_value, original_text):
     ]
 
     try:
-        response = api_call(messages, [], json_enabled=False)
+        response = api_call(messages, [], model_name, json_enabled=False)
         result = response.choices[0].message.content.strip()
         debug_print(RED + "===> The IoC is: " + RESET, ioc_value)
         debug_print(RED + "===> The LLM check result is: " + RESET, result)
@@ -2197,10 +2217,10 @@ def threat_research_playground(url, work_item_id):
                 if length > 120000:
                     blog = blog[:120000]
                 # Proper formatting for IoCs
-                blog = blog.replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https")
+                blog = blog.replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https").replace("[", "").replace("]", "")
                 blog_for_urls.append({"blog": blog, "source": link})
                 
-                iocs_json = extract_iocs_from_text(blog, link)
+                iocs_json = extract_iocs_from_text(blog, link, "gpt-4o")
                 if iocs_json:
                     for ioc in iocs_json:
                         ioc_tuple = (ioc['type'], ioc['value'], ioc['source'], pub_date)
@@ -2234,7 +2254,7 @@ def threat_research_playground(url, work_item_id):
                         ioc_type_for_check = ioc_type
 
                     is_malicious = check_ioc(ioc_value, ioc_type_for_check)
-                    in_article = ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source)
+                    in_article = ioc_value in blogs_for_target_source and "True" in llm_judgment_for_ioc_in_blog(ioc_value, blogs_for_target_source, 'gpt-4o')
 
                     if is_malicious == True and in_article and is_valid_ioc(ioc_value, ioc_type):
                         # if ioc_type.lower() == 'email' and filter_email(ioc_value, unique_urls, white_list):
@@ -2250,7 +2270,7 @@ def threat_research_playground(url, work_item_id):
                     elif is_malicious is None and in_article and is_valid_ioc(ioc_value, ioc_type):
                         if ioc_type.lower() == 'email' and filter_email(ioc_value, unique_urls, white_list):
                             continue
-                        if "True" in check_ioc_llms_for_non_vt(ioc_value, blogs_for_target_source):
+                        if "True" in check_ioc_llms_for_non_vt(ioc_value, blogs_for_target_source, 'gpt-4o'):
                             text_output += f"- {ioc_type}: {ioc_value}  Publish date: {pub_date} [In [this link]({ioc_source}), not included in VT database]\n"
                             paste_ioc_section += f"{ioc_value}\n\n"
                             print(f"[Valid checked by LLM] The {ioc_type} {ioc_value} is not in VT database but in article link.")

@@ -29,8 +29,8 @@ sys_prompt = """
     - url: Complete valid URL (e.g., http://example.com/file.exe), must be in **URL format**, excluding common or benign names like "Microsoft".
     - email: Malicious email address (e.g., attacker@example.com)
     - hash_md5: A strict 32-character MD5 hash, letter case insensitive (e.g., f21cb2d2f8e62e38453fab019fa8f79f)
-    - hash_sha256: A strict 64-character SHA256 hash, letter case insensitive
-    - hash_sha1: A strict 40-character SHA1 hash, letter case insensitive
+    - hash_sha256: A strict 64-character SHA256 hash, letter case insensitive (e.g., 10ce939e4ee8b5285d84c7d694481ebbdf986904938d07f7576d733e830ed012)
+    - hash_sha1: A strict 40-character SHA1 hash, letter case insensitive (e.g., c6d54322a17e754150e61f7caa91226a84b0b774)
 5. Explicitly exclude any content that does not match the above formats, such as CVE identifiers (e.g., CVE-2024-40762) or unrelated data.
 6. **Only treat an email address as an IoC if it is used maliciously** or is directly associated with suspicious activity in the article.  
    - For example, an email address used by an attacker to exfiltrate data or impersonate a trusted entity can be considered an IoC.  
@@ -140,13 +140,14 @@ analysis_prompt = r"""
 
 _HEADLESS_FLAG = False
 
+_AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
+_CREDENTIAL = DefaultAzureCredential()
 
 client = AzureOpenAI(
-    azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
-    api_key=os.getenv("PROXY_KEY"),
-    api_version="2024-05-01-preview",
+    azure_endpoint="https://onetiai-swec.openai.azure.com/",
+    azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
+    api_version="2024-12-01-preview",
 )
-
 
 def validate_ioc(ioc_type, value):    
     if ioc_type == "ip_port":

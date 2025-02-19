@@ -5,6 +5,8 @@ parent_directory = os.path.abspath(os.path.join(os.getcwd(), '..'))
 sys.path.append(parent_directory)
 
 from playwright.sync_api import sync_playwright
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
 from src.search_engine import click_into_page_with_browser
 import os
 from openai import AzureOpenAI
@@ -19,11 +21,14 @@ import re
 import json
 
 
+_AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
+_CREDENTIAL = DefaultAzureCredential()
 client = AzureOpenAI(
-    azure_endpoint=os.getenv("LOCAL_ENDPOINT"),
-    api_key=os.getenv("PROXY_KEY"),
-    api_version="2024-05-01-preview",
+    azure_endpoint="https://onetiai-swec.openai.azure.com/",
+    azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
+    api_version="2024-12-01-preview",
 )
+
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 def api_call(messages, temperature, model="gpt-4o", json_enabled=True):
