@@ -69,8 +69,8 @@ RESET = "\033[0m"
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
 
-# _DEPLOYMENT_ENV = "local"
-_DEPLOYMENT_ENV = "playground"
+_DEPLOYMENT_ENV = "local"
+# _DEPLOYMENT_ENV = "playground"
 
 _LOG_ENABLED = True
 _SEARCH_ENGINE = "google"
@@ -766,7 +766,7 @@ def threat_research_core(url):
         You should provide a signature in the following format:    
         Incident: A brief and specific name of the incident (e.g., Shanghai Police Datalake Leak). 
         
-        Root cause: The summarized detailed context of the root cause behind the incident including vulnerable/misconfigured services, exploitations, and malware name (e.g., Misconfigured Kibana instance, SmokeLoader). Focus on the most critical vulnerabilities/misconfigurations/malware that led to the incident. Group similar issues and avoiding just listing all vulnerabilities. If no blog provides the info, output "Not specified". If there are hints or general observations in the article, use them to supplement your answer.
+        Root cause: The summarized detailed context of the root cause behind the incident including vulnerable/misconfigured services, exploitations, and malware name (e.g., Misconfigured Kibana instance, SmokeLoader malware). Focus on the most critical vulnerabilities/misconfigurations/malware that led to the incident. Group similar issues and avoiding just listing all vulnerabilities. If no blog provides the info, output "Not specified". If there are hints or general observations in the article, use them to supplement your answer.
         
         Threat actor/group/campaign: The detailed context of Who carried out the attack? It could be an orgainzation, a malware family, etc (if known). If no actors are identified in the blog, output "Not specified". If the article provides partial information, include it, and summarize the answer. 
         
@@ -2048,81 +2048,61 @@ def threat_research_playground(url, work_item_id):
                     actors = get_actor_v1(source_blog)
                     threat_actors = eval(actors)
                     print("==> Extracted threat actors from the report: ", actors)
-                    has_mitigation = False
 
+                    has_mitigation = False
+                    mitigation_content = ""
+
+                    # Step 1: Extract from MDTI
                     if actors and 'None' not in actors:
                         names, links, mdti_recommendation = mdti_recommendation_pipeline(threat_actors, token)
                         print("==> Extracted mitigation from MDTI: ", names, links, mdti_recommendation)
-                        # prof_links = "\n".join(f"- {link}" for link in set(links))
-                        valid_links = []
-    
-                        for link in links:
-                            # Fetch the page content
-                            try:
-                                blog_content = click_into_page_with_browser(link)  # Assuming this function returns blog content as a string
-                                num_tokens = num_tokens_from_string(blog_content, "gpt-4o")
-                                
-                                # Only include links with content exceeding 500 tokens
-                                if num_tokens > 500:
-                                    valid_links.append(link)
-                            except Exception as e:
-                                print(f"Error processing {link}: {e}")
-                        
-                        # Remove duplicates and format as a list
-                        prof_links = "\n".join(f"- {link}" for link in set(links))
-                        print(f"==> Extracted links from MDTI: \n{prof_links}")
 
-                        mitigation_name =  ", ".join(f"{name}" for name in set(actor_name[:3]))
-                        cleaned_recommendation = []
-                        # if mdti_recommendation != "No recommendations found.":
-                        if mdti_recommendation != None:
-                            for item in mdti_recommendation:
-                                cleaned_recommendation.append(re.sub(r'\n\s*\n', '\n', item))
-                            
-                            if links:
-                                num = 0
-                                for prof_link in links:
-                                    text_output += f"- Based on MDTI profile for ({names[num]}) from the following links: \n\n{links[num]}\n\n The recommendations are:\n\n"
-                                    text_output += f"{cleaned_recommendation[num]}\n"
-                                    num += 1
-                            else:
-                                num = 0
-                                for prof_link in links:
-                                    text_output += f"- Based on MDTI profile for ({names[num]}) from the following links: []\n\n\n\n The recommendations are:\n\n"
-                                    text_output += f"{cleaned_recommendation[num]}\n"
-                                    num += 1
+                        if mdti_recommendation:  # If MDTI found recommendations
+                            valid_links = []
+                            for link in links:
+                                try:
+                                    blog_content = click_into_page_with_browser(link)
+                                    num_tokens = num_tokens_from_string(blog_content, "gpt-4o")
+                                    if num_tokens > 500:
+                                        valid_links.append(link)
+                                except Exception as e:
+                                    print(f"Error processing {link}: {e}")
 
+                            for i in range(len(mdti_recommendation)):
+                                mitigation_content += f"- Based on MDTI profile for ({names[i]}) from the following links:\n\n{links[i]}\n\nThe recommendations are:\n\n{mdti_recommendation[i]}\n"
                             
                             has_mitigation = True
-                    # elif mdti_recommendation == "No recommendations found.":
-                    # else:
+
+                    # Step 2: If MDTI fails, use OSINT Recommendation Dictionary
                     if not has_mitigation:
-                        # rec_dict_mitigation = process_rec_dict_ttps(ttps)
                         rec_dict_mitigation = gen_dict_recommendation_from_report(source_blog)
-                        print("==> Extracted mitigation category from the report: ", rec_dict_mitigation)
                         if rec_dict_mitigation:
-                            text_output += f"- Based on OSINT recommendation dictionary ({rec_dict_mitigation}), the recommendations are:\n\n"
+                            print(f"==> Extracted mitigation category from the report: {rec_dict_mitigation}")
                             tech = pd.read_csv('recommendations/RecDict.csv')
                             res = get_recommendation_by_title(tech, rec_dict_mitigation)
-                            text_output += f"{rec_dict_mitigation}: {res[1]}\n"
-                            # for rec in rec_dict_mitigation:
-                                # text_output += f"- [{rec["ttp_id"]}] {rec['title']}: {rec['reason']}\n"
+                            mitigation_content += f"- Based on OSINT recommendation dictionary ({rec_dict_mitigation}), the recommendations are:\n\n{rec_dict_mitigation}: {res[1]}\n"
                             has_mitigation = True
 
+                    # Step 3: If OSINT fails, use TTP-based recommendations
+                    if not has_mitigation:
                         mitigation = process_all_ttps(ttp_text)
-                        if not rec_dict_mitigation and mitigation:
-                            # recommendation = eval(mitigation)
-                            # for rec in recommendation:
-                            # text_output += f"- Based on recommendation table, the source recommends:\n"
-                            text_output += "- Did not find related recommendations from MDTI and OSINT Recommendation Dictionary, based on TTPs, we suggest the following recommendations: \n"
+                        if mitigation:
+                            print("==> Using TTP-based recommendations as fallback.")
+                            mitigation_content += "- Based on TTPs, we suggest the following recommendations:\n"
                             for rec in mitigation:
-                                text_output += f"- [{rec['ttp_id']}] {rec['title']}: {rec['reason']}\n"
+                                mitigation_content += f"- [{rec['ttp_id']}] {rec['title']}: {rec['reason']}\n"
                             has_mitigation = True
-                        # else:
-                    if not has_mitigation and value:
-                        text_output += f"#### {key} \n {value} \n"
-                    text_output += '\n'
-                    print(f"After mitigation, \n\n {text_output}\n\n")
+
+                    # Step 4: If everything fails, add default message
+                    if not has_mitigation:
+                        print("==> No recommendations found in MDTI, OSINT, or TTPs.")
+                        mitigation_content = "- No specific mitigation steps were found.\n"
+
+                    # Append final content to output
+                    text_output += mitigation_content + "\n"
+
+                    print(f"After mitigation, \n\n{text_output}\n\n")
+
                 
                 elif key == 'Detection Signature':
                     text_output += "#### Detections/Hunting Queries \n"
