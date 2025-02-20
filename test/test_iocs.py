@@ -34,9 +34,8 @@ def threat_research_playground(unique_urls, model_name):
             blog_for_urls = []
             iocs_dict = {}  # Use a dictionary to remove duplicates by value
             for link in unique_urls:
-                #blog = click_into_page_with_browser(
-                    #link, is_text=False, headless_flag=False
-                #)
+                blog_start = time.time()  # Start timing for this link processing
+
                 debug_print(RED + "==> Processing link: " + RESET, link)
 
                 blog = click_into_page_with_browser(
@@ -63,6 +62,9 @@ def threat_research_playground(unique_urls, model_name):
                         # Use ioc['value'] as the key to ensure uniqueness
                         iocs_dict[ioc['value']] = ioc_tuple
 
+                blog_end = time.time()  # End timing for this link processing
+                print(f"==> Time taken for processing link {link}: {blog_end - blog_start:.2f} seconds")
+
 
             unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2], "publish_date": ioc[3]} for ioc in iocs_dict.values()]
             print(f"Unique IoCs: {unique_iocs}")
@@ -86,6 +88,7 @@ def threat_research_playground(unique_urls, model_name):
             fw = open(f"{model_name}_output_iocs.json", 'w')
 
             for ioc_data in unique_iocs:
+                piece_start = time.time()
                 ioc_value = ioc_data["value"].replace("[.]", ".").replace("hXXp", "http").replace("hXXps", "https").replace("[", "").replace("]", "")
                 print(f"====== Processing IoC: {ioc_value} ======")
                 if ioc_value in unique_urls or filter_url(ioc_value, unique_urls, white_list):
@@ -140,6 +143,8 @@ def threat_research_playground(unique_urls, model_name):
 
                 except Exception as e:
                     print(f"Error processing {ioc_type} {ioc_value}: {e}")
+                piece_end = time.time()  # End timing for this IoC
+                print(f"==> Time taken for processing IoC {ioc_value}: {piece_end - piece_start:.2f} seconds")
             
             if paste_ioc_section == "#### paste IoC\n":
                 text_output += "- No IoCs found.\n\n"
@@ -168,6 +173,7 @@ def sanitize_url(url):
     except Exception as e:
         raise ValueError(f"Invalid URL: {url} - {e}")
     
+
 if __name__ == '__main__':
     # file = 'test/IoCs.csv'
     file = 'IoCs.csv'
