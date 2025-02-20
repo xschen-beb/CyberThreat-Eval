@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from src.threat_research import *
 import json
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+import time
 
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
@@ -24,6 +25,7 @@ def threat_research_playground(unique_urls, model_name):
                 # "https://www.picussecurity.com/resource/blog/salt-typhoon-telecommunications-threat"
                 # "https://research.checkpoint.com/2024/hamas-affiliated-threat-actor-expands-to-disruptive-activity"
             # ]
+            extract_start_time = time.time()
             unique_urls = set(unique_urls)
 
 
@@ -35,7 +37,8 @@ def threat_research_playground(unique_urls, model_name):
                 #blog = click_into_page_with_browser(
                     #link, is_text=False, headless_flag=False
                 #)
-                print(f"==> Processing link: {link}")
+                debug_print(RED + "==> Processing link: " + RESET, link)
+
                 blog = click_into_page_with_browser(
                     link, is_text=True, headless_flag=False
                 )
@@ -63,13 +66,18 @@ def threat_research_playground(unique_urls, model_name):
 
             unique_iocs = [{"type": ioc[0], "value": ioc[1], "source": ioc[2], "publish_date": ioc[3]} for ioc in iocs_dict.values()]
             print(f"Unique IoCs: {unique_iocs}")
+            extract_end_time = time.time()
+            extract_time = extract_end_time - extract_start_time
+            print(f"==> Extract time: {extract_time:.2f} seconds")
+
             output_file = f"{model_name}_unique_iocs.json"
 
             # Convert unique_iocs to JSON and save to file
-            with open(output_file, "w") as file:
-                json.dump(unique_iocs, file, indent=4)
+            # with open(output_file, "w") as file:
+                # json.dump(unique_iocs, file, indent=4)
 
-            print(f"Saved unique IoCs to {output_file}")
+            # print(f"Saved unique IoCs to {output_file}")
+            verify_start_time = time.time()
             if not unique_iocs:
                 text_output += "- No IoCs found. \n"
                 return text_output
@@ -137,6 +145,9 @@ def threat_research_playground(unique_urls, model_name):
                 text_output += "- No IoCs found.\n\n"
 
             text_output += "\n" + paste_ioc_section + "\n"
+            verify_end_time = time.time()
+            verify_time = verify_end_time - verify_start_time
+            print(f"==> Verify time: {verify_time:.2f} seconds")
 
             print("Total LLM calls: ", total_llm_call)
             print("Total LLM time: ", total_tokens)
@@ -176,7 +187,13 @@ if __name__ == '__main__':
     url = ['https://thedfirreport.com/2025/01/27/cobalt-strike-and-a-pair-of-socks-lead-to-lockbit-ransomware']
     # model_names = ['gpt-4o', 'o3-mini']
     # for model_name in model_names:
+    start_time = time.time()
+
     output = threat_research_playground(urls, model_name)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"==> Elapsed time: {elapsed_time:.2f} seconds")
+
 
     # urls_list = urls.tolist()
     # print(urls_list)
