@@ -196,18 +196,13 @@ def main():
 
 
 if __name__ == '__main__':
-    csv_file='src/TTP_Mapping.csv'
-    ttp_mapping = {}
     csv_file = 'src/TTP_Mapping.csv'
-
-    # Read the CSV file using pandas
     df = pd.read_csv(csv_file, encoding='utf-8')
-
-    # Select only the "TechniqueID" and "name" columns
+    # Select only the relevant columns ("TechniqueID" and "name")
     mapping_df = df[['TechniqueID', 'name']]
-
-    # Convert the selected DataFrame to a dictionary mapping TechniqueID to name
-    ttp_mapping = dict(zip(mapping_df['TechniqueID'], mapping_df['name']))
-
-    # Print the resulting dictionary
-    print(ttp_mapping)
+    # Create a dictionary mapping from TechniqueID to name
+    ttp_mapping_dict = dict(zip(mapping_df['TechniqueID'], mapping_df['name']))
+    
+    # Build the reference string from the mapping dictionary, one entry per line
+    reference_str = "\n".join([f"{ttp}: {name}" for ttp, name in ttp_mapping_dict.items()])
+    print(reference_str)
