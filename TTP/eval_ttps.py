@@ -475,7 +475,7 @@ def compute_raw_precision_recall(articles, client, model_name):
 
     return overall_precision, overall_recall
 
-
+# method 3
 def compute_mapping_precision_recall(articles, client, model_name):
     """
     Compute precision and recall metrics for TTP extraction from a list of articles,
@@ -576,15 +576,113 @@ def compute_mapping_precision_recall(articles, client, model_name):
         except Exception as e:
             print(f"Error processing article: {e}")
 
-    overall_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
-    overall_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
+        overall_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
+        overall_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
 
-    print("Overall Metrics:")
-    print(f"Total True Positives: {total_tp}")
-    print(f"Total False Positives: {total_fp}")
-    print(f"Total False Negatives: {total_fn}")
-    print(f"Precision: {overall_precision:.4f}")
-    print(f"Recall: {overall_recall:.4f}")
+        print("Overall Metrics:")
+        print(f"Total True Positives: {total_tp}")
+        print(f"Total False Positives: {total_fp}")
+        print(f"Total False Negatives: {total_fn}")
+        print(f"Precision: {overall_precision:.4f}")
+        print(f"Recall: {overall_recall:.4f}")
+
+    return overall_precision, overall_recall
+
+# method 2
+def compute_raw_with_mapping_precision_recall(articles, client, model_name):
+    """
+    Compute raw precision and recall metrics for extracted TTPs from a list of articles.
+
+    For each article:
+      1. Extract raw TTP codes from the article's "ttps" field.
+      2. Use the extraction function to obtain validated TTPs.
+      3. Validate each extracted TTP against a known mapping:
+         - If a TTP's description does not match the expected mapping,
+           issue a warning and do NOT add this TTP to the final validated TTPs.
+           (Such TTPs will be treated as false positives.)
+      4. Compute TP, FP, FN for the article and update overall totals.
+
+    Returns:
+        overall_precision (float), overall_recall (float)
+    """
+    total_tp = 0
+    total_fp = 0
+    total_fn = 0
+    
+    # Load the TTP mapping from CSV (assume this function is defined)
+    ttp_mapping = load_ttp_mapping()
+
+    for article in articles:
+        try:
+            time_start = time.time()
+            # Extract raw TTP codes from the article field "ttps"
+            raw_ttps = article.get("ttps", [])
+            # Extract TTP codes from the article list (e.g., "T1136" from "T1136 - Create Account")
+            article_ttps_set = {ttp.split(" - ")[0].strip() for ttp in raw_ttps if " - " in ttp}
+            print("Article TTP Codes:", article_ttps_set)
+            
+            # Use the extraction function to obtain validated TTPs
+            result = extract_ttps_with_ref(client, article, model_name)
+            print("Extracted TTPs (raw):", result)
+            if isinstance(result, str):
+                try:
+                    validated_ttps = json5.loads(result)
+                except Exception as e:
+                    print(f"Error parsing TTP data: {e}")
+                    continue
+            else:
+                validated_ttps = result
+
+            print("Validated TTPs (pre-validation):", validated_ttps)
+            
+            # Validate extracted TTPs using mapping.
+            # If a TTP's description does not match, do not add it to validated_ttps_final,
+            # and count it as a false positive.
+            miscount = 0
+            validated_ttps_final = {}
+            for ttp_id, details in validated_ttps.items():
+                description = details.split(',')[0].strip()
+                if ttp_id in ttp_mapping:
+                    if description.lower() == ttp_mapping[ttp_id].lower():
+                        validated_ttps_final[ttp_id] = details
+                    else:
+                        # Description mismatch: do not add to validated_ttps_final
+                        print(f"Warning: Description mismatch for {ttp_id}")
+                        print(f"Expected: {ttp_mapping[ttp_id]}")
+                        print(f"Found: {description}")
+                        # total_fp += 1  # Count as false positive
+                        miscount += 1
+                else:
+                    print(f"Warning: TTP ID {ttp_id} not found in mapping")
+            validated_ttps_set = set(validated_ttps_final.keys())
+            print("Validated TTP Codes (after validation):", validated_ttps_set)
+            
+            # Calculate True Positives, False Positives, and False Negatives for this article
+            tp = len(article_ttps_set.intersection(validated_ttps_set))
+            fp = miscount
+            # fp = len(validated_ttps_set - article_ttps_set)
+            # fn = len(article_ttps_set - validated_ttps_set)
+            fn = len(article_ttps_set) - tp - fp
+            
+            print(f"Article metrics: TP: {tp}, FP: {fp}, FN: {fn}\n")
+            time_end = time.time()
+            print(f"==> Total time taken for TTPs: {time_end - time_start:.2f} seconds")
+            
+            total_tp += tp
+            total_fp += fp
+            total_fn += fn
+
+            overall_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
+            overall_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
+
+            print("Overall Metrics:")
+            print(f"Total True Positives: {total_tp}")
+            print(f"Total False Positives: {total_fp}")
+            print(f"Total False Negatives: {total_fn}")
+            print(f"Precision: {overall_precision:.4f}")
+            print(f"Recall: {overall_recall:.4f}")
+        except Exception as e:
+            print(f"Error: {e}")
 
     return overall_precision, overall_recall
 
@@ -620,7 +718,9 @@ def main():
 
     time_start = time.time()
     # compute_precision_recall(articles, client, model_name)
-    compute_raw_precision_recall(articles, client, model_name)
+    # compute_raw_precision_recall(articles, client, model_name)
+    # compute_raw_with_mapping_precision_recall(articles, client, model_name)
+    compute_mapping_precision_recall(articles, client, model_name)
     time_end = time.time()
     print(f"==> Total time taken for all TTPs: {time_end - time_start:.2f} seconds")
     
