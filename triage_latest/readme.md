@@ -1,1 +1,1 @@
-This file is for the latest LLM-based priority score assignment code
+This folder is for the latest LLM-based priority score assignment code
