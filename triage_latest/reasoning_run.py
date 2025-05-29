@@ -32,12 +32,18 @@ CYAN = "\033[36m"
 RESET = "\033[0m"
 _LOG_ENABLED = True
 
+_AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
+_CREDENTIAL = DefaultAzureCredential()
 total_llm_call = 0
 total_tokens = 0
 
 def num_tokens_from_string(string: str, model_name: str) -> int:
     """Returns the number of tokens in a text string."""
-    encoding = tiktoken.encoding_for_model(model_name)
+    if model_name == 'gpt-41':
+        encoding_model = 'gpt-4o'
+    else:
+        encoding_model = model_name
+    encoding = tiktoken.encoding_for_model(encoding_model)
     num_tokens = len(encoding.encode(string, disallowed_special=()))
     return num_tokens
 
@@ -48,12 +54,8 @@ def debug_print(*args, **kwargs):
         logging.debug(message)
         print(*args, **kwargs)
 
-@retry(wait=wait_random_exponential(min=1, max=120), stop=stop_after_attempt(10))
+@retry(wait=wait_random_exponential(min=1, max=120), stop=stop_after_attempt(3))
 def api_call(client, messages, model_name, json_enabled=True):
-    """
-    Generic API call wrapper with retry logic. 
-    This remains outside the Baseline class to allow easy reuse.
-    """
     global total_llm_call
     global total_tokens
     total_llm_call += 1
@@ -62,7 +64,7 @@ def api_call(client, messages, model_name, json_enabled=True):
     debug_print(RED + "==> Total Tokens: " + RESET, total_tokens)
 
     # If using custom 'o3-mini' or other specialized series
-    if model_name == 'o3-mini':
+    if model_name in ['o3-mini']:
         new_messages = []
         for message in messages:
             if message["role"] == "system":
@@ -76,6 +78,23 @@ def api_call(client, messages, model_name, json_enabled=True):
             response_format={"type": "json_object"} if json_enabled else None,
             max_completion_tokens=100000
         )
+    
+    if model_name in ['gpt-41']:
+        new_messages = []
+        for message in messages:
+            if message["role"] == "system":
+                new_messages.append({"role": "system", "content": [{"type": "text", "text": message["content"]}]})
+            else:
+                new_messages.append({"role": message["role"], "content": [{"type": "text", "text": message["content"]}]})
+        
+        return client.chat.completions.create(
+            model=model_name,
+            messages=new_messages,
+            temperature=0.01,
+            response_format={"type": "json_object"} if json_enabled else None,
+            max_completion_tokens=8196
+        )
+
 
     # Otherwise for gpt-4 or other standard models
     if model_name == 'gpt-4-32k':
@@ -116,26 +135,26 @@ subject_weights = {
 }
 
 subject_categories = {
-    "Disruption": ["ransomware", "ddos", "defacement", "spam"],
+    "Disruption": ["ransomware", "ddos", "defacement/spam"],
     "Exfiltration": ["rat", "info stealer"],
     "Access": ["phishing campaign", "brute force", "aitm", "supply chain", "backdoor", "cobalt strike"],
-    "Exploit": ["cve"],
-    "Tradecraft": ["threat actor updates", "new tooling", "new threat actors", "tooling updates"],
-    "Consumer": ["crypto", "fraud", "video game"],
-    "Informational": ["trends", "vendor tool releases", "leak published", "policy update", "vuln fix"]
+    "Exploit": ["CVEs"],
+    "Tradecraft": ["threat actor updates", "new tooling", "new threat actors", "tooling updates", "tool overview"],
+    "Consumer": ["crypto", "fraud", "video game related"],
+    "Informational": ["trends", "vendor tool releases", "leak published", "policy update", "vulnerability fix"]
 }
 
 modifier_weights = {
-    "has_iocs": 1.2,
-    "no_iocs": 0.8,
-    "multiple_related_articles": 1.5,
-    "exploit_cvss_high": 1.2,
-    "exploit_cvss_low": 0.5,
-    "threat_actor_mentioned": 1.5,
-    "is_poc": 1.2,
-    "exploit_active": 1.2,
-    "multiple_cves": 1.2,
-    "includes_ai": 1.5
+    "If has_iocs": 1.2,
+    "If no_iocs": 0.8,
+    "If multiple_related_articles": 1.5,
+    "If Exploit and CVSS >= 9": 1.2,
+    "If Exploit and CVSS < 9": 0.5,
+    "If threat actor/group/campaign mentioned": 1.5,
+    "If is POC": 1.2,
+    "If Exploit reported as active": 1.2,
+    "If Exploit and multiple CVEs": 1.2,
+    "If includes AI": 1.5
 }
     
 class Baseline:
@@ -146,19 +165,19 @@ class Baseline:
     def get_subject_category(self, article: str) -> str:
         try:
             system_prompt = """
-            You are a cybersecurity analyst. Your task is to determine the most appropriate Subject category from the following list:
-            1. Disruption (includes: ransomware, ddos, defacement, spam)
+            You are a cybersecurity expert. Your task is to determine the most appropriate Subject category from the following list:
+            1. Disruption (includes: ransomware, ddos, defacement/spam)
             2. Exfiltration (includes: RAT, Info Stealer)
             3. Access (includes: phishing campaign, brute force, AITM, supply chain, backdoor, cobalt strike)
             4. Exploit (includes: CVEs)
-            5. Tradecraft (includes: threat actor updates, new tooling, new threat actors, tooling updates)
-            6. Consumer (includes: crypto, fraud, video game)
-            7. Informational (The article should NOT include IoCs, and includes: trends, vendor tool releases, leak published, policy update, vuln fix)
+            5. Tradecraft (includes: threat actor updates, new tooling, new threat actors, tooling updates, tool overview)
+            6. Consumer (includes: crypto, fraud, video game related)
+            7. Informational (The article should NOT include IoCs, and includes: trends, vendor tool releases, leak published, policy update, vulnerability fix)
 
             Output Format:
             - Return a JSON object with two keys: "answer" and "reason".
-            - The "answer" key should contain only the category name from the list (e.g., "Disruption", "Exfiltration", etc.)
-            - The "reason" key should contain a brief explanation of why that category was chosen.
+            - The "answer" key should contain only the most proper category name from the list (e.g., "Disruption", "Exfiltration", etc.)
+            - The "reason" key should contain a brief explanation of why that category and the intermediate category (e.g., subject: Disruption, intermediate subject: ransomware) was chosen.
             """
             user_prompt = f"""
             Please analyze the following article and determine its Subject category:
@@ -178,25 +197,34 @@ class Baseline:
     def get_modifiers(self, article: str) -> list:
         try:
             system_prompt = """
-            You are a cybersecurity analyst. Your task is to identify all applicable modifiers from the following list:
-            1. has_iocs - Check if there's a link to IOCs in the article
-            2. no_iocs - No IOCs found in the article
-            3. multiple_related_articles - Multiple related articles mentioned (NOT original source URL)
-            4. exploit_cvss_high - If it's an exploit with CVSS >= 9
-            5. exploit_cvss_low - If it's an exploit with CVSS < 9
-            6. threat_actor_mentioned - If a specific threat actor/group/campaign is mentioned
-            7. is_poc - If it's a proof of concept
-            8. exploit_active - If the exploit is reported as active
-            9. multiple_cves - If multiple CVEs are mentioned in the article
-            10. includes_ai - If AI is mentioned in the article
+            You are a cybersecurity expert. Your task is to identify modifiers that you are 100% confident about based on clear evidence in the article.
+
+            Available modifiers (only choose if you are 100% certain):
+            1. "If has_iocs" (1.2) - ONLY if there are explicit, extractable IOCs in the article
+            2. "If no_iocs" (0.8) - ONLY if you are certain there are no extractable IOCs
+            3. "If multiple_related_articles" (1.5) - ONLY if multiple related articles are explicitly mentioned (NOT original source URL)
+            4. "If Exploit and CVSS >= 9" (1.2) - ONLY if CVSS score >= 9 is explicitly stated
+            5. "If Exploit and CVSS < 9" (0.5) - ONLY if CVSS score < 9 is explicitly stated
+            6. "If threat actor/group/campaign mentioned" (1.5) - ONLY if a specific threat actor/group/campaign is explicitly named
+            7. "If is POC" (1.2) - ONLY if the article explicitly states it's a proof of concept
+            8. "If Exploit reported as active" (1.2) - ONLY if the article explicitly states the exploit is active
+            9. "If Exploit and multiple CVEs" (1.2) - ONLY if multiple CVE numbers are explicitly listed
+            10. "If includes AI" (1.5) - ONLY if AI-related information is explicitly mentioned
+
+            Important Rules:
+            - You MUST choose an answer from ["If has_iocs", "If no_iocs"]
+            - Only choose modifiers you are 100% certain about
+            - Each chosen modifier must have clear evidence in the article
+            - Do not make assumptions or inferences
+            - Use EXACTLY the modifier names as shown above
 
             Output Format:
-            - Return a JSON object with two keys: "modifiers" and "reason".
-            - The "modifiers" key should contain an array of modifier names from the list above
-            - The "reason" key should contain a brief explanation for each modifier chosen
+            - Return a JSON object with two keys: "modifiers" and "reason"
+            - The "modifiers" key should contain an array of modifier names you are 100% certain about
+            - The "reason" key should contain a brief explanation with specific evidence from the article for each chosen modifier
             """
             user_prompt = f"""
-            Please analyze the following article and identify all applicable modifiers:
+            Please analyze the following article and identify modifiers you are 100% certain about based on clear evidence:
 
             {article}
             """
@@ -213,10 +241,10 @@ class Baseline:
     def calculate_priority_score(self, subject: str, modifiers: list) -> int:
         subject_weight = subject_weights.get(subject, 0) 
 
-        if subject == "Exploit":
-            high_priority_modifiers = ["has_iocs", "exploit_active", "is_poc", "multiple_cves"]
-            if any(mod in modifiers for mod in high_priority_modifiers):
-                return 1 
+        # if subject == "Exploit":
+        #     high_priority_modifiers = ["has_iocs", "exploit_active", "is_poc", "multiple_cves"]
+        #    if any(mod in modifiers for mod in high_priority_modifiers):
+        #        return 1 
         
         modifier_weight = 1.0
         for modifier in modifiers:
@@ -224,6 +252,9 @@ class Baseline:
                 modifier_weight *= modifier_weights[modifier]
         
         final_weight = subject_weight * modifier_weight
+        print(f"==> Predicted subject weight: {subject_weight}")
+        print(f"==> Predicted modifier weight: {modifier_weight}")
+        print(f"==> Predicted final weight: {final_weight}")
         
         if final_weight >= 1.0:
             return 1
@@ -242,14 +273,14 @@ class Baseline:
                     return 4
                 subject_data = eval(subject_result)
                 subject = subject_data['answer']
-                print(f" => Subject category: {subject}")
+                print(f" ==> Predicted Subject category: {subject}")
                 
                 modifiers_result = self.get_modifiers(article)
                 if not modifiers_result:
                     return 4
                 modifiers_data = eval(modifiers_result)
                 modifiers = modifiers_data['modifiers']
-                print(f" => Modifiers: {modifiers}")
+                print(f" ==> Predicted Modifiers: {modifiers}")
                 
                 score = self.calculate_priority_score(subject, modifiers)
                 return score
@@ -262,6 +293,74 @@ class Baseline:
                 else:
                     print("Max retries reached. Returning default score.")
                     return 4
+
+    def evaluate_subject_accuracy(self, data_dict, article_type):
+        """Evaluate the accuracy of subject classification"""
+        subject_true = []
+        subject_pred = []
+        subject_correct = 0
+        total = 0
+        
+        print("\n====== Subject Category Evaluation ======")
+        for data in tqdm(data_dict):
+            if "Cassandra.SourceText" not in data or not data["Cassandra.SourceText"]:
+                continue
+                
+            if article_type == 'article':
+                if "Cassandra.SourceText" not in data or not data["Cassandra.SourceText"]:
+                    continue
+                article = data["Cassandra.SourceText"]
+            elif article_type == 'description':
+                article = data["System.Description"]
+            subject_result = self.get_subject_category(article)
+            
+            if not subject_result:
+                continue
+                
+            try:
+                subject_data = eval(subject_result)
+                predicted_subject = subject_data['answer']
+                true_subject = data["subject"]
+                
+                subject_true.append(true_subject)
+                subject_pred.append(predicted_subject)
+                
+                if predicted_subject == true_subject:
+                    subject_correct += 1
+                total += 1
+                
+                print(f"\nArticle ID: {data['id']}")
+                print(f"True Subject: {true_subject}")
+                print(f"Predicted Subject: {predicted_subject}")
+                print(f"Correct: {predicted_subject == true_subject}")
+                
+            except Exception as e:
+                print(f"Error processing article {data['id']}: {e}")
+                continue
+        
+        if total > 0:
+            accuracy = subject_correct / total
+            print("\nSubject Classification Metrics:")
+            print(f"Total Articles: {total}")
+            print(f"Correct Predictions: {subject_correct}")
+            print(f"Accuracy: {accuracy:.4f}")
+            
+            subject_categories = set(subject_true + subject_pred)
+            for category in subject_categories:
+                true_positives = sum(1 for t, p in zip(subject_true, subject_pred) if t == category and p == category)
+                false_positives = sum(1 for t, p in zip(subject_true, subject_pred) if t != category and p == category)
+                false_negatives = sum(1 for t, p in zip(subject_true, subject_pred) if t == category and p != category)
+                
+                precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+                recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+                f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+                
+                print(f"\nCategory: {category}")
+                print(f"Precision: {precision:.4f}")
+                print(f"Recall: {recall:.4f}")
+                print(f"F1 Score: {f1:.4f}")
+        else:
+            print("No valid articles found for evaluation")
 
     def gen_article_score_with_llms(self, data_dict, article_type):
         biases = []
@@ -287,22 +386,29 @@ class Baseline:
                 
             results.append({
                 "id": data["id"],
-                "score": data["score"],
+                "score": data["priority"],
                 "llm_result": result
             })
             
-            bias = int(abs(result - data["score"]))
-            y_true.append(data["score"])
+            bias = int(abs(result - data["priority"]))
+            y_true.append(data["priority"])
             y_pred.append(result)
             biases.append(bias)
             
+            print(f"==> Ground truth subject: {data["subject"]}")
+            print(f"==> Ground truth intermediate subject: {data["intermediate_subject"]}")
+            print(f"==> Ground truth subject weight: {data["subject_weight"]}")
+            print(f"==> Ground truth modifier: {data["modifier"]}")
+            print(f"==> Ground truth modifier weight: {data["modifier_weight"]}")
+            print(f"==> Ground truth priority weight: {data["priority_weight"]}")
             print(f"==> Ground truth score: {data['score']}")
             print(f"==> Predicted score: {result}")
+            print("="*30)
             print(f"==> Correct: {data['score'] == result}")
             print(f"==> Bias: {bias}")
 
-            if data["score"] in bias_dict:
-                bias_dict[data["score"]].append(bias)
+            if data["priority"] in bias_dict:
+                bias_dict[data["priority"]].append(bias)
 
         overall_bias = round(np.mean(biases), 4) if biases else 0
 
@@ -314,18 +420,14 @@ class Baseline:
                 avg_bias_per_class[score] = 0
 
         accuracy = accuracy_score(y_true, y_pred)
-        precision_macro = precision_score(y_true, y_pred, average='macro', zero_division=0)
-        recall_macro = recall_score(y_true, y_pred, average='macro', zero_division=0)
-        f1_macro = f1_score(y_true, y_pred, average='macro', zero_division=0)
+
         cm = confusion_matrix(y_true, y_pred)
         report = classification_report(y_true, y_pred, zero_division=0, digits=3)
         
         print("\n====== Evaluation Metrics ======")
         print(f"Overall Accuracy: {accuracy:.4f}")
         print(f"Overall Bias: {overall_bias:4f}")
-        print(f"Overall Precision (macro): {precision_macro:.4f}")
-        print(f"Overall Recall (macro): {recall_macro:.4f}")
-        print(f"Overall F1 Score (macro): {f1_macro:.4f}")
+ 
         print("\nConfusion Matrix:")
         print(cm)
         print("\nClassification Report:")
@@ -380,9 +482,6 @@ class Baseline:
         combined_metrics = {
             "overall_accuracy": accuracy,
             "overall_bias": overall_bias,
-            "precision_macro": precision_macro,
-            "recall_macro": recall_macro,
-            "f1_macro": f1_macro,
             "confusion_matrix": cm,
             "classification_report": report,
             "avg_bias_per_class": avg_bias_per_class,
@@ -396,13 +495,11 @@ class Baseline:
         return results, combined_metrics
 
 def main():
-    _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
-    _CREDENTIAL = DefaultAzureCredential()
-
     parser = argparse.ArgumentParser(description="Run an LLM model for priority scoring")
     parser.add_argument("-model", type=str, required=True, help="Model name to run (e.g., gpt-4o, o3-mini, etc.)")
     parser.add_argument("-method", type=str, required=True, choices=["baseline"],
                         help="Method to use (baseline uses gen_article_score_with_llms)")
+    parser.add_argument("-input_dataset", type=str, required=True, help="Input dataset to run")
     parser.add_argument("-dataset", type=str, required=True, choices=["article", "description"],
                     help="Dataset to use: 'article' (for gen_article_score_with_llms) or 'description' (for gen_score_with_llms)")
     args = parser.parse_args()
@@ -410,9 +507,10 @@ def main():
     model_name = args.model
     method_name = args.method
     dataset_choice = args.dataset
+    data_file = args.input_dataset
 
     # Setup the AzureOpenAI client based on the model name
-    if model_name in ['gpt-4o-mini', 'gpt-4o', 'o3-mini']:
+    if model_name in ['gpt-4o-mini', 'gpt-4o', 'o3-mini', 'gpt-41']:
         client = AzureOpenAI(
             azure_endpoint="https://onetiai-swec.openai.azure.com/",
             azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
@@ -426,12 +524,6 @@ def main():
         )
     else:
         raise ValueError("Unsupported model")
-
-
-    if dataset_choice == "article":
-        data_file = os.path.join("0526-triage.json")
-    else:  
-        data_file = os.path.join("0526-triage.json")
     
     current_date = datetime.today().strftime('%Y-%m-%d')
 
@@ -444,6 +536,25 @@ def main():
         data_dict = json.load(f)
 
     time_start = time.time()
+    subject_log_filename = os.path.join(log_dir, f"{model_name}_{method_name}_{dataset_choice}_subject.log")
+
+    with open(subject_log_filename, 'w', encoding='utf-8') as log_f:
+        with redirect_stdout(log_f):
+            print(f"Running {method_name} with dataset {dataset_choice}")
+            # Create the appropriate method instance and run evaluation.
+            if method_name == "baseline":
+                baseline = Baseline(client, model_name)
+                if dataset_choice == "article":
+                    baseline.evaluate_subject_accuracy(data_dict, article_type='article')
+                else:
+                    baseline.evaluate_subject_accuracy(data_dict, article_type='description')
+            else:
+                raise ValueError("Invalid method option provided.")
+            time_end = time.time()
+            print(f"==> Total time taken for {method_name} in {dataset_choice}: {time_end - time_start:.2f} seconds")
+            print(f"Log saved to: {log_filename}")
+
+    
     with open(log_filename, 'w', encoding='utf-8') as log_f:
         with redirect_stdout(log_f):
             print(f"Running {method_name} with dataset {dataset_choice}")
@@ -459,7 +570,7 @@ def main():
             time_end = time.time()
             print(f"==> Total time taken for {method_name} in {dataset_choice}: {time_end - time_start:.2f} seconds")
             print(f"Log saved to: {log_filename}")
-
+    
     # Also print a message on the console.
     print(f"Results for dataset '{data_file}' using model '{model_name}' and method '{method_name}' have been saved to {log_filename}")
 

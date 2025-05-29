@@ -1,0 +1,1651 @@
+Running baseline with dataset description
+
+====== Subject Category Evaluation ======
+[31m==> Total LLM Calls: [0m 1
+[31m==> Total Tokens: [0m 614
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a specific vulnerability, CVE-2025-3511, in Mitsubishi Electric's CC-Link IE TSN products. This falls under the 'Exploit' category as it involves a CVE and describes how the vulnerability could be exploited to cause a denial-of-service condition."
+}
+
+Article ID: 18562764
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 2
+[31m==> Total Tokens: [0m 20770
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a cyberattack on Pearson where threat actors exploited an exposed GitLab Personal Access Token to access the company's developer environment. This led to the exfiltration of terabytes of sensitive data, including customer information, financial records, and source code. The intermediate subject is 'Info Stealer,' as the attackers leveraged stolen credentials to extract sensitive information from Pearson's internal network and cloud infrastructure."
+}
+
+Article ID: 18562803
+True Subject: Informational
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 3
+[31m==> Total Tokens: [0m 21564
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a supply chain compromise involving the npm package 'rand-user-agent', which delivers a Remote Access Trojan (RAT). The intermediate subject is 'supply chain' because the attack leverages a compromised software package to gain unauthorized access to systems. This aligns with the 'Access' category, as it involves a method to infiltrate systems through a supply chain attack."
+}
+
+Article ID: 18562804
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 4
+[31m==> Total Tokens: [0m 22239
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses the exploitation of end-of-life (EoL) routers using publicly available vulnerabilities (CVEs) to inject persistent malware. The intermediate subject is 'CVEs' as the focus is on leveraging known vulnerabilities to compromise devices and turn them into proxies for malicious activities."
+}
+
+Article ID: 18562809
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 5
+[31m==> Total Tokens: [0m 22947
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on the Lumma Stealer campaign, which is explicitly described as an info stealer targeting sensitive information such as passwords, session tokens, cryptocurrency wallets, and personal data. The intermediate subject is 'Info Stealer,' as the primary activity involves exfiltrating user data from compromised devices."
+}
+
+Article ID: 18563666
+True Subject: Tradecraft
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 6
+[31m==> Total Tokens: [0m 23622
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article focuses on a new obfuscation technique used by threat actors to hide malware within bitmap resources in .NET applications. This falls under the 'Tradecraft' category because it discusses new tooling and techniques employed by threat actors to evade detection and strengthen malware resilience. The intermediate subject is 'new tooling' as it highlights the innovative obfuscation methods used in the malware delivery process."
+}
+
+Article ID: 18563667
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 7
+[31m==> Total Tokens: [0m 24260
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses a new trend in vishing attacks that combines social engineering with advanced cyber tools, such as exploiting multimedia systems and deepfake technology. This aligns with the 'Tradecraft' category, specifically under 'new tooling' and 'threat actor updates,' as it highlights the evolving techniques and tools used by threat actors to enhance their operations."
+}
+
+Article ID: 18563679
+True Subject: Access
+Predicted Subject: Tradecraft
+Correct: False
+[31m==> Total LLM Calls: [0m 8
+[31m==> Total Tokens: [0m 24947
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a campaign delivering a Remote Access Trojan (RAT) known as RATty, which is explicitly categorized under 'Exfiltration' in the provided list. The intermediate subject is 'RAT,' as the malware enables attackers to remotely access and potentially exfiltrate data from compromised systems."
+}
+
+Article ID: 18563680
+True Subject: Access
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 9
+[31m==> Total Tokens: [0m 25708
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily focuses on a critical remote code execution (RCE) vulnerability, CVE-2025-31324, in SAP NetWeaver Visual Composer 7.x. This falls under the 'Exploit' category as it discusses the exploitation of a specific CVE, detailing how attackers leverage the vulnerability to compromise systems. The intermediate subject is CVEs."
+}
+
+Article ID: 18563698
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 10
+[31m==> Total Tokens: [0m 26366
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article focuses on a new ransomware strain called Mamona, which encrypts files locally and disrupts systems by rendering files inaccessible. The intermediate subject is 'ransomware,' as the primary focus is on the ransomware's behavior, its offline operation, and its impact on targeted systems."
+}
+
+Article ID: 18563700
+True Subject: Disruption
+Predicted Subject: Disruption
+Correct: True
+[31m==> Total LLM Calls: [0m 11
+[31m==> Total Tokens: [0m 26689
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is not provided ('None'), which suggests there is no specific incident, threat, or technical detail to analyze. In such cases, the most appropriate category is 'Informational,' as it typically covers general trends, updates, or non-technical content without IoCs."
+}
+
+Article ID: 18563701
+True Subject: Access
+Predicted Subject: Informational
+Correct: False
+[31m==> Total LLM Calls: [0m 12
+[31m==> Total Tokens: [0m 27379
+[31m==> Subject category raw result: [0m {
+  "answer": "Consumer",
+  "reason": "The article primarily focuses on cryptocurrency-related activities, specifically the use of the 'eXch' platform for laundering cybercrime proceeds. This aligns with the 'Consumer' category, as it includes topics related to crypto and fraud. The intermediate subject is cryptocurrency fraud and laundering."
+}
+
+Article ID: 18563708
+True Subject: Consumer
+Predicted Subject: Consumer
+Correct: True
+[31m==> Total LLM Calls: [0m 13
+[31m==> Total Tokens: [0m 28151
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a sophisticated cryptocurrency heist involving the theft of approximately 400,000 ETH. The intermediate subject is 'Info Stealer,' as the attackers exfiltrated sensitive data (AWS credentials and session tokens) and manipulated transaction details to redirect funds to their wallets. The focus is on the theft and exfiltration of cryptocurrency assets."
+}
+
+Article ID: 18563733
+True Subject: Consumer
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 14
+[31m==> Total Tokens: [0m 28474
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The input provided does not contain any specific details about an article or incident. In such cases, the most appropriate category is 'Informational' as it aligns with general or non-specific content that does not include IoCs or actionable intelligence."
+}
+
+Article ID: 18563734
+True Subject: Tradecraft
+Predicted Subject: Informational
+Correct: False
+[31m==> Total LLM Calls: [0m 15
+[31m==> Total Tokens: [0m 29057
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily discusses a data breach caused by a vulnerability exploited in a ransomware attack (intermediate subject: ransomware). The breach led to significant exposure of sensitive data and operational disruptions, which aligns with the 'Disruption' category."
+}
+
+Article ID: 18563741
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 16
+[31m==> Total Tokens: [0m 31668
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on CVE-2025-31324, a critical vulnerability in SAP NetWeaver's Visual Composer Framework, and provides detailed information about how attackers exploit this vulnerability to achieve remote code execution and system compromise. The intermediate subject is 'CVE,' as the article revolves around the technical details, exploitation methods, and impact of this specific CVE."
+}
+
+Article ID: 18563766
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 17
+[31m==> Total Tokens: [0m 33956
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses updates to the OtterCookie malware, including new features like credential theft, sandbox evasion, and expanded OS support. It also mentions the modular design of the malware and the involvement of multiple developers, which aligns with the 'Tradecraft' category under 'tooling updates' and 'threat actor updates'."
+}
+
+Article ID: 18564403
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 18
+[31m==> Total Tokens: [0m 34632
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on the discovery of a new information-stealing malware family called 'Noodlophile,' which is designed to exfiltrate sensitive data such as account credentials, session cookies, tokens, and cryptocurrency wallet files. The intermediate subject is 'Info Stealer,' as the malware's primary function is to steal and exfiltrate data from victims' systems."
+}
+
+Article ID: 18564411
+True Subject: Tradecraft
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 19
+[31m==> Total Tokens: [0m 35344
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign involving a fake CAPTCHA prompt that tricked users into executing a malicious PowerShell script. This falls under the 'Access' category, specifically the intermediate subject of 'phishing campaign,' as the attack's primary goal was to gain unauthorized access to user devices and credentials."
+}
+
+Article ID: 18564468
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 20
+[31m==> Total Tokens: [0m 35908
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article focuses on phishing campaigns, detailing the use of phishing emails, attachment types, and distribution methods to steal user credentials. Phishing campaigns fall under the 'Access' category, as they are a method used by threat actors to gain unauthorized access to systems or accounts. The intermediate subject is phishing campaign."
+}
+
+Article ID: 18564504
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 21
+[31m==> Total Tokens: [0m 36603
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a new exploit method involving Beacon Object Files (BOFs) to extract Microsoft Entra tokens, which poses risks to enterprise cloud environments. The intermediate subject is 'Exploit' because the focus is on a specific technique leveraging vulnerabilities in OAuth flows and Entra configurations to bypass detection and gain unauthorized access."
+}
+
+Article ID: 18564577
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 22
+[31m==> Total Tokens: [0m 36953
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article does not contain any actionable or specific information, such as IoCs or details about a cyber event. It appears to be a general or empty report, which aligns with the 'Informational' category as it lacks technical depth or specific incidents."
+}
+
+Article ID: 18565540
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 23
+[31m==> Total Tokens: [0m 37276
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is 'None,' which implies there is no actionable or specific information provided. In such cases, the most appropriate category is 'Informational,' as it serves as a catch-all for general or non-specific content that does not include IoCs or actionable intelligence."
+}
+
+Article ID: 18565541
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 24
+[31m==> Total Tokens: [0m 37937
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily discusses ransomware attacks carried out by the DoppelPaymer group, including their impact on organizations like the Dutch Research Council. The intermediate subject is 'ransomware,' which falls under the 'Disruption' category as it involves the disruption of systems and operations through malicious encryption and extortion."
+}
+
+Article ID: 18565542
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 25
+[31m==> Total Tokens: [0m 38624
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article focuses on advancements in ransomware tactics, including data extortion, Ransomware-as-a-Service (RaaS), and AI-powered ransomware operations. These activities fall under the intermediate subject of 'ransomware,' which is explicitly categorized under 'Disruption.' The discussion of ransomware's evolution and its impact on organizations aligns with the disruption caused by such attacks."
+}
+
+Article ID: 18565543
+True Subject: Disruption
+Predicted Subject: Disruption
+Correct: True
+[31m==> Total LLM Calls: [0m 26
+[31m==> Total Tokens: [0m 39315
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on a new malware called 'PupkinStealer,' which is designed to steal sensitive user data such as browser credentials, personal files, and session information from platforms like Telegram and Discord. The intermediate subject is 'Info Stealer,' as the malware's primary function is to exfiltrate information using techniques like data compression and transmission via Telegram bots."
+}
+
+Article ID: 18565545
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 27
+[31m==> Total Tokens: [0m 39976
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a supply chain attack involving a malicious Python package ('solana-token') that targeted Solana blockchain developers. The intermediate subject is 'supply chain,' as the attack leveraged a compromised package to gain unauthorized access to sensitive developer information and source code. This aligns with the 'Access' category, which includes supply chain attacks."
+}
+
+Article ID: 18566654
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 28
+[31m==> Total Tokens: [0m 40643
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily discusses critical vulnerabilities (CVE-2025-22462 and CVE-2025-22460) in Ivanti products, their potential exploitation, and the need for patches. The intermediate subject is 'CVE,' which falls under the 'Exploit' category as it focuses on specific vulnerabilities and their implications."
+}
+
+Article ID: 18566694
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 29
+[31m==> Total Tokens: [0m 41377
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a newly identified vulnerability in Intel CPUs, tracked as CVE-2024-45332, which allows attackers to exploit race conditions in branch predictors to leak sensitive data. This aligns with the 'Exploit' category, as it specifically involves a CVE and the technical details of how the vulnerability is exploited."
+}
+
+Article ID: 18566695
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 30
+[31m==> Total Tokens: [0m 46361
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article primarily discusses phishing campaigns conducted by the North Korean threat actor TA406, which involve credential harvesting and malware delivery. These activities fall under the 'Access' category, specifically under the intermediate subject of 'phishing campaign' and 'backdoor,' as the campaigns aim to gain unauthorized access to systems and credentials."
+}
+
+Article ID: 18566718
+True Subject: Tradecraft
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 31
+[31m==> Total Tokens: [0m 47035
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses specific vulnerabilities (CVE-2025-3394 and CVE-2025-3395) in ABB's Automation Builder software, which could be exploited to bypass user management settings. The intermediate subject is CVEs, as the focus is on the identification and potential impact of these specific vulnerabilities."
+}
+
+Article ID: 18566719
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 32
+[31m==> Total Tokens: [0m 47687
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on multiple CVEs (e.g., CVE-2024-4872, CVE-2024-3980, CVE-2024-3982, CVE-2024-7940) identified in Hitachi Energy's MACH GWS products. These vulnerabilities could be exploited remotely, making 'Exploit' the most appropriate category. The intermediate subject is CVEs, as the article specifically discusses the technical details and risks associated with these vulnerabilities."
+}
+
+Article ID: 18566720
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 33
+[31m==> Total Tokens: [0m 48253
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a specific vulnerability (CVE-2023-4518) in the Relion series, classified as a 'Classic Buffer Overflow.' This directly aligns with the 'Exploit' category, as it involves a CVE and describes how the vulnerability could lead to a denial-of-service condition. The intermediate subject is CVEs."
+}
+
+Article ID: 18566721
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 34
+[31m==> Total Tokens: [0m 48865
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on multiple vulnerabilities (e.g., HTTP request smuggling, integer overflow, out-of-bounds write and read) in Hitachi Energy's Service Suite product, specifically mentioning CVEs such as CVE-2022-31813, CVE-2023-25690, and CVE-2022-28615. These are categorized as exploits, as they involve specific CVEs and their potential impact on systems."
+}
+
+Article ID: 18566722
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 35
+[31m==> Total Tokens: [0m 49546
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article discusses enhancements to Android 16's Advanced Protection feature, focusing on new security measures, privacy improvements, and anti-scam mechanisms. It provides an overview of these updates without including IoCs (Indicators of Compromise) or specific attack details. This aligns with the 'Informational' category, as it highlights vendor tool releases and policy updates aimed at improving security."
+}
+
+Article ID: 18566730
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 36
+[31m==> Total Tokens: [0m 49869
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article does not provide any specific details or context, such as IoCs, threat actor activities, or technical exploits. Given the lack of actionable or specific information, it is best categorized as 'Informational,' which is a general category for articles that do not fit into other specific categories."
+}
+
+Article ID: 18566731
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 37
+[31m==> Total Tokens: [0m 50537
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on the identification and resolution of multiple CVEs (Common Vulnerabilities and Exposures), including actively exploited and publicly disclosed zero-day vulnerabilities. The intermediate subject is 'CVEs,' as the discussion revolves around specific vulnerabilities like CVE-2025-30400 and CVE-2025-32701, their exploitation methods, and their fixes."
+}
+
+Article ID: 18566732
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 38
+[31m==> Total Tokens: [0m 50860
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is not provided ('None'), which suggests there is no actionable or specific cybersecurity event or threat described. In such cases, the most appropriate category is 'Informational,' as it typically covers general trends, updates, or non-specific content."
+}
+
+Article ID: 18566733
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 39
+[31m==> Total Tokens: [0m 51507
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on a critical zero-day vulnerability (CVE) in Fortinet products, specifically a stack-based buffer overflow vulnerability (CWE-121), which is actively being exploited in the wild. This aligns with the 'Exploit' category, as it involves the discovery and exploitation of a CVE by threat actors."
+}
+
+Article ID: 18566735
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 40
+[31m==> Total Tokens: [0m 53723
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a spearphishing campaign ('Swan Vector') that delivers malicious payloads, including a DLL implant ('Pterois') and a Cobalt Strike beacon, through a multi-stage infection chain. This aligns with the 'Access' category, specifically under the intermediate subject of 'phishing campaign' and 'cobalt strike,' as the campaign focuses on gaining unauthorized access to systems and deploying tools for further exploitation."
+}
+
+Article ID: 18566736
+True Subject: Tradecraft
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 41
+[31m==> Total Tokens: [0m 54802
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article primarily discusses a supply chain attack where threat actors trojanized the KeePass password manager to deliver malware and steal credentials. This falls under the 'Access' category, specifically the intermediate subject of 'supply chain,' as the attackers modified the source code of a trusted application to gain initial access and deploy malicious payloads."
+}
+
+Article ID: 18566737
+True Subject: Exfiltration
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 42
+[31m==> Total Tokens: [0m 55532
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article discusses a potential breach involving Steam user records, including one-time access codes, and suggests a possible supply-chain compromise involving Twilio. This aligns with the 'Access' category, specifically under the intermediate subject of 'supply chain,' as it involves unauthorized access mechanisms and potential abuse of API keys or admin accounts."
+}
+
+Article ID: 18566742
+True Subject: Informational
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 43
+[31m==> Total Tokens: [0m 56218
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses multiple CVEs (CVE-2025-4427, CVE-2025-4428, CVE-2025-22462, and CVE-2025-22460) and their associated vulnerabilities, including authentication bypass and remote code execution. These are specific exploits that attackers could leverage, making 'Exploit' the most appropriate category."
+}
+
+Article ID: 18566743
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 44
+[31m==> Total Tokens: [0m 56895
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on addressing vulnerabilities, including actively exploited zero-day flaws (e.g., CVE-2025-30397, CVE-2025-30400), and discusses specific CVEs related to remote code execution, privilege escalation, and denial of service. This aligns with the 'Exploit' category, as it pertains to CVEs and their mitigation."
+}
+
+Article ID: 18566746
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 45
+[31m==> Total Tokens: [0m 57598
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on multiple CVEs (Common Vulnerabilities and Exposures) identified in Microsoft's May 2025 security update, including critical vulnerabilities like CVE-2025-30386 and others. The intermediate subject is 'CVEs,' which falls under the 'Exploit' category as it discusses specific vulnerabilities and their potential exploitation."
+}
+
+Article ID: 18566758
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 46
+[31m==> Total Tokens: [0m 58326
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on the exploitation of vulnerabilities (CVE-2025-31324 and CVE-2025-42999) in SAP NetWeaver servers. These vulnerabilities are being actively exploited by attackers, including the use of zero-day exploits, which directly aligns with the 'Exploit' category. The intermediate subject is CVEs, as the discussion revolves around specific Common Vulnerabilities and Exposures being targeted."
+}
+
+Article ID: 18566759
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 47
+[31m==> Total Tokens: [0m 58649
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article does not provide any specific details or context, such as IoCs, attack methods, or threat actor activities. Given the lack of actionable or technical content, it is best categorized as 'Informational' by default, as it aligns with general or non-specific information."
+}
+
+Article ID: 18566800
+True Subject: Disruption
+Predicted Subject: Informational
+Correct: False
+[31m==> Total LLM Calls: [0m 48
+[31m==> Total Tokens: [0m 59289
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article primarily discusses spear phishing campaigns, which fall under the 'Access' category. Specifically, the intermediate subject is 'phishing campaign,' as the attacks involved distributing malicious files through emails designed to deceive recipients into opening them. These techniques were used to gain unauthorized access to systems and execute further malicious activities."
+}
+
+Article ID: 18566801
+True Subject: Exfiltration
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 49
+[31m==> Total Tokens: [0m 59941
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on the exploitation of a zero-day vulnerability (CVE-2025-31324) in SAP NetWeaver Visual Composer by Chinese nation-state APTs. The intermediate subject is 'CVEs,' as the primary focus is on the use of a specific CVE to infiltrate critical infrastructure systems."
+}
+
+Article ID: 18566811
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 50
+[31m==> Total Tokens: [0m 60591
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on DarkCloud Stealer, a malware designed to capture and exfiltrate sensitive data such as browser credentials, credit card information, and email passwords. The intermediate subject is 'Info Stealer,' as the malware's primary function is to steal and exfiltrate information to a command and control server."
+}
+
+Article ID: 18566820
+True Subject: Disruption
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 51
+[31m==> Total Tokens: [0m 61881
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article focuses on the activities and methods of the pro-Russian group Storm-1516 (also known as Neva Flood), detailing their use of AI-generated media, coordinated social media campaigns, and disinformation tactics. This aligns with the 'Tradecraft' category, as it involves updates on a threat actor's operations and tooling (intermediate subject: threat actor updates and new tooling)."
+}
+
+Article ID: 18566821
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 52
+[31m==> Total Tokens: [0m 62571
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article discusses a phishing campaign that exploits open redirect vulnerabilities in Google's services to redirect users to malicious sites. This falls under the 'Access' category, specifically the intermediate subject of 'phishing campaign,' as it involves threat actors attempting to gain unauthorized access or trick users into compromising their security."
+}
+
+Article ID: 18566842
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 53
+[31m==> Total Tokens: [0m 63119
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a cybersecurity incident involving unauthorized access to a database containing customer information. This aligns with the 'Access' category, specifically under the intermediate subject of 'supply chain' or 'backdoor,' as it involves unauthorized entry into a system to retrieve sensitive data. While no passwords or payment information were compromised, the focus on unauthorized access makes 'Access' the most appropriate category."
+}
+
+Article ID: 18566875
+True Subject: Informational
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 54
+[31m==> Total Tokens: [0m 63784
+[31m==> Subject category raw result: [0m {
+  "answer": "Consumer",
+  "reason": "The article focuses on the dismantling of a cybercrime marketplace (BlackDB.cc) that facilitated the sale of stolen credit card information, compromised accounts, and PII, which were used for activities like credit card fraud and identity theft. These activities align with the 'Consumer' category, specifically under the intermediate subject of fraud."
+}
+
+Article ID: 18566876
+True Subject: Informational
+Predicted Subject: Consumer
+Correct: False
+[31m==> Total LLM Calls: [0m 55
+[31m==> Total Tokens: [0m 64455
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article discusses a vulnerability fix related to Secure Boot Advanced Targeting (SBAT) updates and their impact on dual-boot systems. It provides details about the issue, its resolution, and Microsoft's actions to address the problem. Since it focuses on a vulnerability fix and does not include IoCs or active threat details, the most appropriate category is 'Informational'."
+}
+
+Article ID: 18566890
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 56
+[31m==> Total Tokens: [0m 65008
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article describes a cybersecurity incident involving unauthorized access to Nucor Corporation's IT systems, which led to parts of its network being taken offline and production being suspended at multiple locations. This aligns with the 'Disruption' category, specifically under the intermediate subject of operational disruption, as the incident caused a direct impact on the company's operations."
+}
+
+Article ID: 18566891
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 57
+[31m==> Total Tokens: [0m 65624
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a sophisticated phishing campaign that leverages social engineering, email validation, and anti-analysis techniques to steal credentials. Phishing campaigns fall under the 'Access' category, as they are designed to gain unauthorized access to user accounts or systems. The intermediate subject is 'phishing campaign' due to the detailed focus on the phishing techniques and infrastructure used in the attack."
+}
+
+Article ID: 18566892
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 58
+[31m==> Total Tokens: [0m 66216
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign that uses weaponized HTML files to deliver the Horabot malware. The intermediate subject is 'phishing campaign,' which falls under the 'Access' category because the campaign's primary goal is to gain unauthorized access to systems and networks through deceptive emails and malicious payloads."
+}
+
+Article ID: 18566895
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 59
+[31m==> Total Tokens: [0m 66871
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign conducted by the North Korean threat actor TA406, which involves credential harvesting and malware deployment. The intermediate subject is 'phishing campaign' because the primary method of attack involves phishing emails designed to steal login credentials and deliver malicious payloads."
+}
+
+Article ID: 18566896
+True Subject: Tradecraft
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 60
+[31m==> Total Tokens: [0m 67519
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a data breach incident involving the exposure of sensitive private documents online, which aligns with the intermediate category of 'Info Stealer' under 'Exfiltration'. Although the breach was not caused by a malicious external attack, the unauthorized exposure of sensitive information fits the definition of data exfiltration."
+}
+
+Article ID: 18566909
+True Subject: Informational
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 61
+[31m==> Total Tokens: [0m 68215
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily focuses on the exploitation of critical vulnerabilities in SAP NetWeaver, specifically CVE-2025-31324 and CVE-2025-42999. These vulnerabilities are being actively exploited by ransomware gangs and APT groups, making 'Exploit' the most appropriate category. The intermediate subject is CVEs, as the discussion revolves around specific vulnerabilities and their exploitation by threat actors."
+}
+
+Article ID: 18566910
+True Subject: Disruption
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 62
+[31m==> Total Tokens: [0m 68538
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article does not provide any specific details or context, such as IoCs, attack methods, or threat actor activities. Given the lack of actionable or technical content, it is best categorized as 'Informational' by default, as it aligns with general or non-specific information."
+}
+
+Article ID: 18566942
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 63
+[31m==> Total Tokens: [0m 68861
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is missing ('None'), which suggests there is no actionable or specific cybersecurity event or detail to analyze. In such cases, the most appropriate category is 'Informational,' as it typically covers general or non-specific updates, trends, or policy-related content."
+}
+
+Article ID: 18566948
+True Subject: Access
+Predicted Subject: Informational
+Correct: False
+[31m==> Total LLM Calls: [0m 64
+[31m==> Total Tokens: [0m 69485
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article primarily discusses TransferLoader, a malware loader that includes a backdoor component. Backdoors fall under the 'Access' category as they enable unauthorized access to compromised systems. The intermediate subject is 'backdoor' because the backdoor module is a key feature of TransferLoader, allowing threat actors to execute commands and maintain persistence."
+}
+
+Article ID: 18566953
+True Subject: Disruption
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 65
+[31m==> Total Tokens: [0m 69808
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is not provided ('None'), which suggests there is no specific information about threats, exploits, or incidents. In such cases, the most appropriate category is 'Informational,' as it typically applies to general or non-specific content that does not include IoCs or actionable threat details."
+}
+
+Article ID: 18566957
+True Subject: Exploit
+Predicted Subject: Informational
+Correct: False
+[31m==> Total LLM Calls: [0m 66
+[31m==> Total Tokens: [0m 70498
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a specific high-severity vulnerability in the Chrome web browser, identified as CVE-2025-4664. It provides details about the nature of the flaw, its potential exploitation, and the security updates released to address it. The intermediate subject is 'CVE,' which falls under the 'Exploit' category."
+}
+
+Article ID: 18569017
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 67
+[31m==> Total Tokens: [0m 71133
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a malicious package in the NPM ecosystem that uses obfuscated code and a command-and-control (C2) mechanism to deliver a malware payload. This aligns with the 'Access' category, specifically under the intermediate subject of 'supply chain,' as the malicious package is listed as a dependency for other NPM packages, indicating a supply chain attack vector."
+}
+
+Article ID: 18569087
+True Subject: Exfiltration
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 68
+[31m==> Total Tokens: [0m 71776
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily focuses on the exfiltration of personally identifiable information (PII) from Coinbase's customer base by cybercriminals. The intermediate subject is 'Info Stealer,' as the attackers stole sensitive customer data such as names, addresses, phone numbers, and government ID images. While the article also mentions a ransom demand, the core issue revolves around the theft of data, making 'Exfiltration' the most appropriate category."
+}
+
+Article ID: 18569088
+True Subject: Consumer
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 69
+[31m==> Total Tokens: [0m 72439
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses a novel malware distribution method using Google Calendar invites and a deceptive npm package. This highlights a new obfuscation technique and creative use of tooling by attackers, which falls under the intermediate subject of 'new tooling' within the 'Tradecraft' category."
+}
+
+Article ID: 18569089
+True Subject: Access
+Predicted Subject: Tradecraft
+Correct: False
+[31m==> Total LLM Calls: [0m 70
+[31m==> Total Tokens: [0m 74184
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily focuses on the exploitation of vulnerabilities, specifically cross-site scripting (XSS) flaws in webmail servers, including CVEs such as CVE-2020-35730 and CVE-2024-11182. These vulnerabilities are leveraged by the attackers to inject malicious code and conduct cyberespionage. The intermediate subject is 'CVEs' under the 'Exploit' category."
+}
+
+Article ID: 18569090
+True Subject: Tradecraft
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 71
+[31m==> Total Tokens: [0m 74873
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on multiple zero-day vulnerabilities and exploits demonstrated during the Pwn2Own Berlin 2025 competition. These include specific CVEs and exploit techniques such as integer overflows, use-after-free, and type confusion, which align with the 'Exploit' category. The intermediate subject is CVEs, as the article highlights vulnerabilities and their exploitation across various platforms."
+}
+
+Article ID: 18569108
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 72
+[31m==> Total Tokens: [0m 75196
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is missing ('None'), which suggests there is no actionable or specific cybersecurity event or detail to analyze. In such cases, the most appropriate category is 'Informational,' as it typically covers general or non-specific updates, trends, or policy-related topics without IoCs."
+}
+
+Article ID: 18569109
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 73
+[31m==> Total Tokens: [0m 75714
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign where attackers used fake email quarantine notifications to deceive users into providing login credentials. This falls under the 'Access' category, specifically the intermediate subject of 'phishing campaign,' as the primary goal was to gain unauthorized access to user accounts by harvesting credentials."
+}
+
+Article ID: 18569110
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 74
+[31m==> Total Tokens: [0m 76037
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is not provided ('None'), which suggests there is no specific information about threats, exploits, or incidents. In such cases, the most appropriate category is 'Informational' as it typically applies to general or non-specific content."
+}
+
+Article ID: 18569111
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 75
+[31m==> Total Tokens: [0m 76623
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a specific vulnerability (CVE-2025-40556) in Siemens BACnet ATEC devices that can be exploited to cause a denial of service condition. The intermediate subject is 'CVEs,' which falls under the 'Exploit' category."
+}
+
+Article ID: 18569133
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 76
+[31m==> Total Tokens: [0m 77228
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a data breach involving the theft of sensitive customer information, including personal and financial data. This aligns with the intermediate subject 'Info Stealer' under the 'Exfiltration' category, as the focus is on unauthorized access and data theft rather than disruption or exploitation."
+}
+
+Article ID: 18569140
+True Subject: Informational
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 77
+[31m==> Total Tokens: [0m 82290
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article discusses a malicious package on the Python Package Index (PyPI) that implants a backdoor, enabling remote code execution and data exfiltration. This aligns with the 'Access' category, specifically under the intermediate subject 'backdoor,' as the focus is on the exploitation of trust within developer communities to gain unauthorized access to systems."
+}
+
+Article ID: 18569141
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 78
+[31m==> Total Tokens: [0m 82931
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses the discovery and analysis of the Uroboros rootkit, attributed to the APT group Turla. It highlights the advanced techniques and capabilities of the rootkit, such as privilege escalation, process hijacking, and network evasion. This aligns with the 'Tradecraft' category, specifically under 'tooling updates' or 'tool overview,' as it provides insights into the sophisticated tools and methods employed by a known threat actor."
+}
+
+Article ID: 18569142
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 79
+[31m==> Total Tokens: [0m 83544
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article focuses on cybercriminals using AI-generated audio deepfakes in voice phishing (vishing) attacks to deceive individuals and gain access to personal accounts and sensitive information. This aligns with the 'Access' category, specifically under the intermediate subject of 'phishing campaign,' as the attackers are employing social engineering techniques to compromise accounts and further their malicious activities."
+}
+
+Article ID: 18569165
+True Subject: Informational
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 80
+[31m==> Total Tokens: [0m 83867
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is missing ('None'), which suggests there is no actionable or specific threat-related information provided. In such cases, the most appropriate category is 'Informational,' as it typically covers general or non-specific content that does not include IoCs or actionable intelligence."
+}
+
+Article ID: 18569179
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 81
+[31m==> Total Tokens: [0m 84190
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article does not provide any specific details about IoCs, threats, or technical activities. It appears to be a placeholder or lacks actionable content, which aligns with the 'Informational' category for general trends or updates without specific indicators."
+}
+
+Article ID: 18569185
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 82
+[31m==> Total Tokens: [0m 84513
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is not provided ('None'), which suggests there is no specific incident, threat, or technical detail to analyze. In such cases, the most appropriate category is 'Informational,' as it typically covers general trends, updates, or non-technical content without IoCs."
+}
+
+Article ID: 18569186
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 83
+[31m==> Total Tokens: [0m 85144
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses the introduction of a new tool, Oniux, by the Tor Project, which enhances security by routing Linux application traffic through the Tor network. This falls under the 'Tradecraft' category, specifically under 'new tooling,' as it highlights a new security utility and its technical advantages."
+}
+
+Article ID: 18570177
+True Subject: Informational
+Predicted Subject: Tradecraft
+Correct: False
+[31m==> Total LLM Calls: [0m 84
+[31m==> Total Tokens: [0m 85822
+[31m==> Subject category raw result: [0m {
+  "answer": "Consumer",
+  "reason": "The article primarily focuses on cryptocurrency fraud, detailing how suspects gained unauthorized access to victims' cryptocurrency accounts and laundered stolen funds. This aligns with the 'Consumer' category, specifically under the intermediate subject of 'crypto,' as it involves fraudulent activities related to cryptocurrency theft and misuse."
+}
+
+Article ID: 18570217
+True Subject: Consumer
+Predicted Subject: Consumer
+Correct: True
+[31m==> Total LLM Calls: [0m 85
+[31m==> Total Tokens: [0m 86448
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on a high-severity vulnerability in Chrome, identified as CVE-2025-4664, which is actively being exploited. The intermediate subject is CVEs, as the discussion revolves around the technical details of the vulnerability, its exploitation, and the subsequent patch released by Google."
+}
+
+Article ID: 18570218
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 86
+[31m==> Total Tokens: [0m 87103
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign targeting specific sectors in Kuwait and the Gulf region. Phishing campaigns fall under the 'Access' category as they are designed to gain unauthorized access to user credentials or systems. The intermediate subject is 'phishing campaign' because the operation involves cloned login portals and impersonated web pages to harvest credentials."
+}
+
+Article ID: 18570237
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 87
+[31m==> Total Tokens: [0m 87834
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes an espionage campaign, Operation RoundPress, conducted by the Sednit group, which uses malicious JavaScript payloads (SpyPress) to steal webmail credentials, contacts, and email messages. This aligns with the intermediate subject of 'Info Stealer' under the 'Exfiltration' category, as the primary focus is on stealing confidential data from targeted email accounts."
+}
+
+Article ID: 18570246
+True Subject: Access
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 88
+[31m==> Total Tokens: [0m 88157
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The input provided does not contain any specific details about an article or incident. In such cases, the most appropriate category is 'Informational' as it aligns with general or non-specific content that does not include IoCs or actionable intelligence."
+}
+
+Article ID: 18570269
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 89
+[31m==> Total Tokens: [0m 88885
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on multiple zero-day exploits demonstrated during the Pwn2Own Berlin 2025 competition. Specific vulnerabilities, such as an integer overflow in VMware ESXi, an authentication bypass in Microsoft SharePoint, and use-after-free bugs in Red Hat Enterprise Linux and Redis, are highlighted. These exploits align with the 'Exploit' category, specifically under the intermediate subject of CVEs, as they involve the exploitation of software vulnerabilities."
+}
+
+Article ID: 18570270
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 90
+[31m==> Total Tokens: [0m 89549
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article discusses the presence of malware, specifically a remote access trojan (RAT) and a cryptocurrency stealer, in the software packages of Procolored printers. The intermediate subject is 'Info Stealer' because the malware includes SnipVex, which steals Bitcoin addresses, and XRedRAT, which has capabilities like keylogging and file manipulation. These activities align with the Exfiltration category as they involve unauthorized data theft and exfiltration of sensitive information."
+}
+
+Article ID: 18570271
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 91
+[31m==> Total Tokens: [0m 90249
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article focuses on the increasing use of Skitnet malware by ransomware gangs, detailing its functionality, deployment, and capabilities. This aligns with the 'Tradecraft' category, specifically under the intermediate subject of 'new tooling,' as it discusses a new tool being adopted by threat actors and its operational details."
+}
+
+Article ID: 18570272
+True Subject: Disruption
+Predicted Subject: Tradecraft
+Correct: False
+[31m==> Total LLM Calls: [0m 92
+[31m==> Total Tokens: [0m 90920
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article discusses a security breach involving the distribution of printer software drivers infected with malware, including a backdoor (Win32.Backdoor.XRedRAT.A) and a clipbanker (SnipVex). The intermediate subject is 'backdoor,' which falls under the 'Access' category because the malware enables unauthorized access and control over affected systems."
+}
+
+Article ID: 18570282
+True Subject: Exfiltration
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 93
+[31m==> Total Tokens: [0m 91559
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a supply chain attack involving a malicious npm package (os-info-checker-es6) that evolved to include advanced techniques like steganography and command-and-control mechanisms using Google Calendar. The intermediate category is 'supply chain' under 'Access' because the attack exploits the npm ecosystem to gain unauthorized access and distribute malicious payloads through dependencies."
+}
+
+Article ID: 18570283
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 94
+[31m==> Total Tokens: [0m 92274
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily focuses on the exploitation of a vulnerability in the Nomad bridge smart contract's 'process()' function, which allowed attackers to bypass message proof verification and steal $190 million. The intermediate subject is 'CVEs' as the article discusses a specific vulnerability and its exploitation."
+}
+
+Article ID: 18570289
+True Subject: Informational
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 95
+[31m==> Total Tokens: [0m 95624
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article focuses on the activities, techniques, and evolution of the threat actor group Muddled Libra, including their use of social engineering, ransomware affiliations, and technical tools like NSOCKS and TrueSocks. This aligns with the 'Tradecraft' category, specifically under the intermediate subject of 'threat actor updates' and 'new tooling,' as it provides detailed insights into the group's methods and operational updates."
+}
+
+Article ID: 18570293
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 96
+[31m==> Total Tokens: [0m 96356
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article describes a coordinated effort by researchers, tech companies, and law enforcement to disrupt the Lumma malware-as-a-service (MaaS) operation. The intermediate subject is 'ransomware' because the disruption targeted the infrastructure and domains associated with Lumma, which is an information stealer used for malicious purposes. The focus is on the takedown of the malware's operational capabilities, aligning with the 'Disruption' category."
+}
+
+Article ID: 18574524
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 97
+[31m==> Total Tokens: [0m 97051
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a campaign involving malicious browser extensions that steal browser cookies, including session tokens, and send them to a backend server. This aligns with the intermediate subject 'Info Stealer' under the 'Exfiltration' category, as the primary focus is on the theft of sensitive user information for malicious purposes."
+}
+
+Article ID: 18574525
+True Subject: Access
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 98
+[31m==> Total Tokens: [0m 97753
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a sophisticated injection campaign targeting mobile users through malicious third-party JavaScript, which redirects users to a Progressive Web App (PWA) scam. This falls under the 'Access' category because the campaign involves compromising websites and injecting malicious scripts, which aligns with the intermediate subject of 'backdoor' or 'supply chain' attacks. The focus on redirecting users and exploiting compromised platforms to gain access to devices further supports this categorization."
+}
+
+Article ID: 18574539
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 99
+[31m==> Total Tokens: [0m 98445
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign where attackers create fake authentication portals to harvest credentials from employees searching for payroll systems. This falls under the 'Access' category, specifically the intermediate subject of 'phishing campaign,' as the primary goal is to gain unauthorized access to payroll systems by tricking users into providing their login credentials."
+}
+
+Article ID: 18574540
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 100
+[31m==> Total Tokens: [0m 99216
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily focuses on a ransomware affiliate (3AM ransomware) conducting targeted attacks, which aligns with the 'Disruption' category. Specifically, the intermediate subject is 'ransomware,' as the attackers attempted to deploy ransomware encryptors, although their efforts were partially thwarted. The article also discusses data theft and encryption attempts, which are hallmarks of ransomware operations."
+}
+
+Article ID: 18574547
+True Subject: Disruption
+Predicted Subject: Disruption
+Correct: True
+[31m==> Total LLM Calls: [0m 101
+[31m==> Total Tokens: [0m 99948
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on the LummaStealer malware, which is designed to gather sensitive information such as clipboard contents, cookies, browsing history, email data, and crypto wallet information. This aligns with the intermediate subject 'Info Stealer' under the 'Exfiltration' category, as the primary goal of the malware is to exfiltrate data from infected systems."
+}
+
+Article ID: 18574548
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 102
+[31m==> Total Tokens: [0m 100547
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a vulnerability in Azure AD and other systems related to cross-tenant token forgery due to compromised signing keys. This aligns with the 'Exploit' category, as it focuses on the exploitation of a specific weakness (e.g., token signing vulnerabilities and JWT weaknesses). The intermediate subject is CVEs or similar vulnerabilities being exploited in cloud ecosystems."
+}
+
+Article ID: 18574575
+True Subject: Tradecraft
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 103
+[31m==> Total Tokens: [0m 101179
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a critical authentication bypass vulnerability in the Samlify library, tracked as CVE-2025-47949. This directly falls under the 'Exploit' category as it involves a specific CVE and describes how attackers could exploit the flaw to bypass SSO and escalate privileges."
+}
+
+Article ID: 18574590
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 104
+[31m==> Total Tokens: [0m 101502
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article content is not provided ('None'), which suggests there is no specific incident, threat, or technical detail to analyze. In such cases, the most appropriate category is 'Informational,' as it typically covers general trends, updates, or non-specific content."
+}
+
+Article ID: 18574597
+True Subject: Tradecraft
+Predicted Subject: Informational
+Correct: False
+[31m==> Total LLM Calls: [0m 105
+[31m==> Total Tokens: [0m 102162
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article primarily discusses a new strain of backdoor malware, which falls under the 'Access' category. Specifically, the intermediate subject is 'backdoor,' as the malware installs a backdoor component to enable attackers to execute commands and maintain unauthorized access to infected systems. The use of PyBitmessage for encrypted communications further supports the focus on access and persistence mechanisms."
+}
+
+Article ID: 18575717
+True Subject: Consumer
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 106
+[31m==> Total Tokens: [0m 102905
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses critical vulnerabilities (CVE-2025-34027, CVE-2025-34026, CVE-2025-34025) in Versa Concerto that allow attackers to bypass authentication, execute arbitrary code, and compromise systems. These are specific CVEs, which fall under the 'Exploit' category."
+}
+
+Article ID: 18575724
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 107
+[31m==> Total Tokens: [0m 103643
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily focuses on the exploitation of a zero-day vulnerability, CVE-2025-0994, in the Cityworks asset management system. This aligns with the 'Exploit' category, as it involves the use of a CVE for malicious purposes. The intermediate subject is 'CVE exploitation,' which is central to the threat actor's activities described in the article."
+}
+
+Article ID: 18575731
+True Subject: Tradecraft
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 108
+[31m==> Total Tokens: [0m 104313
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily focuses on Lumma Stealer, a malware-as-a-service (MaaS) infostealer designed for data exfiltration. The intermediate subject is 'Info Stealer,' as the malware targets sensitive data like credentials, session cookies, and other information from web browsers, password managers, and VPNs. While the article also mentions a disruption operation, the core focus is on the malware's exfiltration capabilities and its impact."
+}
+
+Article ID: 18575735
+True Subject: Informational
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 109
+[31m==> Total Tokens: [0m 105039
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses the discovery of a new malware family (DOUBLELOADER) and its use of the ALCATRAZ obfuscator, focusing on the techniques and tooling updates related to obfuscation and reverse engineering. This aligns with the 'Tradecraft' category, specifically under the intermediate subject of 'new tooling' and 'tooling updates,' as it highlights advancements in obfuscation techniques and the release of deobfuscation tools by Elastic Security Labs."
+}
+
+Article ID: 18575881
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 110
+[31m==> Total Tokens: [0m 105716
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily discusses the use of the 'ClickFix' technique to deliver malware, specifically infostealers and remote access tools (RATs) like LummaStealer and NetSupport RAT. These tools are designed to exfiltrate sensitive information from victims' systems, making 'Exfiltration' the most appropriate category. The intermediate subject is 'Info Stealer' and 'RAT' as these are the payloads being deployed in the described attacks."
+}
+
+Article ID: 18575888
+True Subject: Tradecraft
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 111
+[31m==> Total Tokens: [0m 106846
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign conducted by the Russia-aligned threat actor TAG-110, which used macro-enabled Word documents to gain initial access to target systems. This aligns with the 'Access' category, specifically under the intermediate subject 'phishing campaign,' as the campaign involves social engineering tactics to deliver malicious payloads for initial access."
+}
+
+Article ID: 18575909
+True Subject: Access
+Predicted Subject: Access
+Correct: True
+[31m==> Total LLM Calls: [0m 112
+[31m==> Total Tokens: [0m 107482
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a malware campaign targeting Solidity developers, where malicious VS Code extensions are used to exfiltrate sensitive data such as Discord tokens and cryptocurrency wallet credentials. The intermediate subject is 'Info Stealer,' as the malware's primary goal includes stealing sensitive information."
+}
+
+Article ID: 18575918
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 113
+[31m==> Total Tokens: [0m 108180
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article provides an overview of a law enforcement operation targeting dark web activities, including arrests, seizures, and dismantling of illicit networks. It does not include IoCs or technical details about specific cyber threats or tools but focuses on trends and outcomes of international efforts to combat cybercrime. This aligns with the 'Informational' category, as it discusses policy updates and law enforcement actions without delving into technical specifics."
+}
+
+Article ID: 18575946
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 114
+[31m==> Total Tokens: [0m 108882
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on malware campaigns targeting macOS users to steal sensitive information, specifically cryptocurrency wallet seed phrases, usernames, and other data. The intermediate subject is 'Info Stealer,' as the malware (e.g., Odyssey and AMOS stealers) is designed to exfiltrate critical user data to attackers' command-and-control servers."
+}
+
+Article ID: 18575947
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 115
+[31m==> Total Tokens: [0m 109542
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a critical vulnerability (CVE-2018-1285) in the FactoryTalk Historian ThingWorx software, which could be exploited remotely. The intermediate subject is 'CVEs' as the focus is on a specific CVE and its potential exploitation, making 'Exploit' the most appropriate category."
+}
+
+Article ID: 18575949
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 116
+[31m==> Total Tokens: [0m 110140
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a specific vulnerability (CVE-2025-4338) in the Lantronix Device Installer software, which can be exploited to gain unauthorized access and modify configurations. This aligns with the 'Exploit' category, specifically under the intermediate subject of CVEs."
+}
+
+Article ID: 18575950
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 117
+[31m==> Total Tokens: [0m 110883
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily focuses on the dismantling of the Qakbot botnet, which was used to facilitate ransomware attacks and other malicious activities. The intermediate subject is 'ransomware,' as Qakbot served as a key infection vector for multiple ransomware groups, and the FBI's actions disrupted its operations. Additionally, the article mentions spam bomb attacks, further aligning with the 'Disruption' category."
+}
+
+Article ID: 18575992
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 118
+[31m==> Total Tokens: [0m 111652
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily focuses on law enforcement actions that disrupted ransomware and malware operations, including the seizure of servers, domains, and cryptocurrency, as well as arrests and indictments. The intermediate subject is 'ransomware,' as the operations targeted include ransomware-related activities and infrastructure."
+}
+
+Article ID: 18576257
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 119
+[31m==> Total Tokens: [0m 116914
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily discusses the international law enforcement takedown of DanaBot infrastructure as part of Operation Endgame 2.0. This action represents a significant disruption to the malware's operations and its affiliates. The intermediate subject is 'ransomware' and 'DDoS,' as DanaBot has been linked to ransomware payloads like Cactus and DDoS attacks on Ukrainian government servers."
+}
+
+Article ID: 18576259
+True Subject: Exfiltration
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 120
+[31m==> Total Tokens: [0m 117579
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on the exploitation of known vulnerabilities, specifically CVE-2023-20118, to compromise edge devices. The intermediate subject is 'CVE' as the attackers are leveraging a specific vulnerability to carry out their campaign. This aligns with the 'Exploit' category."
+}
+
+Article ID: 18576281
+True Subject: Access
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 121
+[31m==> Total Tokens: [0m 118322
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The article discusses a research study conducted by Cisco Talos on the correlation between domain rarity and malicious activity, focusing on trends and methodologies for threat detection. It does not include specific IoCs (Indicators of Compromise) or actionable threat intelligence but instead provides insights into detection strategies and future research directions. This aligns with the 'Informational' category, as it highlights trends and methodologies without detailing specific exploits or attacks."
+}
+
+Article ID: 18576290
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 122
+[31m==> Total Tokens: [0m 119094
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a sophisticated malware campaign deploying Winos 4.0, which uses techniques like reflective DLL injection and in-memory execution to evade detection. These tactics are indicative of an Info Stealer or RAT, as the malware connects to attacker-controlled servers to fetch additional payloads and potentially exfiltrate data. The intermediate subject is 'Info Stealer' due to the malware's behavior and focus on persistence and stealth."
+}
+
+Article ID: 18576292
+True Subject: Tradecraft
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 123
+[31m==> Total Tokens: [0m 119772
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses a shift in tactics by the Russia-aligned threat actor TAG-110, including their use of new tooling (macro-enabled Word templates) and evolving methods for espionage. This aligns with the 'Tradecraft' category, specifically under the intermediate subject of 'threat actor updates' and 'new tooling,' as it highlights changes in the threat actor's operational methods and tools."
+}
+
+Article ID: 18576293
+True Subject: Access
+Predicted Subject: Tradecraft
+Correct: False
+[31m==> Total LLM Calls: [0m 124
+[31m==> Total Tokens: [0m 120095
+[31m==> Subject category raw result: [0m {
+  "answer": "Informational",
+  "reason": "The input provided does not contain any specific details about an article or incident. In such cases, the most appropriate category is 'Informational,' as it typically applies to general or non-specific content that does not include IoCs or actionable intelligence."
+}
+
+Article ID: 18576301
+True Subject: Informational
+Predicted Subject: Informational
+Correct: True
+[31m==> Total LLM Calls: [0m 125
+[31m==> Total Tokens: [0m 121029
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article focuses on a specific CVE, CVE-2025-3248, which is a critical vulnerability in Langflow. It describes how the vulnerability is exploited, its technical details, and its impact, which aligns with the 'Exploit' category. The intermediate subject is CVEs, as the article revolves around a specific vulnerability and its exploitation."
+}
+
+Article ID: 18576310
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 126
+[31m==> Total Tokens: [0m 121679
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a specific vulnerability in GitLab Duo, which is an indirect prompt injection flaw affecting large language models (LLMs). This falls under the 'Exploit' category as it involves a technical vulnerability (akin to CVEs) that attackers can leverage to achieve malicious outcomes such as data exfiltration and code manipulation."
+}
+
+Article ID: 18577171
+True Subject: Tradecraft
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 127
+[31m==> Total Tokens: [0m 122403
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article discusses the evolution, usage, and resurgence of DanaBot, a malware-as-a-service, along with its distribution methods, associated threat actors, and campaigns. This aligns with the 'Tradecraft' category, specifically under the intermediate subject of 'tooling updates' and 'threat actor updates,' as it provides insights into the tool's development, its use by various threat actors, and its impact on the cybercriminal ecosystem."
+}
+
+Article ID: 18577722
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 128
+[31m==> Total Tokens: [0m 123186
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily focuses on the Silent Ransom Group's (SRG) tactics, which involve data exfiltration using tools like WinSCP and Rclone. While the group employs social engineering and phishing to gain access, their main objective is to steal sensitive information and extort victims by threatening to leak the data. This aligns with the intermediate subject of 'Info Stealer' under the 'Exfiltration' category."
+}
+
+Article ID: 18577786
+True Subject: Disruption
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 129
+[31m==> Total Tokens: [0m 123889
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a malicious campaign involving the distribution of an infostealer payload hidden within PyTorch models. The intermediate subject is 'Info Stealer,' as the campaign exfiltrates sensitive information such as machine details and .gitconfig file content to an attacker-controlled server. This aligns with the Exfiltration category."
+}
+
+Article ID: 18577832
+True Subject: Tradecraft
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 130
+[31m==> Total Tokens: [0m 124550
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article focuses on a malware campaign targeting macOS users to steal sensitive information, specifically seed phrases, passwords, and wallet details. The intermediate subject is 'Info Stealer,' as the attackers use phishing tactics and trojanized apps to exfiltrate critical data to their servers."
+}
+
+Article ID: 18577834
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 131
+[31m==> Total Tokens: [0m 125181
+[31m==> Subject category raw result: [0m {
+  "answer": "Consumer",
+  "reason": "The article focuses on a cryptocurrency-related security breach involving the Cetus Protocol, a decentralized exchange. The intermediate subject is 'crypto,' which falls under the Consumer category, as the primary focus is on the theft and subsequent actions related to cryptocurrency assets."
+}
+
+Article ID: 18577867
+True Subject: Informational
+Predicted Subject: Consumer
+Correct: False
+[31m==> Total LLM Calls: [0m 132
+[31m==> Total Tokens: [0m 125899
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily discusses malicious NPM packages designed to collect sensitive host and network data and send it to a Discord webhook controlled by the threat actor. This aligns with the intermediate subject 'Info Stealer' under the 'Exfiltration' category, as the focus is on gathering and exfiltrating sensitive information from compromised systems."
+}
+
+Article ID: 18577869
+True Subject: Access
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 133
+[31m==> Total Tokens: [0m 126521
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a campaign leveraging SEO poisoning and typosquatting to distribute malicious installers that deliver Bumblebee malware. This falls under the 'Access' category because the attackers are using these techniques to gain unauthorized access to systems by tricking users into downloading and installing trojanized software. The intermediate subject is phishing campaign, as the attackers are impersonating legitimate tools to deceive users."
+}
+
+Article ID: 18578400
+True Subject: Tradecraft
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 134
+[31m==> Total Tokens: [0m 127152
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses a critical vulnerability (CVE-2025-46176) in D-Link routers, which allows remote command execution due to hardcoded Telnet credentials. This aligns with the 'Exploit' category, as it focuses on a specific CVE and its technical details, including the root cause and potential impact."
+}
+
+Article ID: 18578659
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 135
+[31m==> Total Tokens: [0m 127857
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily focuses on Katz Stealer, a malware designed to steal sensitive information such as login credentials, cryptocurrency wallet data, and other personal information from victims. This aligns with the intermediate subject 'Info Stealer' under the 'Exfiltration' category, as the malware's primary purpose is data theft and exfiltration."
+}
+
+Article ID: 18578899
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+[31m==> Total LLM Calls: [0m 136
+[31m==> Total Tokens: [0m 128470
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a phishing campaign where threat actors created a fake DigiYatra website to deceive users and steal personal and financial data. This aligns with the 'Access' category, specifically under the intermediate subject of 'phishing campaign,' as the primary tactic involves tricking users into providing sensitive information through a fraudulent site."
+}
+
+Article ID: 18578900
+True Subject: Consumer
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 137
+[31m==> Total Tokens: [0m 129094
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article describes a campaign involving malicious npm packages that exfiltrate sensitive system data, such as hostnames, IP addresses, and user directory paths, to a Discord webhook. This aligns with the intermediate subject 'Info Stealer' under the 'Exfiltration' category, as the primary focus is on stealing and transmitting sensitive information."
+}
+
+Article ID: 18578901
+True Subject: Access
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 138
+[31m==> Total Tokens: [0m 129850
+[31m==> Subject category raw result: [0m {
+  "answer": "Tradecraft",
+  "reason": "The article focuses on the activities, techniques, and tools of the advanced persistent threat (APT) group Earth Lamia. It discusses their use of customized hacking tools (e.g., PULSEPACK and BypassBoss), exploitation of vulnerabilities, and sophisticated methods for evasion and persistence. This aligns with the 'Tradecraft' category, specifically under the intermediate subject of 'threat actor updates' and 'new tooling,' as it provides insights into the group's operations and methodologies."
+}
+
+Article ID: 18579979
+True Subject: Tradecraft
+Predicted Subject: Tradecraft
+Correct: True
+[31m==> Total LLM Calls: [0m 139
+[31m==> Total Tokens: [0m 130621
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article discusses critical vulnerabilities in HTTP/2 server push and Signed HTTP Exchange (SXG) features that can be exploited to bypass the Same-Origin Policy (SOP). This aligns with the 'Exploit' category, as it involves the identification and potential exploitation of specific CVEs or vulnerabilities in web technologies."
+}
+
+Article ID: 18580036
+True Subject: Access
+Predicted Subject: Exploit
+Correct: False
+[31m==> Total LLM Calls: [0m 140
+[31m==> Total Tokens: [0m 131301
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily focuses on the activities of Void Blizzard, a Russian-backed cyberespionage group, which conducted a security breach involving the theft of sensitive information such as names, email addresses, phone numbers, and private details of Dutch police officers. The intermediate subject is 'Info Stealer,' as the attackers used infostealer malware to obtain stolen cookies, enabling them to impersonate users and exfiltrate data. The emphasis on data theft and exfiltration aligns with the 'Exfiltration' category."
+}
+
+Article ID: 18580467
+True Subject: Informational
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 141
+[31m==> Total Tokens: [0m 132080
+[31m==> Subject category raw result: [0m {
+  "answer": "Access",
+  "reason": "The article describes a campaign by threat actor UNC6032 that uses fake AI-themed websites to distribute malware, including backdoors and infostealers. The intermediate subject is 'backdoor' because the campaign involves deploying malware like XWORM and FROSTRIFT backdoors, which are used to gain unauthorized access to systems. Additionally, the use of phishing-like tactics via deceptive social media ads aligns with the 'Access' category."
+}
+
+Article ID: 18580471
+True Subject: Tradecraft
+Predicted Subject: Access
+Correct: False
+[31m==> Total LLM Calls: [0m 142
+[31m==> Total Tokens: [0m 132710
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article discusses Silver RAT, a remote access trojan (RAT), which is explicitly categorized under 'Exfiltration' in the provided list. The intermediate subject is 'Info Stealer,' as the malware is described as capable of data theft, keystroke logging, and unauthorized remote control, all of which align with exfiltration activities."
+}
+
+Article ID: 18580472
+True Subject: Tradecraft
+Predicted Subject: Exfiltration
+Correct: False
+[31m==> Total LLM Calls: [0m 143
+[31m==> Total Tokens: [0m 133474
+[31m==> Subject category raw result: [0m {
+  "answer": "Exploit",
+  "reason": "The article primarily focuses on a critical Remote Code Execution (RCE) vulnerability, CVE-2025-32432, in Craft CMS, which has been exploited by threat actors. The intermediate subject is 'CVE' as the discussion revolves around the exploitation of a specific CVE and its impact, including the deployment of cryptominer malware and other malicious activities."
+}
+
+Article ID: 18580476
+True Subject: Exploit
+Predicted Subject: Exploit
+Correct: True
+[31m==> Total LLM Calls: [0m 144
+[31m==> Total Tokens: [0m 134143
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article primarily focuses on the impact of Operation Sindoor, which involved significant disruptive activities such as DDoS attacks, website defacements, and data leaks. These activities align with the intermediate subject of 'ransomware, ddos, defacement/spam' under the 'Disruption' category. While other elements like spear phishing and RAT usage are mentioned, the overarching theme is the disruption caused to India's critical infrastructure."
+}
+
+Article ID: 18580477
+True Subject: Tradecraft
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 145
+[31m==> Total Tokens: [0m 134643
+[31m==> Subject category raw result: [0m {
+  "answer": "Disruption",
+  "reason": "The article describes a ransomware attack on MathWorks that caused service outages and disruptions to its IT systems and online applications. This aligns with the 'Disruption' category, specifically under the intermediate subject of 'ransomware'."
+}
+
+Article ID: 18580507
+True Subject: Informational
+Predicted Subject: Disruption
+Correct: False
+[31m==> Total LLM Calls: [0m 146
+[31m==> Total Tokens: [0m 135313
+[31m==> Subject category raw result: [0m {
+  "answer": "Exfiltration",
+  "reason": "The article primarily focuses on the FormBook malware, which is designed to collect and exfiltrate sensitive data such as credentials, cookies, and browser history from infected systems. The intermediate subject is 'Info Stealer,' as the malware's primary function is to steal information and communicate it to its command-and-control servers."
+}
+
+Article ID: 18580558
+True Subject: Exfiltration
+Predicted Subject: Exfiltration
+Correct: True
+
+Subject Classification Metrics:
+Total Articles: 146
+Correct Predictions: 72
+Accuracy: 0.4932
+
+Category: Disruption
+Precision: 0.2500
+Recall: 0.3333
+F1 Score: 0.2857
+
+Category: Consumer
+Precision: 0.5000
+Recall: 0.3333
+F1 Score: 0.4000
+
+Category: Tradecraft
+Precision: 0.6154
+Recall: 0.3077
+F1 Score: 0.4103
+
+Category: Informational
+Precision: 0.7273
+Recall: 0.3636
+F1 Score: 0.4848
+
+Category: Access
+Precision: 0.4828
+Recall: 0.5385
+F1 Score: 0.5091
+
+Category: Exploit
+Precision: 0.5526
+Recall: 0.9545
+F1 Score: 0.7000
+
+Category: Exfiltration
+Precision: 0.2857
+Recall: 0.6154
+F1 Score: 0.3902
+==> Total time taken for baseline in description: 460.95 seconds
+Log saved to: triage_latest\2025-05-29\description\gpt-4o_baseline_description.log
