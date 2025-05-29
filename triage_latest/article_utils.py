@@ -120,6 +120,19 @@ def get_article_data(pat, output_file):
         else:
             score = priority
 
+        if PriorityWeight >= 1.0:
+            priority = 1
+            score = 1
+        elif PriorityWeight >= 0.8:
+            priority = 2
+            score = 2
+        elif PriorityWeight >= 0.5:
+            priority = 3
+            score = 3
+        else:
+            priority = 4
+            score =4
+             
         # Build a minimal dictionary with the required fields
         minimal_info = {
             "id": work_item_id,
