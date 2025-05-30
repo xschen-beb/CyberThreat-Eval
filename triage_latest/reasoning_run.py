@@ -383,10 +383,11 @@ class Baseline:
             result = self.analyze_article_priority(article)
             if result == 0:
                 result = 4
-                
+
+            new_score = calculate_priority_score(data["subject"], data["modifiers"])    
             results.append({
                 "id": data["id"],
-                "score": data["priority"],
+                "score": new_score,
                 "llm_result": result
             })
             
