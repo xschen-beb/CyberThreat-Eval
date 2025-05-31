@@ -38,7 +38,7 @@ total_tokens = 0
 
 def num_tokens_from_string(string: str, model_name: str) -> int:
     """Returns the number of tokens in a text string."""
-    if model_name == 'gpt-41':
+    if model_name in ['gpt-4o-mini', 'gpt-4o', 'o3-mini', 'gpt-41']:
         encoding_model = 'gpt-4o'
     else:
         encoding_model = model_name
@@ -53,7 +53,7 @@ def debug_print(*args, **kwargs):
         logging.debug(message)
         print(*args, **kwargs)
 
-@retry(wait=wait_random_exponential(min=1, max=120), stop=stop_after_attempt(3))
+# @retry(wait=wait_random_exponential(min=1, max=120), stop=stop_after_attempt(3))
 def api_call(client, messages, model_name, json_enabled=True):
     global total_llm_call
     global total_tokens
@@ -173,7 +173,7 @@ class Baseline:
             6. Consumer (includes subcatogory: crypto/cryptocurrency, network fraud, video game related attacks/thtreats)
             7. Informational (includes subcatogory: trends (threat summary), vendor security tool releases, leak published (data breach), security policy update, vulnerability fix, Security News[no tech/exploit/ioc details]). Note that a article does not include exploit details, IoC, threat actor should be considered as informational.
 
-            Note that please choose the most proper subcategory and then return the main category.
+            Note that please choose the most proper subcategory first and then choose corresponding category. 
 
             Output Format:
             - Return a JSON object with two keys: "answer" and "reason".
@@ -193,6 +193,7 @@ class Baseline:
             debug_print(RED + "==> Subject category raw result: " + RESET, result.choices[0].message.content)
             return result.choices[0].message.content
         except Exception as e:
+            print(f"Error in get_subject_category: {e}")
             return None
 
     def get_modifiers(self, article: str) -> list:
@@ -202,7 +203,7 @@ class Baseline:
 
             Available modifiers (only choose if you has 100% confience):
             1. "If has_iocs" (1.2) - ONLY if there are explicit, extractable IOCs (Only consider IP addresses, domain names, file hashes) menttioned in the article. Only if the article explicitly lists some IOCs, or it mention "available indicators of compromise", you can choose this modifier.
-            2. "If no_iocs" (0.8) - ONLY if you are certain there are no extractable IOCs
+            2. "If no_iocs" (0.8) - ONLY if there are no abviously mentioned IOCs
             3. "If multiple_related_articles" (1.5) - ONLY if the artcile mentioned that multiple related articles are talking about the same threat incient. Do NOT consider that the case that article has a section "Related Articles:".
             4. "If Exploit and CVSS >= 9" (1.2) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score >= 9 is explicitly stated. Need to satisfy both conditions.
             5. "If Exploit and CVSS < 9" (0.5) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score < 9 is explicitly stated. Need to satisfy both conditions.
@@ -213,7 +214,7 @@ class Baseline:
             10. "If includes AI" (1.5) - ONLY if the threat in this article is about AI. Do not choose this if the article only include a few AI-related keywords.
 
             Important Rules:
-            - You MUST choose an answer from ["If has_iocs", "If no_iocs"]
+            - You MUST choose an answer from ["If has_iocs", "If no_iocs"]. if no IOCs are mentioned, you MUST choose "If no_iocs". otherwise, you MUST choose "If has_iocs".
             - Only choose modifiers you are 100% certain about
             - Each chosen modifier must have clear evidence in the article
             - Do not make assumptions or inferences
@@ -221,8 +222,9 @@ class Baseline:
 
             Output Format:
             - Return a JSON object with two keys: "modifiers" and "reason"
-            - The "modifiers" key should contain an array of modifier names you are 100% certain about
             - The "reason" key should contain a brief explanation with specific evidence from the article for each chosen modifier
+            - The "modifiers" key should contain an array of modifier names you are 100% certain about
+
             """
             user_prompt = f"""
             Please analyze the following article and identify modifiers you are 100% certain about based on clear evidence:
@@ -237,6 +239,7 @@ class Baseline:
             debug_print(RED + "==> Modifiers raw result: " + RESET, result.choices[0].message.content)
             return result.choices[0].message.content
         except Exception as e:
+            print(f"Error in get_modifiers: {e}")
             return None
 
     def calculate_priority_score(self, subject: str, modifiers: list) -> int:
