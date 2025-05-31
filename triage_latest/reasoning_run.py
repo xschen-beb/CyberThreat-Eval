@@ -6,7 +6,6 @@ import sys
 import time
 import logging
 import tiktoken
-import json5
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -90,7 +89,7 @@ def api_call(client, messages, model_name, json_enabled=True):
         return client.chat.completions.create(
             model=model_name,
             messages=new_messages,
-            temperature=0.01,
+            temperature=0.75,
             response_format={"type": "json_object"} if json_enabled else None,
             max_completion_tokens=8196
         )
@@ -166,18 +165,20 @@ class Baseline:
         try:
             system_prompt = """
             You are a cybersecurity expert. Your task is to determine the most appropriate Subject category from the following list:
-            1. Disruption (includes: ransomware, ddos, defacement/spam)
-            2. Exfiltration (includes: RAT, Info Stealer)
-            3. Access (includes: phishing campaign, brute force, AITM, supply chain, backdoor, cobalt strike)
-            4. Exploit (includes: CVEs)
-            5. Tradecraft (includes: threat actor updates, new tooling, new threat actors, tooling updates, tool overview)
-            6. Consumer (includes: crypto, fraud, video game related)
-            7. Informational (The article should NOT include IoCs, and includes: trends, vendor tool releases, leak published, policy update, vulnerability fix)
+            1. Disruption (includes subcatogory: ransomware, ddos, defacement/spam). Even the artcile is about ransomware, ddos, or defacement/spam, but it did not include any technical details (root cause, how the attack is launched, exploit details), you should choose Informational categroy.
+            2. Exfiltration (ONLY includes subcatogory: Remote Access Trojan (RAT), Information Stealer malicous Tools). It must descibe the how the RAT or Information Stealer work, how it is delivered, and how it is used by the threat actor.  not just mention the name of RAT or Information Stealer. 
+            3. Access (includes subcatogory: phishing campaign, brute force, AITM (dversary-in-the-middle), supply chain (e.g., npm/pypi packages), backdoor, cobalt strike like tools). Even the artcile is about phishing campaign, brute force, AITM, supply chain, backdoor, or cobalt strike like tools, but it did not include any technical details (root cause, how the attack is launched, exploit details), you should choose Informational categroy.
+            4. Exploit (includes subcatogory: CVEs). The hackers exploit some vulns in hack event (e.g., Pwn2Own) is NOT consider as exploit. For example "Hackers exploit VMware ESXi, Microsoft SharePoint zero-days at Pwn2Own and the competitors earned $435, xx" 
+            5. Tradecraft (includes subcatogory: threat actor updates, new malicious/underground tooling, new threat actors, malicious/underground tooling updates, malicious/underground tool overview)
+            6. Consumer (includes subcatogory: crypto/cryptocurrency, network fraud, video game related attacks/thtreats)
+            7. Informational (includes subcatogory: trends (threat summary), vendor security tool releases, leak published (data breach), security policy update, vulnerability fix, Security News[no tech/exploit/ioc details]). Note that a article does not include exploit details, IoC, threat actor should be considered as informational.
+
+            Note that please choose the most proper subcategory and then return the main category.
 
             Output Format:
             - Return a JSON object with two keys: "answer" and "reason".
+            - The "reason" key should contain a brief explanation of why that category and the subcategory (e.g., subject: Disruption, subsubject: ransomware) was chosen.
             - The "answer" key should contain only the most proper category name from the list (e.g., "Disruption", "Exfiltration", etc.)
-            - The "reason" key should contain a brief explanation of why that category and the intermediate category (e.g., subject: Disruption, intermediate subject: ransomware) was chosen.
             """
             user_prompt = f"""
             Please analyze the following article and determine its Subject category:
@@ -199,17 +200,17 @@ class Baseline:
             system_prompt = """
             You are a cybersecurity expert. Your task is to identify modifiers that you are 100% confident about based on clear evidence in the article.
 
-            Available modifiers (only choose if you are 100% certain):
-            1. "If has_iocs" (1.2) - ONLY if there are explicit, extractable IOCs in the article
+            Available modifiers (only choose if you has 100% confience):
+            1. "If has_iocs" (1.2) - ONLY if there are explicit, extractable IOCs (Only consider IP addresses, domain names, file hashes) menttioned in the article. Only if the article explicitly lists some IOCs, or it mention "available indicators of compromise", you can choose this modifier.
             2. "If no_iocs" (0.8) - ONLY if you are certain there are no extractable IOCs
-            3. "If multiple_related_articles" (1.5) - ONLY if multiple related articles are explicitly mentioned (NOT original source URL)
-            4. "If Exploit and CVSS >= 9" (1.2) - ONLY if CVSS score >= 9 is explicitly stated
-            5. "If Exploit and CVSS < 9" (0.5) - ONLY if CVSS score < 9 is explicitly stated
-            6. "If threat actor/group/campaign mentioned" (1.5) - ONLY if a specific threat actor/group/campaign is explicitly named
-            7. "If is POC" (1.2) - ONLY if the article explicitly states it's a proof of concept
-            8. "If Exploit reported as active" (1.2) - ONLY if the article explicitly states the exploit is active
-            9. "If Exploit and multiple CVEs" (1.2) - ONLY if multiple CVE numbers are explicitly listed
-            10. "If includes AI" (1.5) - ONLY if AI-related information is explicitly mentioned
+            3. "If multiple_related_articles" (1.5) - ONLY if the artcile mentioned that multiple related articles are talking about the same threat incient. Do NOT consider that the case that article has a section "Related Articles:".
+            4. "If Exploit and CVSS >= 9" (1.2) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score >= 9 is explicitly stated. Need to satisfy both conditions.
+            5. "If Exploit and CVSS < 9" (0.5) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score < 9 is explicitly stated. Need to satisfy both conditions.
+            6. "If threat actor/group/campaign mentioned" (1.5) - ONLY if a specific threat actor/group/campaign name is mentioned (e.g., Black Basta ransomware gang, FIN7 attacks). not just the key word 'threat actor'. researcher name is not considered as threat actor/group/campaign.
+            7. "If is POC" (1.2) - ONLY if the article explicitly states it include a proof of concept (PoC) exploit
+            8. "If Exploit reported as active" (1.2) - ONLY if the article explicitly states the threat is exploied by someone and the exploit is active (e.g., exploitation has been observed since at least April 29, 2025, ongoing attacks exploiting a high-severity vulnerability). Need to satisfy both conditions.
+            9. "If Exploit and multiple CVEs" (1.2) - ONLY if the threat is exploied by someone and multiple CVE numbers are explicitly listed. Need to satisfy both conditions.
+            10. "If includes AI" (1.5) - ONLY if the threat in this article is about AI. Do not choose this if the article only include a few AI-related keywords.
 
             Important Rules:
             - You MUST choose an answer from ["If has_iocs", "If no_iocs"]
@@ -332,7 +333,7 @@ class Baseline:
                 print(f"\nArticle ID: {data['id']}")
                 print(f"True Subject: {true_subject}")
                 print(f"Predicted Subject: {predicted_subject}")
-                print(f"Correct: {predicted_subject == true_subject}")
+                print(f"Subject Correct: {predicted_subject == true_subject}")
                 
             except Exception as e:
                 print(f"Error processing article {data['id']}: {e}")
@@ -384,10 +385,10 @@ class Baseline:
             if result == 0:
                 result = 4
 
-            new_score = calculate_priority_score(data["subject"], data["modifiers"])    
+            # new_score = self.calculate_priority_score(data["subject"], data["modifier"])    
             results.append({
                 "id": data["id"],
-                "score": new_score,
+                "score": data["priority"],
                 "llm_result": result
             })
             
@@ -530,7 +531,7 @@ def main():
 
     log_dir = os.path.join("triage_latest", current_date, dataset_choice)
     os.makedirs(log_dir, exist_ok=True)
-    log_filename = os.path.join(log_dir, f"{model_name}_{method_name}_{dataset_choice}.log")
+    log_filename = os.path.join(log_dir, f"{model_name}_{method_name}_{dataset_choice}_{current_date}.log")
 
     # Load data from the appropriate file
     with open(data_file, 'r', encoding='utf-8') as f:
@@ -539,21 +540,21 @@ def main():
     time_start = time.time()
     subject_log_filename = os.path.join(log_dir, f"{model_name}_{method_name}_{dataset_choice}_subject.log")
 
-    with open(subject_log_filename, 'w', encoding='utf-8') as log_f:
-        with redirect_stdout(log_f):
-            print(f"Running {method_name} with dataset {dataset_choice}")
-            # Create the appropriate method instance and run evaluation.
-            if method_name == "baseline":
-                baseline = Baseline(client, model_name)
-                if dataset_choice == "article":
-                    baseline.evaluate_subject_accuracy(data_dict, article_type='article')
-                else:
-                    baseline.evaluate_subject_accuracy(data_dict, article_type='description')
-            else:
-                raise ValueError("Invalid method option provided.")
-            time_end = time.time()
-            print(f"==> Total time taken for {method_name} in {dataset_choice}: {time_end - time_start:.2f} seconds")
-            print(f"Log saved to: {log_filename}")
+    # with open(subject_log_filename, 'w', encoding='utf-8') as log_f:
+    #     with redirect_stdout(log_f):
+    #         print(f"Running {method_name} with dataset {dataset_choice}")
+    #         # Create the appropriate method instance and run evaluation.
+    #         if method_name == "baseline":
+    #             baseline = Baseline(client, model_name)
+    #             if dataset_choice == "article":
+    #                 baseline.evaluate_subject_accuracy(data_dict, article_type='article')
+    #             else:
+    #                 baseline.evaluate_subject_accuracy(data_dict, article_type='description')
+    #         else:
+    #             raise ValueError("Invalid method option provided.")
+    #         time_end = time.time()
+    #         print(f"==> Total time taken for {method_name} in {dataset_choice}: {time_end - time_start:.2f} seconds")
+    #         print(f"Log saved to: {log_filename}")
 
     
     with open(log_filename, 'w', encoding='utf-8') as log_f:

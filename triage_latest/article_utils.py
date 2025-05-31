@@ -111,7 +111,9 @@ def get_article_data(pat, output_file):
         plain_text = soup.get_text(separator=' ', strip=True)
         plain_text = plain_text.replace('&nbsp;', '')
 
-
+        if PriorityWeight == 0.0:
+            print("PriorityWeight is 0.0, skipping work item ID:", work_item_id)
+            continue
         # Determine the score
         if priority is None and state == "Rejected":
             continue
@@ -208,7 +210,7 @@ def test_single_triage(work_items):
 
 if __name__ == '__main__':
     pat = os.getenv('ADO_PERSONAL_ACCESS_TOKEN')
-    output_file = '0528-triage.json'
+    output_file = '0530-triage.json'
     get_article_data(pat, output_file)
     # work_items = get_work_items(pat)
     # print(test_single_triage(work_items))
