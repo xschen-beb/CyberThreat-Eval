@@ -2283,9 +2283,9 @@
         "subject": "Access",
         "intermediate_subject": "Phishing campaign",
         "subject_weight": 1.0,
-        "modifier": "Has iocs;Has iocs;Threat actor/group/campaign;Threat actor/group/campaign",
-        "modifier_weight": 3.24,
-        "priority_weight": 3.24
+        "modifier": "Has iocs;Threat actor/group/campaign",
+        "modifier_weight": 1.8,
+        "priority_weight": 1.8
     },
     {
         "id": 18583538,

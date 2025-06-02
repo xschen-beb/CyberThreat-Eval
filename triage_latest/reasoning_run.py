@@ -38,7 +38,7 @@ total_tokens = 0
 
 def num_tokens_from_string(string: str, model_name: str) -> int:
     """Returns the number of tokens in a text string."""
-    if model_name in ['gpt-4o-mini', 'gpt-4o', 'o3-mini', 'gpt-41']:
+    if model_name in ['gpt-4o-mini', 'gpt-4o', 'gpt-4-32k', 'o3-mini', 'o4-mini', 'gpt-41', 'o1']:
         encoding_model = 'gpt-4o'
     else:
         encoding_model = model_name
@@ -63,7 +63,7 @@ def api_call(client, messages, model_name, json_enabled=True):
     debug_print(RED + "==> Total Tokens: " + RESET, total_tokens)
 
     # If using custom 'o3-mini' or other specialized series
-    if model_name in ['o3-mini']:
+    if model_name in ['o3-mini', 'o4-mini', 'o1']:
         new_messages = []
         for message in messages:
             if message["role"] == "system":
@@ -100,7 +100,7 @@ def api_call(client, messages, model_name, json_enabled=True):
         return client.chat.completions.create(
             model=model_name,
             messages=messages,
-            temperature=0.01,
+            temperature=0.75,
             max_tokens=8192,
             top_p=0.9
         )
@@ -164,11 +164,11 @@ class Baseline:
     def get_subject_category(self, article: str) -> str:
         try:
             system_prompt = """
-            You are a cybersecurity expert. Your task is to determine the most appropriate Subject category from the following list:
-            1. Disruption (includes subcatogory: ransomware, ddos, defacement/spam). Even the artcile is about ransomware, ddos, or defacement/spam, but it did not include any technical details (root cause, how the attack is launched, exploit details), you should choose Informational categroy.
+            You are a cybersecurity expert. You are triaging security articles. Your task is to determine the most appropriate Subject category from the following list:
+            1. Disruption (includes subcatogory: ransomware, ddos, defacement/spam). Even the artcile is about ransomware, ddos, or defacement/spam, but it did not include any technical details (how the attack is launched, exploit details, detailed IoCs), you should choose Informational categroy.
             2. Exfiltration (ONLY includes subcatogory: Remote Access Trojan (RAT), Information Stealer malicous Tools). It must descibe the how the RAT or Information Stealer work, how it is delivered, and how it is used by the threat actor.  not just mention the name of RAT or Information Stealer. 
-            3. Access (includes subcatogory: phishing campaign, brute force, AITM (dversary-in-the-middle), supply chain (e.g., npm/pypi packages), backdoor, cobalt strike like tools). Even the artcile is about phishing campaign, brute force, AITM, supply chain, backdoor, or cobalt strike like tools, but it did not include any technical details (root cause, how the attack is launched, exploit details), you should choose Informational categroy.
-            4. Exploit (includes subcatogory: CVEs). The hackers exploit some vulns in hack event (e.g., Pwn2Own) is NOT consider as exploit. For example "Hackers exploit VMware ESXi, Microsoft SharePoint zero-days at Pwn2Own and the competitors earned $435, xx" 
+            3. Access (includes subcatogory: phishing campaign, brute force, AITM (dversary-in-the-middle), supply chain (e.g., npm/pypi packages), backdoor, cobalt strike like tools). Even the artcile is about Access category, but it did not include technical details (such as root cause, how the attack is launched, exploit details), the article should be Informational categroy.
+            4. Exploit (includes subcatogory: CVEs). It only includes articles that descibing real-world attack that exploit CVEs or some zero-day vulnerability. The artiles only talked about CVE info are NOT in Exploit category. The hackers exploit some vulns in hack event (e.g., Pwn2Own) is NOT consider as exploit. For example "Hackers exploit VMware ESXi, Microsoft SharePoint zero-days at Pwn2Own and the competitors earned $435, xx".
             5. Tradecraft (includes subcatogory: threat actor updates, new malicious/underground tooling, new threat actors, malicious/underground tooling updates, malicious/underground tool overview)
             6. Consumer (includes subcatogory: crypto/cryptocurrency, network fraud, video game related attacks/thtreats)
             7. Informational (includes subcatogory: trends (threat summary), vendor security tool releases, leak published (data breach), security policy update, vulnerability fix, Security News[no tech/exploit/ioc details]). Note that a article does not include exploit details, IoC, threat actor should be considered as informational.
@@ -177,8 +177,8 @@ class Baseline:
 
             Output Format:
             - Return a JSON object with two keys: "answer" and "reason".
-            - The "reason" key should contain a brief explanation of why that category and the subcategory (e.g., subject: Disruption, subsubject: ransomware) was chosen.
-            - The "answer" key should contain only the most proper category name from the list (e.g., "Disruption", "Exfiltration", etc.)
+            - The "reason" key should contain a brief explanation of why that category and the subcategory (e.g., subject: Informational, subsubject: Security News) was chosen.
+            - The "answer" key should contain only the most proper category name from the list (e.g., "Informational", "Security News", etc.)
             """
             user_prompt = f"""
             Please analyze the following article and determine its Subject category:
@@ -207,7 +207,7 @@ class Baseline:
             3. "If multiple_related_articles" (1.5) - ONLY if the artcile mentioned that multiple related articles are talking about the same threat incient. Do NOT consider that the case that article has a section "Related Articles:".
             4. "If Exploit and CVSS >= 9" (1.2) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score >= 9 is explicitly stated. Need to satisfy both conditions.
             5. "If Exploit and CVSS < 9" (0.5) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score < 9 is explicitly stated. Need to satisfy both conditions.
-            6. "If threat actor/group/campaign mentioned" (1.5) - ONLY if a specific threat actor/group/campaign name is mentioned (e.g., Black Basta ransomware gang, FIN7 attacks). not just the key word 'threat actor'. researcher name is not considered as threat actor/group/campaign.
+            6. "If threat actor/group/campaign mentioned" (1.5) - ONLY if the article descibe a specific threat actor/group/campaign conduct some attacks (e.g., This tactic was previously linked to the Black Basta ransomware gang and later observed in FIN7 attacks...). not just the key word 'threat actor'. researcher name is not considered as threat actor/group/campaign.
             7. "If is POC" (1.2) - ONLY if the article explicitly states it include a proof of concept (PoC) exploit
             8. "If Exploit reported as active" (1.2) - ONLY if the article explicitly states the threat is exploied by someone and the exploit is active (e.g., exploitation has been observed since at least April 29, 2025, ongoing attacks exploiting a high-severity vulnerability). Need to satisfy both conditions.
             9. "If Exploit and multiple CVEs" (1.2) - ONLY if the threat is exploied by someone and multiple CVE numbers are explicitly listed. Need to satisfy both conditions.
@@ -515,7 +515,7 @@ def main():
     data_file = args.input_dataset
 
     # Setup the AzureOpenAI client based on the model name
-    if model_name in ['gpt-4o-mini', 'gpt-4o', 'o3-mini', 'gpt-41']:
+    if model_name in ['gpt-4o-mini', 'gpt-4o', 'gpt-4-32k', 'o3-mini','o4-mini', 'gpt-41', 'o1']:
         client = AzureOpenAI(
             azure_endpoint="https://onetiai-swec.openai.azure.com/",
             azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
