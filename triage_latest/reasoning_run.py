@@ -197,6 +197,7 @@ class Baseline:
             return None
 
     def get_modifiers(self, article: str) -> list:
+        # 3. "If multiple_related_articles" (1.5) - ONLY if the artcile mentioned that multiple related articles are talking about the same threat incient. Do NOT consider that the case that article has a section "Related Articles:".
         try:
             system_prompt = """
             You are a cybersecurity expert. Your task is to identify modifiers that you are 100% confident about based on clear evidence in the article.
@@ -204,7 +205,7 @@ class Baseline:
             Available modifiers (only choose if you has 100% confience):
             1. "If has_iocs" (1.2) - ONLY if there are explicit, extractable IOCs (Only consider IP addresses, domain names, file hashes) menttioned in the article. Only if the article explicitly lists some IOCs, or it mention "available indicators of compromise", you can choose this modifier.
             2. "If no_iocs" (0.8) - ONLY if there are no abviously mentioned IOCs
-            3. "If multiple_related_articles" (1.5) - ONLY if the artcile mentioned that multiple related articles are talking about the same threat incient. Do NOT consider that the case that article has a section "Related Articles:".
+            
             4. "If Exploit and CVSS >= 9" (1.2) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score >= 9 is explicitly stated. Need to satisfy both conditions.
             5. "If Exploit and CVSS < 9" (0.5) - ONLY if the CVE/flaw is exploit by someone (e.g., "Hackers Exploit XX Vulnerability, allow an attacker to XX"), and its CVSS score < 9 is explicitly stated. Need to satisfy both conditions.
             6. "If threat actor/group/campaign mentioned" (1.5) - ONLY if the article descibe a specific threat actor/group/campaign conduct some attacks (e.g., This tactic was previously linked to the Black Basta ransomware gang and later observed in FIN7 attacks...). not just the key word 'threat actor'. researcher name is not considered as threat actor/group/campaign.
