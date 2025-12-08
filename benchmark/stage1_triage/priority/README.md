@@ -85,7 +85,41 @@ Use `code/reasoning_run.py` to run LLM-based priority assignment example
 
 ### Evaluating Predictions
 
-Use `code/eval.py` to evaluate prediction results:
+#### Command-Line Interface
+
+Use `code/eval.py` to evaluate prediction results from the command line:
+
+```bash
+python code/eval.py \
+    --ground_truth data/0314-articles.json \
+    --predictions predictions.json \
+    --article_type article \
+    --output results.json
+```
+
+**Arguments**:
+- `--ground_truth` (optional, default: `data/0314-articles.json`): Path to ground truth JSON file containing articles
+- `--predictions` (required): Path to predictions JSON file
+- `--article_type` (optional, default: `article`): Type of article content to use
+  - `article`: Use full article text (`Cassandra.SourceText`)
+  - `description`: Use article description/summary (`System.Description`)
+- `--output` (optional): Path to save evaluation results as JSON. If not provided, results are printed to stdout
+
+**Example**:
+```bash
+# Basic usage
+python code/eval.py --predictions my_predictions.json
+
+# Use description instead of full article
+python code/eval.py --predictions my_predictions.json --article_type description
+
+# Save results to file
+python code/eval.py --predictions my_predictions.json --output evaluation_results.json
+```
+
+#### Python API
+
+You can also use the evaluation function directly in Python:
 
 ```python
 from code.eval import gen_article_score_with_llms
@@ -113,6 +147,30 @@ results, combined_metrics = gen_article_score_with_llms(
 with open("evaluation_results.json", "w") as f:
     json.dump(combined_metrics, f, indent=4)
 ```
+
+#### Predictions File Format
+
+The predictions file must be a JSON array where each entry has the following format:
+
+```json
+[
+    {
+        "id": 18440185,
+        "score": 5,
+        "llm_result": 1
+    },
+    {
+        "id": 18439996,
+        "score": 5,
+        "llm_result": 2
+    }
+]
+```
+
+**Required Fields**:
+- `id`: Article identifier (must match `id` in ground truth)
+- `score`: Ground truth score (1, 2, 3, or 5)
+- `llm_result`: Predicted priority score (1, 2, 3, or 5)
 
 ## Evaluation Metrics
 
@@ -151,7 +209,3 @@ The evaluation framework computes multiple metrics:
 - Bias is calculated as the absolute difference between predicted and ground truth scores
 - The confusion matrix uses labels [1, 2, 3, 5] in that order
 - Results are saved as JSON with numpy arrays converted to lists for serialization
-
-## License
-
-See the main repository LICENSE file.

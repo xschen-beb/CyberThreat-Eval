@@ -2,7 +2,9 @@ from tqdm import tqdm
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import json
 import os
-import numpy as np  
+import numpy as np
+import argparse
+import sys  
 
 
 def gen_article_score_with_llms(data_dict, pred_results, article_type):
@@ -141,7 +143,7 @@ def gen_article_score_with_llms(data_dict, pred_results, article_type):
         "precision_macro": float(precision_macro),
         "recall_macro": float(recall_macro),
         "f1_macro": float(f1_macro),
-        "confusion_matrix": cm.tolist(),
+        #"confusion_matrix": cm.tolist(),
         "classification_report": report,
         "avg_bias_per_class": {k: float(v) for k, v in avg_bias_per_class.items()},
         "binary": {
@@ -155,21 +157,113 @@ def gen_article_score_with_llms(data_dict, pred_results, article_type):
 
 
 if __name__ == "__main__":
-    data_path = os.path.join("data", "0314-articles.json")
-    with open(data_path, "r", encoding="utf-8") as f:
-        data_dict = json.load(f)
+    parser = argparse.ArgumentParser(
+        description="Evaluate priority assignment predictions against ground truth",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Basic usage with default paths
+  python eval.py --ground_truth data/0314-articles.json --predictions predictions.json
 
-    import random
-    possible_scores = [1, 2, 3, 5]
-    pred_results = []
-    for item in data_dict:
-        pred_results.append({
-            "id": item["id"],
-            "score": item["score"],
-            "llm_result": random.choice(possible_scores)
-        })
+  # Use description instead of full article
+  python eval.py --ground_truth data/0314-articles.json --predictions predictions.json --article_type description
 
-    article_type = "article"
-    results, combined_metrics = gen_article_score_with_llms(data_dict, pred_results, article_type)
-    print(results)
-    print(combined_metrics)
+  # Save results to file
+  python eval.py --ground_truth data/0314-articles.json --predictions predictions.json --output results.json
+        """
+    )
+    
+    parser.add_argument(
+        '--ground_truth',
+        type=str,
+        default=os.path.join("data", "0314-articles.json"),
+        help='Path to ground truth JSON file containing articles (default: data/0314-articles.json)'
+    )
+    
+    parser.add_argument(
+        '--predictions',
+        type=str,
+        required=True,
+        help='Path to predictions JSON file (format: list of dicts with "id", "score", "llm_result")'
+    )
+    
+    parser.add_argument(
+        '--article_type',
+        type=str,
+        choices=['article', 'description'],
+        default='article',
+        help='Type of article content to use: "article" for full text (Cassandra.SourceText) or "description" for summary (System.Description) (default: article)'
+    )
+    
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Path to save evaluation results as JSON (optional, if not provided results are printed to stdout)'
+    )
+    
+    args = parser.parse_args()
+    
+    # Check if files exist
+    if not os.path.exists(args.ground_truth):
+        print(f"Error: Ground truth file not found: {args.ground_truth}")
+        sys.exit(1)
+    
+    if not os.path.exists(args.predictions):
+        print(f"Error: Predictions file not found: {args.predictions}")
+        sys.exit(1)
+    
+    # Load ground truth data
+    try:
+        with open(args.ground_truth, "r", encoding="utf-8") as f:
+            data_dict = json.load(f)
+    except Exception as e:
+        print(f"Error loading ground truth file: {e}")
+        sys.exit(1)
+    
+    # Load predictions
+    try:
+        with open(args.predictions, "r", encoding="utf-8") as f:
+            pred_results = json.load(f)
+    except Exception as e:
+        print(f"Error loading predictions file: {e}")
+        sys.exit(1)
+    
+    # Validate predictions format
+    if not isinstance(pred_results, list):
+        print("Error: Predictions must be a JSON array")
+        sys.exit(1)
+    
+    for pred in pred_results:
+        if not all(key in pred for key in ['id', 'score', 'llm_result']):
+            print("Error: Each prediction must have 'id', 'score', and 'llm_result' fields")
+            sys.exit(1)
+    
+    # Run evaluation
+    try:
+        results, combined_metrics = gen_article_score_with_llms(
+            data_dict, 
+            pred_results, 
+            args.article_type
+        )
+        
+        # Save or print results
+        if args.output:
+            output_data = {
+                "results": results,
+                "metrics": combined_metrics
+            }
+            with open(args.output, "w", encoding="utf-8") as f:
+                json.dump(output_data, f, ensure_ascii=False, indent=2)
+            print(f"\nResults saved to: {args.output}")
+        else:
+            print("\n" + "="*60)
+            print("Evaluation Results:")
+            print("="*60)
+            print(json.dumps(combined_metrics, indent=2, ensure_ascii=False))
+            
+    except Exception as e:
+        print(f"Error during evaluation: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
