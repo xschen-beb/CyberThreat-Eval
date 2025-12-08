@@ -1,0 +1,23 @@
+[
+    {
+        "title": "DeepSeek Lure Using CAPTCHAs To Spread Malware",
+        "content": "## Snapshot\r\nResearchers at ThreatLabz have identified a malware campaign that exploits the popularity of the DeepSeek AI chatbot through brand impersonation.\r\n\r\n## Description\r\nCybercriminals are using fake DeepSeek look-alike domains to distribute the Vidar information stealer, targeting users with a fake CAPTCHA page that injects a malicious PowerShell command into their clipboard. When the command is executed, it downloads the Vidar executable, which then steals sensitive data such as credentials, cryptocurrency wallet information, browser cookies, and personal files. The malware specifically searches for data related to cryptocurrency wallets and browser extensions within the victim's file system and registry.\r\n\r\nVidar conceals its command-and-control communication using legitimate services like Telegram and Steam. The campaign uses a malicious website that mimics DeepSeek, registered on January 31, 2025, to lure victims with a fake partner registration prompt. The Vidar malware harvests a wide range of data and uses legitimate platforms to exfiltrate the stolen information to attacker-controlled servers, which include several IP addresses and a publicly accessible Steam community profile.",
+        "ttps": [
+            "T1204 - User Execution",
+            "T1189 - Drive-by Compromise",
+            "T1036 - Masquerading"
+        ],
+        "source": "DeepSeek Lure Using CAPTCHAs To Spread Malware"
+    },
+    {
+        "title": "Auto-Color: An Emerging and Evasive Linux Backdoor",
+        "content": "## Snapshot\r\nPalo Alto Networks researchers discovered a new Linux malware named Auto-color, which employs advanced evasion techniques to avoid detection and grants threat actors full remote access to compromised machines.\r\n\r\n## Description\r\nThis malware disguises itself by renaming its file to benign-sounding names like \"door\" or \"egg,\" making it harder for security tools to identify. Once executed, Auto-color installs a malicious library, libcext.so.2, which hooks into core system libraries, allowing it to hide network activity and prevent removal. The malware also alters network activity data to conceal connections with its remote command-and-control (C2) servers, making it more difficult to detect its presence.\r\n\r\nAuto-color's custom encryption protocol helps hide the configuration details for these C2 servers, which are dynamically configured based on the target system. The malware supports various functions through a specialized API, including reverse shell creation, file manipulation, and using the infected machine as a proxy. It can also modify global payload configurations remotely, enabling attackers to maintain control over compromised systems. Auto-color's persistence is enhanced by modifying the /etc/ld.preload file, ensuring its malicious library is loaded before other system libraries. While its exact method of delivery remains unclear, Auto-color has been primarily used to target universities and government offices in North America and Asia.",
+        "ttps": [
+            "T1204 - User Execution",
+            "T1036 - Masquerading",
+            "T1070 - Indicator Removal",
+            "T1219 - Remote Access Software"
+        ],
+        "source": "Auto-Color: An Emerging and Evasive Linux Backdoor"
+    }
+]
