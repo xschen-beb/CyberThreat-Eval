@@ -1,1 +1,0 @@
-pdm run test_threat_research.py > "scheduled_logs/atr_log_$(date '+%Y-%m-%d_%H-%M-%S').log"
