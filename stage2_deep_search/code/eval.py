@@ -396,7 +396,7 @@ def process_all_results(results_dir, output_dir, test_model_name, api_key, api_b
     For each result, Your input should be like:
     {
         "id": article_id,
-        "original_url": original_url,
+        "original_url": original_url, # the original url of the article from the data
         "related_urls_count": len(related_urls),
         "reference_url": reference_url,
         "additional_info_urls": additional_info_urls,

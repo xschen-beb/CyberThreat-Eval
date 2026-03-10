@@ -1,11 +1,11 @@
 # Stage 2: Deep Search
 
-This directory contains the code and data for Stage 2 (Deep Search) evaluation of the CyberThreat-Eval benchmark.
+This directory contains an example for Stage 2 (Deep Search) evaluation of the CyberThreat-Eval benchmark.
 
 ## Directory Structure
 
 ```
-stage2_deep_search/
+example/
 ├── README.md                        # This file
 ├── process_articles.py              # Main script: Generate related URLs
 ├── process_related_similarity.py    # Analyze related URLs

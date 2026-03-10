@@ -27,7 +27,7 @@ ioc/
 └── example/                           # Example scripts and sample data
     ├── simple_test.py                # Example test script
     └── prediction/                    # Sample prediction files
-        └── manual_ioc_predictions.json
+       
 ```
 
 ## Data Format

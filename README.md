@@ -1,9 +1,9 @@
 # CyberThreat-Eval Benchmark
 
-[![Openreview](https://img.shields.io/badge/arXiv-Openreview-b31b1b)](https://openreview.net/forum?id=tiFtZHwr7O)
+[![TMLR](https://img.shields.io/badge/arXiv-TMLR-b31b1b)](https://openreview.net/forum?id=tiFtZHwr7O)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-Inspired by the concise, task-first flow used in benchmarks like cybergym, this README gives an overview and quickstart for evaluating LLMs on cyber threat intelligence tasks. Each stage keeps its detailed docs in its own folder.
+This repo is the dataset of the TMLR paper CyberThreat-Eval: Can Large Language Models Automate Real-World Threat Research?[![TMLR](https://img.shields.io/badge/arXiv-TMLR-b31b1b)](https://openreview.net/forum?id=tiFtZHwr7O)
 
 ## What’s included
 - **Stage 1: Triage** — Priority assignment for CTI articles.
