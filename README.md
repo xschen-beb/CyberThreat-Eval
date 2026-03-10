@@ -1,6 +1,7 @@
 # CyberThreat-Eval Benchmark
 
 [![TMLR](https://img.shields.io/badge/arXiv-TMLR-b31b1b)](https://openreview.net/forum?id=tiFtZHwr7O)
+[![Huggingface](https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow)](https://huggingface.co/datasets/xse/CyberThreat-Eval)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 This repo is the dataset of the TMLR paper CyberThreat-Eval: Can Large Language Models Automate Real-World Threat Research?[![TMLR](https://img.shields.io/badge/arXiv-TMLR-b31b1b)](https://openreview.net/forum?id=tiFtZHwr7O)
