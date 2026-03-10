@@ -17,6 +17,16 @@ example/
 
 ## Usage
 
+### Configure Azure OpenAI endpoints
+
+Set the Azure endpoint URL via environment variables before running the scripts:
+
+```bash
+export AZURE_OPENAI_ENDPOINT="https://<your-endpoint>.openai.azure.com/"
+```
+
+The single endpoint is used for all models.
+
 ### Step 1: Process Articles
 
 ```bash

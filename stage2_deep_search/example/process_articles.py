@@ -16,6 +16,8 @@ from llm import (
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential
 
+AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+
 def process_article(client, article_data, model_name="o3-mini"):
     """Process a single article from the JSON data and return information about related URLs"""
     max_retries = 3
@@ -88,18 +90,14 @@ def process_json_articles(json_file="data/0510-articles.json", output_dir="proce
         
         # Initialize Azure OpenAI client
         try:
-            if model_name == 'gpt-4o':
-                client = AzureOpenAI(
-                    azure_endpoint="https://onetiai-swec.openai.azure.com/",
-                    azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
-                    api_version="2024-12-01-preview",
-                )
-            else:
-                client = AzureOpenAI(
-                    azure_endpoint="https://yingqiliu-secphi-aoai.openai.azure.com/",
-                    azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
-                    api_version="2024-12-01-preview",
-                )
+            if not AZURE_ENDPOINT:
+                raise ValueError("Azure OpenAI endpoint is not set. Please set AZURE_OPENAI_ENDPOINT.")
+
+            client = AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
+                api_version="2024-12-01-preview",
+            )
         except Exception as e:
             debug_print(f"{RED}Error initializing Azure OpenAI client: {str(e)}{RESET}")
             traceback.print_exc()

@@ -23,6 +23,7 @@ RED = "\033[31m"
 RESET = "\033[0m"
 _AUTH_SCOPE = "https://cognitiveservices.azure.com/.default"
 _CREDENTIAL = DefaultAzureCredential()
+AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 total_llm_call = 0
 total_tokens = 0
 
@@ -262,19 +263,15 @@ def check_additional_information_with_voting(reference_blog, comparison_blog, mo
     # Extract model name from folder name
     model_name = os.path.basename(model_folder)
     
-    # Create appropriate client based on model name
-    if model_name in ['gpt-4o', 'o3-mini']:
-        client = AzureOpenAI(
-            azure_endpoint="https://onetiai-swec.openai.azure.com/",
-            azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
-            api_version="2024-12-01-preview",
-        )
-    else:
-        client = AzureOpenAI(
-            azure_endpoint="https://yingqiliu-secphi-aoai.openai.azure.com/",
-            azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
-            api_version="2024-12-01-preview",
-        )
+    # Create client using single configured endpoint
+    if not AZURE_ENDPOINT:
+        raise ValueError("Azure OpenAI endpoint is not set. Please set AZURE_OPENAI_ENDPOINT.")
+
+    client = AzureOpenAI(
+        azure_endpoint=AZURE_ENDPOINT,
+        azure_ad_token_provider=get_bearer_token_provider(_CREDENTIAL, _AUTH_SCOPE),
+        api_version="2024-12-01-preview",
+    )
     
     try:
         # Call the model
